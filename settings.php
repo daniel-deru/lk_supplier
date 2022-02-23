@@ -66,6 +66,7 @@ function add_style($page){
     // wp_enqueue_style("wp_smart_feeds_style", plugins_url('public/css/admin.css', __FILE__));
 
     echo '<link rel="stylesheet" href="' . dirname(plugin_dir_url(__FILE__)) .'/lk_supplier/public/css/admin.css">';
+    echo  '<script src="' . dirname(plugin_dir_url(__FILE__)) . '/lk_supplier/public/js/wp_smart_feeds_help.js" defer></script>';
 }
 
 

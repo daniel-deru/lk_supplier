@@ -92,11 +92,12 @@ if(isset($_POST['create-product'])){
 <main id="wp_smart_feed_admin">
     <h1>WP Smart Feeds</h1>
     <form action="" method="post" >
-        <div>
-            <label for="consumer_key">
-                WooCommerce API Credentials 
-                <button class="help" id="woocommerce-api">Help</button>
-                <div id="woocommerce-help">
+
+        <div class="form-field">
+            <div class="label-container">
+                <label for="consumer_key">WooCommerce API Credentials</label>
+                <button class="help" id="woocommerce-api" type="button">Help</button>
+                <div id="woocommerce-help" class="hide">
                     <h3>Don't know where to find your WooCommerce Keys?</h3>
                     <ol>
                         <li>Go to WooCommerce > settings > advanced. </li>
@@ -107,23 +108,33 @@ if(isset($_POST['create-product'])){
                         <li>Copy the consumer key and secret to put into the required fields.</li>
                     </ol>
                 </div>
-            </label>
-            <input type="text" name="consumer_key" value="<?php echo get_option("wp_smart_feeds_consumer_key");?>">
-            <input type="text" name="consumer_secret" value="<?php echo get_option("wp_smart_feeds_consumer_secret");?>">
+            </div>
+            <input type="text" name="consumer_key" value="<?php echo get_option("wp_smart_feeds_consumer_key");?>" placeholder="Consumer Key">
+            <input type="text" name="consumer_secret" value="<?php echo get_option("wp_smart_feeds_consumer_secret");?>" placeholder="Consumer Secret">
         </div>
-        <div>
-            <label for="base_margin">Base Margin</label>
+
+        <div class="form-field">
+            <div class="label-container">
+                <label for="base_margin">Base Margin</label>
+            </div>
             <input type="text" name="base_margin" value="<?php echo get_option("wp_smart_feeds_base_margin");?>">
         </div>
-        <div>
-            <label for="syntech_feed">Syntech Feed</label>
+
+        <div class="form-field">
+            <div class="label-container">
+                <label for="syntech_feed">Syntech Feed</label>
+            </div>
             <input type="text" name="syntech_feed" value="<?php echo get_option("wp_smart_feeds_syntech_feed");?>">
         </div>
-        <div id="rectron">
-            <label for="rectron">Rectron Feeds</label>
+
+        <div id="rectron" class="form-field">
+            <div class="label-container">
+                <label for="rectron">Rectron Feeds</label>
+            </div>
             <input type="text" name="rectron_onhand" placeholder="Onhand Feed" value="<?php echo get_option("wp_smart_feeds_rectron_feed_onhand");?>">
             <input type="text" name="rectron_categories" placeholder="Category Feed" value="<?php echo get_option("wp_smart_feeds_rectron_feed_onhand");?>">
         </div>
+
         <button type="submit" name="create-product">Save Settings</button>
     </form>
 

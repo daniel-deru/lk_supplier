@@ -6,9 +6,19 @@
     display: block;
 }
 
+#wp_smart_feed_admin .form-field {
+    display: flex;
+    flex-direction: column;
+}
+
+#wp_smart_feed_admin .label-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
 #wp_smart_feed_admin label {
     margin-bottom: 10px;
-    position: relative;
 }
 
 #wp_smart_feed_admin input {
@@ -22,7 +32,7 @@
     border: none;
     padding: 5px 20px ;
     border-radius: 5px;
-    margin: 10px 0px;
+    margin: 10px;
     cursor: pointer;
 }
 
@@ -31,12 +41,18 @@
 }
 
 #wp_smart_feed_admin ol {
-    font-size: 0.5em;
+    font-size: 0.75em;
 }
 
-#wp_smart_feed_admin #woocommerce-help {
+#wp_smart_feed_admin .hide {
     display: none;
+}
+
+#wp_smart_feed_admin .show {
+    display: block;
     position: absolute;
+    left: 500px;
+    z-index: -2;
 }
 
 
