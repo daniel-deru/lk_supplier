@@ -44,17 +44,6 @@
     font-size: 0.75em;
 }
 
-#wp_smart_feed_admin .hide {
-    display: none;
-}
-
-#wp_smart_feed_admin .show {
-    display: block;
-    position: absolute;
-    left: 500px;
-    z-index: -2;
-}
-
 
 
 

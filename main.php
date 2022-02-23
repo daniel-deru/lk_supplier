@@ -96,9 +96,8 @@ if(isset($_POST['create-product'])){
         <div class="form-field">
             <div class="label-container">
                 <label for="consumer_key">WooCommerce API Credentials</label>
-                <button class="help" id="woocommerce-api" type="button">Help</button>
-                <div id="woocommerce-help" class="hide">
-                    <h3>Don't know where to find your WooCommerce Keys?</h3>
+                <div id="woocommerce-help" class="help">
+                    <img src="./public/images/help.png" alt="">
                     <ol>
                         <li>Go to WooCommerce > settings > advanced. </li>
                         <li>find the link that says "REST API" and click it.</li>
