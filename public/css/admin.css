@@ -12,14 +12,16 @@
 }
 
 #wp_smart_feed_admin .label-container {
+    box-sizing: border-box;
     position: relative;
     display: flex;
     align-items: center;
 }
 
-#wp_smart_feed_admin label {
-    margin-bottom: 10px;
+#wp_smart_feed_admin label:not(.radio-input label){
+    margin-top: 20px;
 }
+
 
 #wp_smart_feed_admin input {
     width: 40%;
@@ -35,14 +37,58 @@
     margin: 10px;
     cursor: pointer;
 }
-
+/* 
 #wp_smart_feed_admin #rectron input {
     margin: 20px 0px;
+} */
+
+#wp_smart_feed_admin .help {
+    cursor: pointer;
 }
 
-#wp_smart_feed_admin ol {
-    font-size: 0.75em;
+
+#wp_smart_feed_admin .help img {
+    width: 20px;
+    aspect-ratio: 1/1;
+    margin: 0px 10px;
 }
+
+#wp_smart_feed_admin .help .info  {
+    font-size: 0.75em;
+    position: absolute;
+    display: none;
+    background-color: black;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    top: 0px;
+}
+
+#wp_smart_feed_admin .help:hover .info {
+    display: block;
+}
+
+#wp_smart_feed_admin input[type="radio"] {
+    width: fit-content;
+}
+#wp_smart_feed_admin .radio-input {
+    display: flex;
+    justify-content: space-between;
+    width: 40%;
+}
+
+#wp_smart_feed_admin .radio-input div {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+#wp_smart_feed_admin .radio-input label {
+    display: inline;
+    margin: 0px 10px;
+}
+
+
 
 
 

@@ -97,14 +97,14 @@ if(isset($_POST['create-product'])){
             <div class="label-container">
                 <label for="consumer_key">WooCommerce API Credentials</label>
                 <div id="woocommerce-help" class="help">
-                    <img src="./public/images/help.png" alt="">
-                    <ol>
-                        <li>Go to WooCommerce > settings > advanced. </li>
-                        <li>find the link that says "REST API" and click it.</li>
-                        <li>Click on add key and fill in the required details.</li>
-                        <li>Important* Permisions must be set to Read and Write.</li>
-                        <li>Click on generate API key.</li>
-                        <li>Copy the consumer key and secret to put into the required fields.</li>
+                    <img src="<?php echo dirname(plugin_dir_url(__FILE__))?>/lk_supplier/public/images/help.png" alt="">
+                    <ol class="info">
+                        <li>1. Go to WooCommerce > settings > advanced. </li>
+                        <li>2. find the link that says "REST API" and click it.</li>
+                        <li>3. Click on add key and fill in the required details.</li>
+                        <li>4. Important* Permisions must be set to Read and Write.</li>
+                        <li>5. Click on generate API key.</li>
+                        <li>6. Copy the consumer key and secret to put into the required fields.</li>
                     </ol>
                 </div>
             </div>
@@ -133,8 +133,39 @@ if(isset($_POST['create-product'])){
             <input type="text" name="rectron_onhand" placeholder="Onhand Feed" value="<?php echo get_option("wp_smart_feeds_rectron_feed_onhand");?>">
             <input type="text" name="rectron_categories" placeholder="Category Feed" value="<?php echo get_option("wp_smart_feeds_rectron_feed_onhand");?>">
         </div>
+        <div  class="form-field">
 
-        <button type="submit" name="create-product">Save Settings</button>
+            <div class="label-container">
+                <label>Request Interval</label>
+            </div>
+
+            <div>
+
+                <div class="radio-input">
+                    <div>
+                        <input type="radio" name="interval" value="weekly">
+                        <label for="">Weekly</label>
+                    </div>
+
+                    <div>
+                        <input type="radio" name="interval" value="daily">
+                        <label for="">Daily</label>
+                    </div>
+
+                    <div>
+                        <input type="radio" name="interval" value="monthly">
+                        <label for="">Monthly</label>
+                    </div>                  
+                </div>
+
+            </div>
+
+        </div>
+
+        <div>
+            <button type="submit" name="create-product">Save Settings</button>
+        </div>
+        
     </form>
 
 
