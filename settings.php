@@ -54,6 +54,7 @@ function WP_Smart_Feeds_Options(){
     add_option("wp_smart_feeds_rectron_feed_categories", "", "", "yes");
 
     add_option("wp_smart_feeds_base_margin", "", "", "yes");
+    add_option("wp_smart_feeds_interval", "", "", "yes");
 
 
 

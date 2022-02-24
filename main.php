@@ -85,6 +85,8 @@ if(isset($_POST['create-product'])){
     update_option("wp_smart_feeds_rectron_feed_categories", $_POST['rectron_categories']);
 
     update_option("wp_smart_feeds_base_margin", $_POST['base_margin']);
+    update_option("wp_smart_feeds_interval", $_POST['interval']);
+
 }
 
 ?>
@@ -114,9 +116,9 @@ if(isset($_POST['create-product'])){
 
         <div class="form-field">
             <div class="label-container">
-                <label for="base_margin">Base Margin</label>
+                <label for="base_margin">Base Margin (%)</label>
             </div>
-            <input type="text" name="base_margin" value="<?php echo get_option("wp_smart_feeds_base_margin");?>">
+            <input type="text" name="base_margin" value="<?php echo get_option("wp_smart_feeds_base_margin");?>" placeholder="Example: 76">
         </div>
 
         <div class="form-field">
@@ -137,23 +139,24 @@ if(isset($_POST['create-product'])){
 
             <div class="label-container">
                 <label>Request Interval</label>
+                <input id="interval" type="hidden" value="<?php echo get_option("wp_smart_feeds_interval");?>">
             </div>
 
             <div>
 
                 <div class="radio-input">
                     <div>
-                        <input type="radio" name="interval" value="weekly">
+                        <input id="weekly" type="radio" name="interval" value="weekly">
                         <label for="">Weekly</label>
                     </div>
 
                     <div>
-                        <input type="radio" name="interval" value="daily">
+                        <input id="daily" type="radio" name="interval" value="daily">
                         <label for="">Daily</label>
                     </div>
 
                     <div>
-                        <input type="radio" name="interval" value="monthly">
+                        <input id="monthly" type="radio" name="interval" value="monthly">
                         <label for="">Monthly</label>
                     </div>                  
                 </div>

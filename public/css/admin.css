@@ -50,7 +50,7 @@
 #wp_smart_feed_admin .help img {
     width: 20px;
     aspect-ratio: 1/1;
-    margin: 0px 10px;
+    /* margin: 0px 10px; */
 }
 
 #wp_smart_feed_admin .help .info  {

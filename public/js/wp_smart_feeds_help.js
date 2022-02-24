@@ -1,8 +1,12 @@
-const wooCommerceHelpBtn = document.getElementById("woocommerce-api")
+console.log("hello world")
 
 
-wooCommerceHelpBtn.addEventListener("click", () => {
-    console.log("Hello")
-    const wooCommerceInstructions = document.getElementById("woocommerce-help")
-    wooCommerceInstructions.classList.toggle("show")
-})
+const interval = document.getElementById("interval")
+
+console.log("This is the data from the hidden input", interval)
+console.log(interval.value)
+
+const radio = document.getElementById(interval.value)
+console.log(radio)
+
+radio.checked = true
