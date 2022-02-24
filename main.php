@@ -1,6 +1,7 @@
 <?php
     require __DIR__ . "/woocommerce-api.php";
-    require __DIR__ . "/syntech.php"
+    require __DIR__ . "/syntech.php";
+    include_once plugin_dir_url("woocommerce") .'/woocommerce.php';
 ?>
     <link rel="stylesheet" href="<?php echo dirname(plugin_dir_url(__FILE__), 1) . "/public/css/admin.css"?>">
 <?php
@@ -47,13 +48,29 @@ if(isset($_POST['create-product'])){
     update_option("wp_smart_feeds_base_margin", $_POST['base_margin']);
     update_option("wp_smart_feeds_interval", $_POST['interval']);
 
-    $syntechFeed = new Syntech();
-    $syntechFeed->registerFeed(get_option("wp_smart_feeds_syntech_feed"));
 
-    $syntechFeed->displayData();
 
 }
 
+?>
+
+<?php
+
+if(isset($_POST['refresh'])){
+    $syntechURL = get_option("wp_smart_feeds_syntech_feed");
+    // $syntechFeed = new Syntech();
+    // $syntechFeed->registerFeed($syntechURL);
+
+    // $syntechFeed->displayData();
+    $woo = new WC_Product();
+    $woo->set_name("Test Product");
+    $woo->save();
+
+    $products = new WC_Product_Query();
+    echo "<pre>";
+    print_r($products->get_products());
+    echo "</pre>";
+}
 ?>
 
 <main id="wp_smart_feed_admin">
@@ -132,6 +149,7 @@ if(isset($_POST['create-product'])){
 
         <div>
             <button type="submit" name="create-product">Save Settings</button>
+            <button type="submit" name="refresh">Sync Now</button>
         </div>
         
     </form>
