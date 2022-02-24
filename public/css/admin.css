@@ -16,9 +16,6 @@
     position: relative;
     display: flex;
     align-items: center;
-}
-
-#wp_smart_feed_admin label:not(.radio-input label){
     margin-top: 20px;
 }
 
@@ -37,10 +34,7 @@
     margin: 10px;
     cursor: pointer;
 }
-/* 
-#wp_smart_feed_admin #rectron input {
-    margin: 20px 0px;
-} */
+
 
 #wp_smart_feed_admin .help {
     cursor: pointer;
@@ -50,7 +44,6 @@
 #wp_smart_feed_admin .help img {
     width: 20px;
     aspect-ratio: 1/1;
-    /* margin: 0px 10px; */
 }
 
 #wp_smart_feed_admin .help .info  {

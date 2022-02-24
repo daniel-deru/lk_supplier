@@ -1,12 +1,5 @@
-console.log("hello world")
-
-
+// Get the interval from the hidden input and set the correct radio but to checked
 const interval = document.getElementById("interval")
+document.getElementById(interval.value).checked = true
 
-console.log("This is the data from the hidden input", interval)
-console.log(interval.value)
 
-const radio = document.getElementById(interval.value)
-console.log(radio)
-
-radio.checked = true

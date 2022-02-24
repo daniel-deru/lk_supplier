@@ -1,51 +1,11 @@
 <?php
     require __DIR__ . "/woocommerce-api.php";
+    require __DIR__ . "/syntech.php"
 ?>
     <link rel="stylesheet" href="<?php echo dirname(plugin_dir_url(__FILE__), 1) . "/public/css/admin.css"?>">
 <?php
 
 
-
-// if(isset($_POST['create-product'])){
-//     $product = [
-//         "name" => 'test',
-//         'regular_price' => "5"
-
-//     ];
-
-//     $saveProduct = json_decode($addProduct($product), true);
-// }
-
-$fd = "https://rctdatafeed.azurewebsites.net/xml/a325ca80-0eb1-41a9-8c09-afa42d866618/v1/Products/onhand";
-$fd2 = "https://content.storefront7.co.za/stores/za.co.storefront7.rectron/xmlfeed/rectronfeed-637806849145434755.xml";
-$fd4 = "https://www.syntech.co.za/feeds/feedhandler.php?key=05813947-DD1B-461A-A88E-02DBC278DE74&feed=syntech-xml-full";
-// $options = array(
-//     'http' => array(
-//         'timeout' => 20
-//     )
-//     );
-
-// $context = stream_context_create($options);
-
-// $data = file_get_contents($fd, false, $context);
-
-// echo "<pre>";
-// print_r(simplexml_load_string($data));
-// echo "</pre>";
-
-// $curl = curl_init($fd5);
-// $headers = array(
-//     "Accept: application/xml"
-// );
-
-// curl_setopt($curl, CURLOPT_HEADER, $headers);
-
-// $res = curl_exec($curl);
-// curl_close($curl);
-
-// echo "<pre>";
-// echo $res;
-// echo "</pre>";
 
 // function wooCommerceAuth(){
 
@@ -86,6 +46,11 @@ if(isset($_POST['create-product'])){
 
     update_option("wp_smart_feeds_base_margin", $_POST['base_margin']);
     update_option("wp_smart_feeds_interval", $_POST['interval']);
+
+    $syntechFeed = new Syntech();
+    $syntechFeed->registerFeed(get_option("wp_smart_feeds_syntech_feed"));
+
+    $syntechFeed->displayData();
 
 }
 
