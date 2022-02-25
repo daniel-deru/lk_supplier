@@ -87,11 +87,11 @@ if(isset($_POST['refresh'])){
     $rectronURL = get_option("wp_smart_feeds_rectron_feed_onhand");
     $rectronFeed = new Rectron();
     $rectronFeed->register_feed($rectronURL);
+    $rectronFeed->get_data();
 
-    echo "<pre>";
-    print_r($rectronFeed->get_data());
-    // print_r($rectronFeed->verify($rectronURL));
-    echo "</pre>";
+    // echo "<pre>";
+    // print_r($rectronFeed->get_data());
+    // echo "</pre>";
 
     // $woo = new WC_Product();
     // $woo->set_name("Test Product");

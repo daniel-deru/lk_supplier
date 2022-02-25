@@ -25,7 +25,6 @@ class Rectron {
     }
 
     function get_data(){
-        print_r($this->onhand_feed);
         if($this->onhand_feed){
             $options = array(
                 'http' => array(
@@ -56,12 +55,15 @@ class Rectron {
         }
     }
 
-    function get_formated_data(){
+    function get_formated_data($dirty_data){
         $formated_array = array();
 
-        foreach($this->xml_onhand->ProductDto as $product){
-            $formated_array[$product->Code] = $product;
+        foreach($dirty_data->ProductDto as $product){
+            $json_product = json_encode($product);
+            $array_product = json_decode($json_product, true);
+            $formated_array[(string)$product->Code] = $array_product;
         }
+
         return $formated_array;
     }
 }
