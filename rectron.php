@@ -50,20 +50,33 @@ class Rectron {
             $context = stream_context_create($options);
             $data = file_get_contents($this->categories, false, $context);
 
-            $this->xml_categories = simplexml_load_string($data);
+            $dirty_data = simplexml_load_string($data)->products;
+            $this->xml_categories = $this->get_formated_categories($dirty_data);
             return $this->xml_categories;
         }
     }
 
     function get_formated_data($dirty_data){
         $formated_array = array();
-
+        $i = 0;
         foreach($dirty_data->ProductDto as $product){
             $json_product = json_encode($product);
             $array_product = json_decode($json_product, true);
-            $formated_array[(string)$product->Code] = $array_product;
+            $formated_array[$i] = $array_product;
+            $i++;
         }
 
         return $formated_array;
+    }
+
+    function get_formated_categories($dirty_data){
+        $formated_categories = array();
+
+        foreach($dirty_data->product as $product){
+            $json_product = json_encode($product);
+            $array_product = json_decode($json_product, true);
+            $formated_categories[(string)$product['sku']] = $array_product;
+        }
+        return $formated_categories;
     }
 }

@@ -87,8 +87,13 @@ if(isset($_POST['refresh'])){
     $rectronURL = get_option("wp_smart_feeds_rectron_feed_onhand");
     $rectronFeed = new Rectron();
     $rectronFeed->register_feed($rectronURL);
-    $rectronFeed->get_data();
+    // $rectronFeed->get_data();
 
+    $rectronFeed->get_categories();
+
+    // echo "<pre>";
+    // print_r($rectronFeed->get_categories());
+    // echo "</pre>";
     // echo "<pre>";
     // print_r($rectronFeed->get_data());
     // echo "</pre>";
@@ -146,7 +151,7 @@ if(isset($_POST['refresh'])){
                 <label for="rectron">Rectron Feeds</label>
             </div>
             <input type="text" name="rectron_onhand" placeholder="Onhand Feed" value="<?php echo get_option("wp_smart_feeds_rectron_feed_onhand");?>">
-            <input type="text" name="rectron_categories" placeholder="Category Feed" value="<?php echo get_option("wp_smart_feeds_rectron_feed_onhand");?>">
+            <input type="text" name="rectron_categories" placeholder="Category Feed" value="<?php echo get_option("wp_smart_feeds_rectron_feed_categories");?>">
         </div>
         <div  class="form-field">
 
