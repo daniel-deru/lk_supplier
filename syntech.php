@@ -38,6 +38,7 @@ class Syntech {
             $data = file_get_contents($this->feed, false, $context);
 
             $this->xml = simplexml_load_string($data);
+            return $this->xml;
         }
         
     }

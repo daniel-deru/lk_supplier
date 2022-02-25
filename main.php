@@ -1,6 +1,7 @@
 <?php
     require __DIR__ . "/woocommerce-api.php";
     require __DIR__ . "/syntech.php";
+    include_once __DIR__ . "/rectron.php";
     include_once plugin_dir_url("woocommerce") .'/woocommerce.php';
 ?>
     <link rel="stylesheet" href="<?php echo dirname(plugin_dir_url(__FILE__), 1) . "/public/css/admin.css"?>">
@@ -55,21 +56,51 @@ if(isset($_POST['create-product'])){
 ?>
 
 <?php
+// Important classes WC_Product, WC_Product_Query
+
+// function upload_image($url, $post_id) {
+//     $image = "";
+//     if($url != "") {
+     
+//         $file = array();
+//         $file['name'] = $url;
+//         $file['tmp_name'] = download_url($url);
+ 
+//         if (is_wp_error($file['tmp_name'])) {
+//             @unlink($file['tmp_name']);
+//             var_dump( $file['tmp_name']->get_error_messages( ) );
+//         } else {
+//             $attachmentId = media_handle_sideload($file, $post_id);
+             
+//             if ( is_wp_error($attachmentId) ) {
+//                 @unlink($file['tmp_name']);
+//                 var_dump( $attachmentId->get_error_messages( ) );
+//             } else {                
+//                 $image = wp_get_attachment_url( $attachmentId );
+//             }
+//         }
+//     }
+//     return $image;
+// }
 
 if(isset($_POST['refresh'])){
-    $syntechURL = get_option("wp_smart_feeds_syntech_feed");
-    // $syntechFeed = new Syntech();
-    // $syntechFeed->registerFeed($syntechURL);
+    $rectronURL = get_option("wp_smart_feeds_rectron_feed_onhand");
+    $rectronFeed = new Rectron();
+    $rectronFeed->register_feed($rectronURL);
 
-    // $syntechFeed->displayData();
-    $woo = new WC_Product();
-    $woo->set_name("Test Product");
-    $woo->save();
-
-    $products = new WC_Product_Query();
     echo "<pre>";
-    print_r($products->get_products());
+    print_r($rectronFeed->get_data());
+    // print_r($rectronFeed->verify($rectronURL));
     echo "</pre>";
+
+    // $woo = new WC_Product();
+    // $woo->set_name("Test Product");
+    // $woo->save();
+
+    // $products = new WC_Product_Query();
+    // echo "<pre>";
+    // print_r($products->get_products()[0]->get_data());
+    // echo "</pre>";
 }
 ?>
 
