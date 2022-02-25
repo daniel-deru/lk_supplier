@@ -1,8 +1,8 @@
 <?php
-    require __DIR__ . "/woocommerce-api.php";
-    require __DIR__ . "/syntech.php";
+    include_once __DIR__ . "/syntech.php";
     include_once __DIR__ . "/rectron.php";
     include_once plugin_dir_url("woocommerce") .'/woocommerce.php';
+    include_once __DIR__ . "/products.php"
 ?>
     <link rel="stylesheet" href="<?php echo dirname(plugin_dir_url(__FILE__), 1) . "/public/css/admin.css"?>">
 <?php
@@ -58,54 +58,22 @@ if(isset($_POST['create-product'])){
 <?php
 // Important classes WC_Product, WC_Product_Query
 
-// function upload_image($url, $post_id) {
-//     $image = "";
-//     if($url != "") {
-     
-//         $file = array();
-//         $file['name'] = $url;
-//         $file['tmp_name'] = download_url($url);
- 
-//         if (is_wp_error($file['tmp_name'])) {
-//             @unlink($file['tmp_name']);
-//             var_dump( $file['tmp_name']->get_error_messages( ) );
-//         } else {
-//             $attachmentId = media_handle_sideload($file, $post_id);
-             
-//             if ( is_wp_error($attachmentId) ) {
-//                 @unlink($file['tmp_name']);
-//                 var_dump( $attachmentId->get_error_messages( ) );
-//             } else {                
-//                 $image = wp_get_attachment_url( $attachmentId );
-//             }
-//         }
-//     }
-//     return $image;
-// }
 
 if(isset($_POST['refresh'])){
     $rectronURL = get_option("wp_smart_feeds_rectron_feed_onhand");
-    $rectronFeed = new Rectron();
-    $rectronFeed->register_feed($rectronURL);
-    // $rectronFeed->get_data();
+    // $rectronFeed = new Rectron();
+    // $rectronFeed->register_feed($rectronURL);
+    // $rectronFeed->sync();
+    $product_image = new Store_Product();
+    $image_id = $product_image->upload_image("https://www.lutiekhosting.com/storage/2021/12/Lutiek-Hosting-Our-Hosting-Will-Reshape-Your-Business-For-The-Future.png");
+    $product = new WC_Product();
+    $product->set_name("Test");
+    $product->set_description('This is the product description');
+    $product->set_image_id($image_id);
+    $product->save();
 
-    $rectronFeed->get_categories();
+     // https://www.lutiekhosting.com/storage/2021/12/Lutiek-Hosting-Our-Hosting-Will-Reshape-Your-Business-For-The-Future.png
 
-    // echo "<pre>";
-    // print_r($rectronFeed->get_categories());
-    // echo "</pre>";
-    // echo "<pre>";
-    // print_r($rectronFeed->get_data());
-    // echo "</pre>";
-
-    // $woo = new WC_Product();
-    // $woo->set_name("Test Product");
-    // $woo->save();
-
-    // $products = new WC_Product_Query();
-    // echo "<pre>";
-    // print_r($products->get_products()[0]->get_data());
-    // echo "</pre>";
 }
 ?>
 
