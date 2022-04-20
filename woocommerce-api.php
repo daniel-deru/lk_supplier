@@ -1,17 +1,14 @@
 <?php
-require __DIR__ . '/vendor/autoload.php';
-
-if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on')
-$host = "https";
-else $host = "http";
-
-$host .= "://" . $_SERVER['HTTP_HOST'];
+require 'vendor/autoload.php';
+require "includes/link.php";
 
 use Automattic\WooCommerce\Client;
+
 $key = get_option('WP_Smart_Feeds_consumer_key');
 $secret = get_option('WP_Smart_Feeds_consumer_secret');
+
 $woocommerce = new Client(
-    $host, 
+    getHost(), 
     $key, 
     $secret,
     [
@@ -19,39 +16,37 @@ $woocommerce = new Client(
     ]
 );
 
-?>
 
-<?php
  
- $getHeaders = function() use ($woocommerce){
+ $smt_smart_feeds_getHeaders = function() use ($woocommerce){
     $lastResponse = $woocommerce->http->getResponse();
     return $lastResponse->getHeaders();
  };
 
- $listCategories = function ($page=1) use ($woocommerce, $getHeaders){
+ $smt_smart_feeds_listCategories = function ($page=1) use ($woocommerce, $smt_smart_feeds_getHeaders){
     $data = array(
         'data' => $woocommerce->get("products/categories", array(
             'per_page' => 100,
             'page' => $page)),
-        'headers' => $getHeaders());
+        'headers' => $smt_smart_feeds_getHeaders());
 
-    $data['headers'] = $getHeaders();
+    $data['headers'] = $smt_smart_feeds_getHeaders();
 
     return json_encode($data);
  };
 
- $listProducts = function ($page=1) use ($woocommerce, $getHeaders){
+ $smt_smart_feeds_listProducts = function ($page=1) use ($woocommerce, $smt_smart_feeds_getHeaders){
     $data = array(
         'data'=>$woocommerce->get("products", array(
             "per_page" => 90,
             "page" => $page)),
-        'headers' => $getHeaders());
+        'headers' => $smt_smart_feeds_getHeaders());
 
     
     return json_encode($data);
  };
 
-$addProduct = function($data) use ($woocommerce){
+$smt_smart_feeds_addProduct = function($data) use ($woocommerce){
 
     if($data['name']){
         $request = $woocommerce->post('products', $data);
@@ -61,31 +56,31 @@ $addProduct = function($data) use ($woocommerce){
 
 };
 
-$getProduct = function($id) use ($woocommerce){
+$smt_smart_feeds_getProduct = function($id) use ($woocommerce){
     if($id){
         $data = $woocommerce->get('products/' . $id);
         return json_encode($data);
     }
 };
 
-$updateProduct = function($id, $data) use ($woocommerce){
+$smt_smart_feeds_updateProduct = function($id, $data) use ($woocommerce){
     if($id && $data){
         $data = $woocommerce->put('products/' . $id, $data);
         return json_encode($data);
     }
 };
 
-$units = function() use ($woocommerce){
+$smt_smart_feeds_units = function() use ($woocommerce){
     $data = $woocommerce->get("settings/products");
     return json_encode($data);
 };
 
-$createCategory = function($data) use ($woocommerce) {
+$smt_smart_feeds_createCategory = function($data) use ($woocommerce) {
     $data = $woocommerce->post('products/categories', $data);
     return json_encode($data);
 };
 
-$getTaxClasses = function() use ($woocommerce) {
+$smt_smart_feeds_getTaxClasses = function() use ($woocommerce) {
     try {
         $data = $woocommerce->get("taxes/classes");
         return json_encode($data);
@@ -94,7 +89,7 @@ $getTaxClasses = function() use ($woocommerce) {
     }
 };
 
-$getShippingClasses = function() use ($woocommerce){
+$smt_smart_feeds_getShippingClasses = function() use ($woocommerce){
     try {
         $data = $woocommerce->get("products/shipping_classes");
         return json_encode($data);

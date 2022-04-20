@@ -28,7 +28,7 @@ if(isset($_POST['create-product'])){
 // }
 ?>
 <main id="wp_smart_feed_admin">
-    <h1>WP Smart Feeds</h1>
+    <h1>WP Smart Feeds Settings</h1>
     <form action="" method="post" >
 
         <div class="form-field">
@@ -52,7 +52,7 @@ if(isset($_POST['create-product'])){
 
         <div class="form-field">
             <div class="label-container">
-                <label for="base_margin">Base Margin (%)</label>
+                <label for="base_margin">Global Base Margin (%)</label>
             </div>
             <input type="text" name="base_margin" value="<?php echo get_option("wp_smart_feeds_base_margin");?>" placeholder="Example: 76">
         </div>

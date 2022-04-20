@@ -13,15 +13,19 @@ Author URI: https://smartmetatec.com
 register_activation_hook(__FILE__, 'check_plugin_activation');
 
 function check_plugin_activation(){
-    if(!get_option("WP_Smart_Feeds_activated")) add_option("WP_Smart_Feeds_activated", "");
-    if(!get_option("WP_Smart_Feeds_consumer_key")) add_option("wp_smart_feeds_consumer_key", "". "", "yes");
-    if(!get_option("WP_Smart_Feeds_consumer_secret")) add_option("wp_smart_feeds_consumer_secret", "". "", "yes");
+    // Required to interact with woocommerce
+    if(!get_option("smt_smart_feeds_consumer_key")) add_option("smt_smart_feeds_consumer_key", "". "", "yes");
+    if(!get_option("smt_smart_feeds_consumer_secret")) add_option("smt_smart_feeds_consumer_secret", "". "", "yes");
+
+    // Settings for the plugin
+    if(!get_option("smt_smart_feeds_rectron_feed_onhand")) add_option("smt_smart_feeds_rectron_feed_onhand", "", "", "yes");
+    if(!get_option("smt_smart_feeds_base_margin")) add_option("smt_smart_feeds_base_margin", "", "", "yes");
+    if(!get_option("smt_smart_feeds_interval")) add_option("smt_smart_feeds_interval", "", "", "yes");
 }
 
+
+
 add_action("admin_menu", "MenuSetup");
-add_action("admin_init", "WP_Smart_Feeds_Options");
-
-
 
 // Create Menu Page
 function MenuSetup(){
@@ -55,18 +59,6 @@ function smt_smart_feed_admin_product_settings(){
     require_once("menus/products.php");
 }
 
-
-function WP_Smart_Feeds_Options(){
-    add_option("wp_smart_feeds_syntech_feed", "", "", "yes");
-    add_option("wp_smart_feeds_rectron_feed_onhand", "", "", "yes");
-    add_option("wp_smart_feeds_rectron_feed_categories", "", "", "yes");
-
-    add_option("wp_smart_feeds_base_margin", "", "", "yes");
-    add_option("wp_smart_feeds_interval", "", "", "yes");
-
-}
-
-
 //  Add admin styles and scripts
 add_action("admin_enqueue_scripts", "smt_lk_supplier_scripts");
 
@@ -74,10 +66,12 @@ function smt_lk_supplier_scripts(){
     global $pagenow;
     if(isset($_GET['page'])) $page = sanitize_text_field($_GET['page']);
 
-    if($pagenow === 'admin.php') {
+    wp_enqueue_style("smt_smart_commerce_fontawesome_css", "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css");
+    wp_enqueue_script("smt_smart_commerce_fontawesome_js", "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js", [], false, true);
+
+    if($pagenow === 'admin.php' && $page === "smt_smart_feeds_main_settings") {
         // enqueue css
-        wp_register_style("smt_lk_supplier_admin_style", plugins_url("/public/css/admin.css", __FILE__));
-        wp_enqueue_style("smt_lk_supplier_admin_style");
+        wp_enqueue_style("smt_lk_supplier_admin_style", plugins_url("/public/css/admin.css", __FILE__));
 
         // enqueue js
         wp_enqueue_script("smt_lk_supplier_admin_script", plugins_url("/public/js/smt_smart_feeds_help.js", __FILE__), array('jquery'), false, true);
