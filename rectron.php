@@ -1,7 +1,5 @@
 <?php
 
-include_once __DIR__ . "/products.php";
-
 
 class Rectron  {
     private $onhand_feed;

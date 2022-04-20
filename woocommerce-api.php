@@ -4,11 +4,13 @@ require "includes/link.php";
 
 use Automattic\WooCommerce\Client;
 
-$key = get_option('WP_Smart_Feeds_consumer_key');
-$secret = get_option('WP_Smart_Feeds_consumer_secret');
+$key = get_option('smt_smart_feeds_consumer_key');
+$secret = get_option('smt_smart_feeds_consumer_secret');
+
+
 
 $woocommerce = new Client(
-    getHost(), 
+    $getHost(), 
     $key, 
     $secret,
     [
@@ -65,8 +67,13 @@ $smt_smart_feeds_getProduct = function($id) use ($woocommerce){
 
 $smt_smart_feeds_updateProduct = function($id, $data) use ($woocommerce){
     if($id && $data){
-        $data = $woocommerce->put('products/' . $id, $data);
-        return json_encode($data);
+        try {
+            $response = $woocommerce->put('products/' . $id, $data);
+            return json_encode($response);
+        } catch( Exception $e){
+            return json_encode(array('error' => true, 'message' => $e->getMessage()));
+        }
+        
     }
 };
 
@@ -94,6 +101,27 @@ $smt_smart_feeds_getShippingClasses = function() use ($woocommerce){
         $data = $woocommerce->get("products/shipping_classes");
         return json_encode($data);
     } catch (Exception $e) {
+        return json_encode(array('error' => true, 'message' => $e->getMessage()));
+    }
+};
+
+$smt_smart_feeds_createProductAttribute = function($attribute) use ($woocommerce) {
+    try {
+        $response = $woocommerce->post("products/attributes", $attribute);
+        return json_encode($response);
+    } catch (Exception $e){
+        return json_encode(array('error' => true, 'message' => $e->getMessage()));
+    }
+};
+
+$smt_smart_feeds_getProductAttribute = function($name) use ($woocommerce) {
+    try {
+        $productAttributes = $woocommerce->get("products/attributes");
+        foreach($productAttributes as $attribute){
+            if($attribute['name'] === $name) return json_encode($attribute);
+        }
+        return json_encode(array('message' => 'no attribute by that name'));
+    } catch (Exception $e){
         return json_encode(array('error' => true, 'message' => $e->getMessage()));
     }
 };

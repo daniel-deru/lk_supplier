@@ -21,6 +21,9 @@ function check_plugin_activation(){
     if(!get_option("smt_smart_feeds_rectron_feed_onhand")) add_option("smt_smart_feeds_rectron_feed_onhand", "", "", "yes");
     if(!get_option("smt_smart_feeds_base_margin")) add_option("smt_smart_feeds_base_margin", "", "", "yes");
     if(!get_option("smt_smart_feeds_interval")) add_option("smt_smart_feeds_interval", "", "", "yes");
+
+    // This is for control purposes
+    if(!get_option("smt_smart_feeds_rectron_attr")) add_option("smt_smart_feeds_rectron_attr", false, "", "yes");
 }
 
 

@@ -1,6 +1,6 @@
 <?php
 require __DIR__ . "/woocommerce-api.php";
-include_once plugin_dir_url("woocommerce") .'/woocommerce.php';
+// require plugin_dir_url("woocommerce") .'/woocommerce.php';
 
 // https://www.syntech.co.za/feeds/feedhandler.php?key=
 class Syntech {

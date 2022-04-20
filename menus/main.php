@@ -1,31 +1,63 @@
 <?php
     include_once  dirname(plugin_dir_path(__FILE__)) . "/woocommerce-api.php";
-    include_once  dirname(plugin_dir_path(__FILE__)) . "/syntech.php";
-    include_once  dirname(plugin_dir_path(__FILE__)) . "/rectron.php";
+    require dirname(plugin_dir_path(__FILE__)) . "/includes/print.php";
+    include dirname(plugin_dir_path(__FILE__)) . "/includes/link.php";
 
-// "admin.php?page=lk_supplier%2Fsettings.php"
+    format($getHost());
 
 if(isset($_POST['create-product'])){
-    update_option("wp_smart_feeds_consumer_key", $_POST['consumer_key']);
-    update_option("wp_smart_feeds_consumer_secret", $_POST['consumer_secret']);
+    if(isset($_POST['consumer_key'])){
+        $consumer_key = sanitize_key($_POST['consumer_key']);
+        $consumerKeyRegex = "/ck_[0-9a-f]{40}/i";
+        if(preg_match($consumerKeyRegex, $consumer_key)) update_option("smt_smart_feeds_consumer_key", $_POST['consumer_key']);
+    }
 
-    update_option("wp_smart_feeds_syntech_feed", $_POST['syntech_feed']);
-    update_option("wp_smart_feeds_rectron_feed_onhand", $_POST['rectron_onhand']);
-    update_option("wp_smart_feeds_rectron_feed_categories", $_POST['rectron_categories']);
+    if(isset($_POST['consumer_secret'])){
+        $consumer_secret = sanitize_key($_POST['consumer_secret']);
+        $consumerSecretRegex = "/cs_[0-9a-f]{40}/i";
+        if(preg_match($consumerSecretRegex, $consumer_secret)) update_option("smt_smart_feeds_consumer_secret", $_POST['consumer_secret']);
+    }
 
-    update_option("wp_smart_feeds_base_margin", $_POST['base_margin']);
-    update_option("wp_smart_feeds_interval", $_POST['interval']);
+    if(isset($_POST['rectron_onhand'])){
+        $rectron_onhand = sanitize_url($_POST['rectron_onhand']);
+        $rectronOnhandRegex = "/^https:\/\/rctdatafeed.azurewebsites.net\/.*/";
+        if(preg_match($rectronOnhandRegex, $rectron_onhand)) update_option("smt_smart_feeds_rectron_feed_onhand", $_POST['rectron_onhand']);
+
+    }
+
+    if(isset($_POST['base_margin'])){
+        $base_margin = sanitize_text_field($_POST['base_margin']);
+        $marginRegex = "/[0-9]{1,3}/";
+        if(preg_match($marginRegex, $base_margin)) update_option("smt_smart_feeds_base_margin", $_POST['base_margin']);
+    }
+
+    if(isset($_POST['interval'])){
+        $interval = sanitize_text_field($_POST['interval']);
+        $intervalRegex = "/(daily)|(weekly)|(hourly)/";
+        if(preg_match($intervalRegex, $interval)) update_option("smt_smart_feeds_interval", $_POST['interval']);
+    }
+
+    if(get_option("smt_smart_feeds_consumer_key") && get_option("smt_smart_feeds_consumer_secret")){
+        if(!get_option("smt_smart_feeds_rectron_attr")){
+            $data = array(
+                'id' => 'rectron',
+                'name' => 'rectron'
+            );
+            $smt_smart_feeds_createProductAttribute($data);
+        }
+    }
+
+    // $productAttribute = json_decode($smt_smart_feeds_getProductAttribute("rectron"), true);
+
+    $response = json_decode($smt_smart_feeds_updateProduct(18, array('attributes' => array(array('name' => 'rectron', 'options' => array('none', "another"))))));
+    format($response);
+    
+    
+
+
 
 }
 
-
-// if(isset($_POST['refresh'])){
-//     if(get_option("wp_smart_feeds_rectron_feed_onhand")){
-//         $rectron = new Rectron(get_option("wp_smart_feeds_rectron_feed_onhand"));
-//         // $products = json_decode($listProducts(), true);
-
-//     }
-// }
 ?>
 <main id="wp_smart_feed_admin">
     <h1>WP Smart Feeds Settings</h1>
@@ -46,28 +78,28 @@ if(isset($_POST['create-product'])){
                     </ol>
                 </div>
             </div>
-            <input type="text" name="consumer_key" value="<?php echo get_option("wp_smart_feeds_consumer_key");?>" placeholder="Consumer Key">
-            <input type="text" name="consumer_secret" value="<?php echo get_option("wp_smart_feeds_consumer_secret");?>" placeholder="Consumer Secret">
+            <input type="text" name="consumer_key" value="<?php echo get_option("smt_smart_feeds_consumer_key");?>" placeholder="Consumer Key">
+            <input type="text" name="consumer_secret" value="<?php echo get_option("smt_smart_feeds_consumer_secret");?>" placeholder="Consumer Secret">
         </div>
 
         <div class="form-field">
             <div class="label-container">
                 <label for="base_margin">Global Base Margin (%)</label>
             </div>
-            <input type="text" name="base_margin" value="<?php echo get_option("wp_smart_feeds_base_margin");?>" placeholder="Example: 76">
+            <input type="text" name="base_margin" value="<?php echo get_option("smt_smart_feeds_base_margin");?>" placeholder="Example: 76">
         </div>
 
         <div id="rectron" class="form-field">
             <div class="label-container">
                 <label for="rectron">Rectron Feed (onhand)</label>
             </div>
-            <input type="text" name="rectron_onhand" placeholder="Onhand Feed" value="<?php echo get_option("wp_smart_feeds_rectron_feed_onhand");?>">
+            <input type="text" name="rectron_onhand" placeholder="Onhand Feed" value="<?php echo get_option("smt_smart_feeds_rectron_feed_onhand");?>">
         </div>
         <div  class="form-field">
 
             <div class="label-container">
                 <label>Request Interval</label>
-                <input id="interval" type="hidden" value="<?php echo get_option("wp_smart_feeds_interval");?>">
+                <input id="interval" type="hidden" value="<?php echo get_option("smt_smart_feeds_interval");?>">
             </div>
 
             <div>
@@ -84,7 +116,7 @@ if(isset($_POST['create-product'])){
                     </div>
 
                     <div>
-                        <input id="monthly" type="radio" name="interval" value="monthly">
+                        <input id="hourly" type="radio" name="interval" value="hourly">
                         <label for="">Monthly</label>
                     </div>                  
                 </div>

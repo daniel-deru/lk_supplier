@@ -1,10 +1,10 @@
 <?php
 
-function getHost(){
+$getHost = function (){
     if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on')
-    $host = "https";
-    else $host = "http";
+    $protocol = "https";
+    else $protocol = "http";
 
-    $host .= "://" . $_SERVER['HTTP_HOST'];
-    return $host;
-}
+    $protocol .= "://" . $_SERVER['HTTP_HOST'];
+    return $protocol;
+};
