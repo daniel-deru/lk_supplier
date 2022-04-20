@@ -43,7 +43,7 @@ $woocommerce = new Client(
  $listProducts = function ($page=1) use ($woocommerce, $getHeaders){
     $data = array(
         'data'=>$woocommerce->get("products", array(
-            "per_page" => 20,
+            "per_page" => 90,
             "page" => $page)),
         'headers' => $getHeaders());
 
@@ -83,7 +83,25 @@ $units = function() use ($woocommerce){
 $createCategory = function($data) use ($woocommerce) {
     $data = $woocommerce->post('products/categories', $data);
     return json_encode($data);
-}
+};
+
+$getTaxClasses = function() use ($woocommerce) {
+    try {
+        $data = $woocommerce->get("taxes/classes");
+        return json_encode($data);
+    } catch (Exception $e){
+        return json_encode(array('error' => true, 'message' => $e->getMessage()));
+    }
+};
+
+$getShippingClasses = function() use ($woocommerce){
+    try {
+        $data = $woocommerce->get("products/shipping_classes");
+        return json_encode($data);
+    } catch (Exception $e) {
+        return json_encode(array('error' => true, 'message' => $e->getMessage()));
+    }
+};
 
  ?>
 

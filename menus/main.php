@@ -1,41 +1,8 @@
 <?php
-    include_once __DIR__ . "/syntech.php";
-    include_once __DIR__ . "/rectron.php";
-    include_once plugin_dir_url("woocommerce") .'/woocommerce.php';
-    include_once __DIR__ . "/products.php"
-?>
-    <link rel="stylesheet" href="<?php echo dirname(plugin_dir_url(__FILE__), 1) . "/public/css/admin.css"?>">
-<?php
+    include_once  dirname(plugin_dir_path(__FILE__)) . "/woocommerce-api.php";
+    include_once  dirname(plugin_dir_path(__FILE__)) . "/syntech.php";
+    include_once  dirname(plugin_dir_path(__FILE__)) . "/rectron.php";
 
-
-
-// function wooCommerceAuth(){
-
-//     if( is_admin() && get_option("WP_Smart_Feeds_activated")){
-//         delete_option("WP_Smart_Feeds_activated");
-
-//         $host = "https://" . $_SERVER['HTTP_HOST'];
-//         $endpoint = "/wc-auth/v1/authorize";
-
-//         $params = [
-//             'app_name' => "WP Smart Feeds",
-//             'scope' => "read_write",
-//             'user_id' => get_current_user_id(),
-//             'return_url' => get_admin_url() .   "admin.php?page=lk_supplier%2Fsettings.php",
-//             'callback_url' => "https://d2ab-102-219-41-114.ngrok.io/api/woocommerce/callback"
-
-//         ];
-
-//         $query = http_build_query($params);
-
-//         $url = $host . $endpoint . "?" . $query;
-
-//         echo $url;
-//         wp_redirect($url);
-//         exit;
-//     }
-    
-// }
 // "admin.php?page=lk_supplier%2Fsettings.php"
 
 if(isset($_POST['create-product'])){
@@ -49,34 +16,17 @@ if(isset($_POST['create-product'])){
     update_option("wp_smart_feeds_base_margin", $_POST['base_margin']);
     update_option("wp_smart_feeds_interval", $_POST['interval']);
 
-
-
 }
 
+
+// if(isset($_POST['refresh'])){
+//     if(get_option("wp_smart_feeds_rectron_feed_onhand")){
+//         $rectron = new Rectron(get_option("wp_smart_feeds_rectron_feed_onhand"));
+//         // $products = json_decode($listProducts(), true);
+
+//     }
+// }
 ?>
-
-<?php
-// Important classes WC_Product, WC_Product_Query
-
-
-if(isset($_POST['refresh'])){
-    $rectronURL = get_option("wp_smart_feeds_rectron_feed_onhand");
-    // $rectronFeed = new Rectron();
-    // $rectronFeed->register_feed($rectronURL);
-    // $rectronFeed->sync();
-    $product_image = new Store_Product();
-    $image_id = $product_image->upload_image("https://www.lutiekhosting.com/storage/2021/12/Lutiek-Hosting-Our-Hosting-Will-Reshape-Your-Business-For-The-Future.png");
-    $product = new WC_Product();
-    $product->set_name("Test");
-    $product->set_description('This is the product description');
-    $product->set_image_id($image_id);
-    $product->save();
-
-     // https://www.lutiekhosting.com/storage/2021/12/Lutiek-Hosting-Our-Hosting-Will-Reshape-Your-Business-For-The-Future.png
-
-}
-?>
-
 <main id="wp_smart_feed_admin">
     <h1>WP Smart Feeds</h1>
     <form action="" method="post" >
@@ -107,19 +57,11 @@ if(isset($_POST['refresh'])){
             <input type="text" name="base_margin" value="<?php echo get_option("wp_smart_feeds_base_margin");?>" placeholder="Example: 76">
         </div>
 
-        <div class="form-field">
-            <div class="label-container">
-                <label for="syntech_feed">Syntech Feed</label>
-            </div>
-            <input type="text" name="syntech_feed" value="<?php echo get_option("wp_smart_feeds_syntech_feed");?>">
-        </div>
-
         <div id="rectron" class="form-field">
             <div class="label-container">
-                <label for="rectron">Rectron Feeds</label>
+                <label for="rectron">Rectron Feed (onhand)</label>
             </div>
             <input type="text" name="rectron_onhand" placeholder="Onhand Feed" value="<?php echo get_option("wp_smart_feeds_rectron_feed_onhand");?>">
-            <input type="text" name="rectron_categories" placeholder="Category Feed" value="<?php echo get_option("wp_smart_feeds_rectron_feed_categories");?>">
         </div>
         <div  class="form-field">
 

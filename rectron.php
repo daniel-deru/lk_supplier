@@ -1,6 +1,5 @@
 <?php
 
-// include_once plugin_dir_url("woocommerce") .'/woocommerce.php';
 include_once __DIR__ . "/products.php";
 
 
@@ -8,13 +7,8 @@ class Rectron  {
     private $onhand_feed;
     private $categories = "https://content.storefront7.co.za/stores/za.co.storefront7.rectron/xmlfeed/rectronfeed-637806849145434755.xml";
 
-    function __construct(){
-        if(get_option("rectron_previous_onhand")){
-            $this->previous_onhand = get_option("rectron_previous_onhand");
-        } else {
-            add_option("rectron_previous_onhand", "");
-            $this->previous_onhand = "";
-        }
+    function __construct($feed){
+        $this->register_feed($feed);
     }
 
     function register_feed($feed){
@@ -25,13 +19,7 @@ class Rectron  {
 
     function verify($feed){
         $onhand_pattern = "/https:\/\/rctdatafeed.azurewebsites.net\/xml\/[a-z0-9-]+\/v[0-9]{1,9}\/products\/onhand/i";
-        if(preg_match($onhand_pattern, $feed)){
-            return true;
-        } 
-        else {
-            echo "Something went wrong";
-            return false;
-        }
+        return preg_match($onhand_pattern, $feed) ? true : false;
     }
 
     function get_data(){
@@ -104,35 +92,7 @@ class Rectron  {
         return $formated_categories;
     }
 
-    function get_store_products(){
-        $store = new Store_products();
-        $store_products = $store->get_store_products();
-        return $store_products;
-    }
 
-    function compare_stock_feed(){
-        $store = new Store_products();
-        $store_products = $store->get_store_products();
-
-        $feed_products = $this->get_data();
-
-        echo "<pre>";
-        print_r($store_products);
-        echo "</pre>";
-
-        foreach($feed_products as $feed_product){
-
-            $feed_sku = (string)$feed_product["Code"];
-
-            if(!$store_products[$feed_sku]){
-                $this->create_product($feed_product);
-            } 
-            else if($store_products[$feed_sku]){
-                $store_product = $store_products[$feed_sku];
-                $this->update_product($store_product, $feed_product);
-            }
-        }
-    }
 
     function create_product($product){
         return;
@@ -142,7 +102,4 @@ class Rectron  {
         echo "Product needs to be updated";
     }
 
-    function sync(){
-        $this->compare_stock_feed();
-    }
 }
