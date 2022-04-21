@@ -45,30 +45,47 @@ class ProductTable {
 
 
     otherListener(){
-        const numRegex = /[0-9]{1,5}(\.[0-9]{1,3})?/
+        const otherCostRegex = /[0-9]{1,5}(\.[0-9]{1,3})?/
+        const markupRegex = /[0-9]{1,9}(\.[0-9]{1,3})?/
+
 
         // Input elements
         let otherCost = this.value
         let cost = parseFloat(document.querySelector(`#cost-price${this.dataset.index}`).innerText)
         let markupType = document.querySelector(`#markup-type${this.dataset.index}`).value
         let markup = document.querySelector(`#markup${this.dataset.index}`).value
+        // check if the markup isset and give a default value of 0
+        markup = markupRegex.test(markup) ? parseInt(markup) : 0
 
         // Output elements
         let costOfGoods = document.querySelector(`#cost-of-goods${this.dataset.index}`)
         let sellingPrice = document.querySelector(`#price${this.dataset.index}`)
-        let profit = document.querySelector(`#price${this.dataset.index}`)
+        let profitValue = document.querySelector(`#price${this.dataset.index}`)
 
-        if(numRegex.test(otherCost)) costOfGoods.innerText = cost + parseFloat(otherCost)
 
-        if(markup){
-            if(markupType === "percent"){
-                // set the selling price for percentage
-            } else {
-                // set the selling price for fixed value
-            }
+        if(otherCostRegex.test(otherCost)){
+
+            let costOfGoodsValue = cost + parseFloat(otherCost)
+
+            costOfGoods.innerText = costOfGoodsValue
+
+            // calculate the selling price excluding
+            let sellingPriceExcl = markupType === "percent" ? costOfGoodsValue * (100 + markup) / 100 : costOfGoodsValue + markup
+
+
+            // create vars for the output data
+            let sellingPriceIncl = sellingPriceExcl * 1.15
+            let profit = sellingPriceExcl - costOfGoodsValue
+
+            console.log(markupRegex.test(markup))
+            console.log(markupType)
+            console.log(`sellingPriceExcl: ${sellingPriceExcl} = cost: ${costOfGoodsValue} * (100 + ${markup}) / 100`)
+            console.log(sellingPriceIncl)
+
+            // set the selling price and profit
+            sellingPrice.innerText = sellingPriceIncl
+            profitValue.innerText = profit
         }
-
-
         
     }
 
