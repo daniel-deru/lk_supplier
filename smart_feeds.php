@@ -78,6 +78,7 @@ function smt_lk_supplier_scripts(){
         }
         if($page === "smt_smart_feeds_product_settings"){
             wp_enqueue_style("smt_smart_feeds_style_product_style", plugins_url("/public/css/products.css", __FILE__));
+            wp_enqueue_script("smt_smart_feeds_products_script", plugins_url("/public/js/smt_product_feed.js", __FILE__), array('jquery'), false, true);
         }
 
     }

@@ -37,7 +37,7 @@ $rectron_products = $feedData->get_data();
     <?php // Build the table ?>
     <section>
         <table id="products-table">
-            <tr>
+            <tr id="smt-head">
                 <th id="name">Name</th>
                 <th id="cost-price">Cost Price</th> <?php // display only?>
                 <th id="other-cost">Other Cost</th>
@@ -53,23 +53,23 @@ $rectron_products = $feedData->get_data();
                     <!-- Name -->
                     <td class="name">
                         <div><?php echo esc_html($product['Title'])?></div>
-                        <div><?php echo esc_html($product['Code'])?></div>
+                        <div>SKU: <?php echo esc_html($product['Code'])?></div>
                     </td> 
                     <!-- Cost Price -->
-                    <td><?php echo esc_html($product['SellingPrice'])?></td> 
+                    <td class="cost-price">R <?php echo esc_html($product['SellingPrice'])?></td> 
                     <!-- Other Cost -->
-                    <td><input type="text" placeholder="Other Cost"></td> 
+                    <td class="other-cost"><input type="text" placeholder="Other Cost"></td> 
                     <!-- Cost Price + Other Cost -->
                     <td class="cost-of-goods">Filler Data</td>
                     <!-- Markup Type -->
-                    <td>
+                    <td class="markup-type">
                         <select name="markup-type" >
                             <option value="percent">Percent</option>
                             <option value="fixed">Fixed Value</option>
                         </select>
                     </td>
                     <!-- Markup -->
-                    <td><input type="text" placeholder="Markup"></td>
+                    <td class="markup"><input type="text" placeholder="Markup"></td>
                     <!-- Price -->
                     <td class="final-price">Filler Data</td>
                     <!-- Stock Quantity -->
