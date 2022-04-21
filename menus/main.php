@@ -2,6 +2,7 @@
     include_once  dirname(plugin_dir_path(__FILE__)) . "/woocommerce-api.php";
     require dirname(plugin_dir_path(__FILE__)) . "/includes/print.php";
     include dirname(plugin_dir_path(__FILE__)) . "/includes/link.php";
+    require dirname(plugin_dir_path(__FILE__)) . "/rectron.php";
 
     format($getHost());
 
@@ -37,26 +38,14 @@ if(isset($_POST['create-product'])){
         if(preg_match($intervalRegex, $interval)) update_option("smt_smart_feeds_interval", $_POST['interval']);
     }
 
-    if(get_option("smt_smart_feeds_consumer_key") && get_option("smt_smart_feeds_consumer_secret")){
-        if(!get_option("smt_smart_feeds_rectron_attr")){
-            $data = array(
-                'id' => 'rectron',
-                'name' => 'rectron'
-            );
-            $smt_smart_feeds_createProductAttribute($data);
-        }
-    }
-
-    // $productAttribute = json_decode($smt_smart_feeds_getProductAttribute("rectron"), true);
-
-    $response = json_decode($smt_smart_feeds_updateProduct(18, array('attributes' => array(array('name' => 'rectron', 'options' => array('none', "another"))))));
-    format($response);
-    
-    
-
-
-
 }
+
+// $smt_smart_feeds_updateProduct(18, array('attributes' => array(array('name' => 'rectron', 'options' => array()))));
+// $smt_smart_feeds_updateProduct(19, array('attributes' => array(array('name' => 'rectron', 'options' => array()))));
+// $smt_smart_feeds_updateProduct(12, array('attributes' => array(array('name' => 'rectron', 'options' => array()))));
+
+$rectron = new Rectron();
+format($rectron->getWCProducts($woocommerce));
 
 ?>
 <main id="wp_smart_feed_admin">

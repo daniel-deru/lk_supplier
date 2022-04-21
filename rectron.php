@@ -1,23 +1,49 @@
 <?php
 
+require_once "woocommerce-api.php";
+require_once 'includes/convert.php';
+
 
 class Rectron  {
     private $onhand_feed;
     private $categories = "https://content.storefront7.co.za/stores/za.co.storefront7.rectron/xmlfeed/rectronfeed-637806849145434755.xml";
+    private $attribute_name = "rectron";
+    // private $woocommerce;
 
-    function __construct($feed){
-        $this->register_feed($feed);
+    function __construct(){
+        $this->register_feed();
     }
 
-    function register_feed($feed){
-        if($this->verify($feed)){
-            $this->onhand_feed = $feed;
-        };
+    // Called in the constructor to get the feed url
+    function register_feed(){
+        $feed = get_option("smt_smart_feeds_rectron_feed_onhand");
+
+        if(!$feed) return;
+
+        if($this->verify($feed)) $this->onhand_feed = $feed;
     }
 
+    // Helper function to verify the feed
     function verify($feed){
         $onhand_pattern = "/https:\/\/rctdatafeed.azurewebsites.net\/xml\/[a-z0-9-]+\/v[0-9]{1,9}\/products\/onhand/i";
         return preg_match($onhand_pattern, $feed) ? true : false;
+    }
+
+    // Get WooCommerce Products filter out rectron products and convert to associative array
+    function getWCProducts($woocommerce){
+        if(!(get_option("smt_smart_feeds_consumer_key") && get_option("smt_smart_feeds_consumer_secret"))) return;
+
+        $WCProducts = json_decode(smt_smart_feeds_listProducts(1, $woocommerce), true);
+
+        $rectronProducts = array_filter($WCProducts['data'], function($product){
+            foreach($product['attributes'] as $attribute){
+                if($attribute['name'] === $this->attribute_name) return true;
+            }
+            return false;
+            
+        });
+
+        return WCConvert($rectronProducts);
     }
 
     function get_data(){

@@ -20,29 +20,29 @@ $woocommerce = new Client(
 
 
  
- $smt_smart_feeds_getHeaders = function() use ($woocommerce){
+function smt_smart_feeds_getHeaders($woocommerce){
     $lastResponse = $woocommerce->http->getResponse();
     return $lastResponse->getHeaders();
  };
 
- $smt_smart_feeds_listCategories = function ($page=1) use ($woocommerce, $smt_smart_feeds_getHeaders){
+ $smt_smart_feeds_listCategories = function ($page=1) use ($woocommerce){
     $data = array(
         'data' => $woocommerce->get("products/categories", array(
             'per_page' => 100,
             'page' => $page)),
-        'headers' => $smt_smart_feeds_getHeaders());
+        'headers' => smt_smart_feeds_getHeaders($woocommerce));
 
-    $data['headers'] = $smt_smart_feeds_getHeaders();
+    $data['headers'] = smt_smart_feeds_getHeaders($woocommerce);
 
     return json_encode($data);
  };
 
- $smt_smart_feeds_listProducts = function ($page=1) use ($woocommerce, $smt_smart_feeds_getHeaders){
+ function smt_smart_feeds_listProducts($page=1, $woocommerce) {
     $data = array(
         'data'=>$woocommerce->get("products", array(
             "per_page" => 90,
             "page" => $page)),
-        'headers' => $smt_smart_feeds_getHeaders());
+        'headers' => smt_smart_feeds_getHeaders($woocommerce));
 
     
     return json_encode($data);
