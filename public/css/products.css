@@ -1,0 +1,73 @@
+#smt-products-filter {
+    display: flex;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+
+tr:nth-child(even){
+    background-color: rgb(189, 189, 189);
+}
+
+td {
+    padding: 5px;
+}
+
+.name, #name {
+    max-width: 200px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.smt-body td input {
+    display: inline-block;
+    margin: auto;
+}
+
+.smt-body {
+    text-align: center;
+}
+
+/* .smt-body {
+    display: flex;
+} */
+
+/* .smt-body td:nth-child(1){
+
+}
+
+.smt-body td:nth-child(1){
+
+}
+
+.smt-body td:nth-child(1){
+
+}
+
+.smt-body td:nth-child(1){
+
+}
+
+.smt-body td:nth-child(1){
+
+}
+
+.smt-body td:nth-child(1){
+
+}
+
+.smt-body td:nth-child(1){
+
+}
+
+.smt-body td:nth-child(1){
+
+}
+
+.smt-body td:nth-child(1){
+
+} */

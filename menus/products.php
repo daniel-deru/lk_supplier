@@ -10,10 +10,11 @@
 
 $feedData = new Rectron(get_option("smt_smart_feeds_rectron_feed_onhand"));
 
-format($feedData->get_data());
+// format($feedData->get_data());
+$rectron_products = $feedData->get_data();
 
 ?>
-<main>
+<main id="smt_smart_feeds_products">
     <h1>Edit Products</h1>
     <?php if(!(get_option("smt_smart_feeds_consumer_key") && get_option("smt_smart_feeds_consumer_secret"))): ?>
         <h2>Please enter the WooCommerce API keys to continue</h2>
@@ -21,54 +22,63 @@ format($feedData->get_data());
     <?php // This is the filter for the table?>
     <section id="smt-products-filter">
         <div>
-            <select name="category-filter" id="category-filter">
-                <option value="" select disabled>Select Category</option>
-                <?php //foreach($categoryList['data'] as $category): ?>
-                    <!-- <option value="<?php //echo esc_attr($category['id'])?>"><?php //echo esc_html($category['name'])?></option> -->
-                <?php //endforeach ?>
-            </select>
-        </div>
-        <div>
             <select name="price-filter" id="price-filter">
                 <option value="more_than">More Than</option>
                 <option value="less_than">Less Than</option>
             </select>
             <input type="text" placeholder="Enter price">
         </div>
+
         <div>
             <input type="text" placeholder="Enter name or SKU">
-        </div>
-        <div>
-            <button type="button">Filter</button>
         </div>
     </section>
 
     <?php // Build the table ?>
     <section>
-        <table>
+        <table id="products-table">
             <tr>
-                <th>Name</th>
-                <th>Cost Price</th>
-                <th>Other Cost</th>
-                <th>Cost of goods</th> <?php // display only?>
-                <th>Markup</th>
-                <th>Price</th> <?php // display only?>
-                <th>Stock</th>
-                <th>Profit</th> <?php // display only?>
+                <th id="name">Name</th>
+                <th id="cost-price">Cost Price</th> <?php // display only?>
+                <th id="other-cost">Other Cost</th>
+                <th id="cost-of-goods">Cost of goods</th> <?php // display only?>
+                <th id="markup-type">Markup Type</th>
+                <th id="markup">Markup</th>
+                <th id="price">Price</th> <?php // display only?>
+                <th id="stock">Stock</th>  <?php // display only?>
+                <th id="profit">Profit</th> <?php // display only?>
             </tr>
-            <?php //foreach($productList['data'] as $product): ?>
-                <!-- <tr>
-                    <td><?php //echo esc_url($product['name'])?></td> <?php // Name ?>
-                    <td><?php //echo esc_url($product['name'])?></td> <?php // Cost Price ?>
-                    <td><?php //echo esc_url($product['name'])?></td> <?php // Other Cost ?>
-                    <td><?php //echo esc_url($product['name'])?></td> <?php // Cost of goods ?>
-                    <td><?php //echo esc_url($product['name'])?></td> <?php // Markup ?>
-                    <td><?php //echo esc_url($product['price'])?></td> <?php // Price ?>
-                    <td><?php //echo esc_url($product['stock_quantity'])?></td> <?php // Stock ?>
-                    <td><?php //echo esc_url($product['name'])?></td> <?php // Profit ?>
+            <?php foreach($rectron_products as $product): ?>
+                <tr class="smt-body">
+                    <!-- Name -->
+                    <td class="name">
+                        <div><?php echo esc_html($product['Title'])?></div>
+                        <div><?php echo esc_html($product['Code'])?></div>
+                    </td> 
+                    <!-- Cost Price -->
+                    <td><?php echo esc_html($product['SellingPrice'])?></td> 
+                    <!-- Other Cost -->
+                    <td><input type="text" placeholder="Other Cost"></td> 
+                    <!-- Cost Price + Other Cost -->
+                    <td class="cost-of-goods">Filler Data</td>
+                    <!-- Markup Type -->
+                    <td>
+                        <select name="markup-type" >
+                            <option value="percent">Percent</option>
+                            <option value="fixed">Fixed Value</option>
+                        </select>
+                    </td>
+                    <!-- Markup -->
+                    <td><input type="text" placeholder="Markup"></td>
+                    <!-- Price -->
+                    <td class="final-price">Filler Data</td>
+                    <!-- Stock Quantity -->
+                    <td><?php echo esc_html($product['OnHand'])?></td> 
+                    <!-- Profit -->
+                    <td class="profit">Filler Data</td>
 
-                </tr> -->
-            <?php //endforeach ?>
+                </tr>
+            <?php endforeach ?>
             
         </table>
     </section>
