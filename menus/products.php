@@ -39,16 +39,16 @@ $rectron_products = $feedData->get_data();
         <table id="products-table">
             <tr id="smt-head">
                 <th id="name">Name</th>
-                <th id="cost-price">Cost Price</th> <?php // display only?>
+                <th id="cost-price">Cost Price (excl.)</th> <?php // display only?>
                 <th id="other-cost">Other Cost</th>
-                <th id="cost-of-goods">Cost of goods</th> <?php // display only?>
+                <th id="cost-of-goods">Cost of goods (excl.)</th> <?php // display only?>
                 <th id="markup-type">Markup Type</th>
                 <th id="markup">Markup</th>
-                <th id="price">Price</th> <?php // display only?>
+                <th id="price">Price (incl.)</th> <?php // display only?>
                 <th id="stock">Stock</th>  <?php // display only?>
-                <th id="profit">Profit</th> <?php // display only?>
+                <th id="profit">Profit (excl.)</th> <?php // display only?>
             </tr>
-            <?php foreach($rectron_products as $product): ?>
+            <?php foreach($rectron_products as $i => $product): ?>
                 <tr class="smt-body">
                     <!-- Name -->
                     <td class="name">
@@ -56,26 +56,34 @@ $rectron_products = $feedData->get_data();
                         <div>SKU: <?php echo esc_html($product['Code'])?></div>
                     </td> 
                     <!-- Cost Price -->
-                    <td class="cost-price">R <?php echo esc_html($product['SellingPrice'])?></td> 
+                    <td class="cost-price-container">
+                        R <span class="cost-price" id="cost-price<?php echo esc_attr($i) ?>" ><?php echo esc_html($product['SellingPrice'])?></span>
+                    </td> 
                     <!-- Other Cost -->
-                    <td class="other-cost"><input type="text" placeholder="Other Cost"></td> 
+                    <td class="other-cost"><input type="text" placeholder="Other Cost" data-index="<?php echo esc_html($i) ?>"></td> 
                     <!-- Cost Price + Other Cost -->
-                    <td class="cost-of-goods">Filler Data</td>
+                    <td class="cost-of-goods-container">
+                        R <span class="cost-of-goods" id="cost-of-goods<?php echo esc_attr($i) ?>"></span>
+                    </td>
                     <!-- Markup Type -->
                     <td class="markup-type">
-                        <select name="markup-type" >
+                        <select name="markup-type" id="markup-type<?php echo esc_attr($i) ?>">
                             <option value="percent">Percent</option>
                             <option value="fixed">Fixed Value</option>
                         </select>
                     </td>
                     <!-- Markup -->
-                    <td class="markup"><input type="text" placeholder="Markup"></td>
+                    <td class="markup">
+                        <input type="text" placeholder="Markup" data-index="<?php echo esc_attr($i) ?>" id="markup<?php echo esc_html($i) ?>">
+                    </td>
                     <!-- Price -->
-                    <td class="final-price">Filler Data</td>
+                    <td class="final-price">R <span class="price" id="price<?php echo esc_html($i) ?>"></span></td>
                     <!-- Stock Quantity -->
                     <td><?php echo esc_html($product['OnHand'])?></td> 
                     <!-- Profit -->
-                    <td class="profit">Filler Data</td>
+                    <td class="profit-container">
+                        R <span class="profit" id="profit<?php echo esc_attr($i) ?>"></span>
+                    </td>
 
                 </tr>
             <?php endforeach ?>
