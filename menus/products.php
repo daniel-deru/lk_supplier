@@ -57,7 +57,9 @@ $rectron_products = $feedData->get_data();
                     </td> 
                     <!-- Cost Price -->
                     <td class="cost-price-container">
-                        R <span class="cost-price" id="cost-price<?php echo esc_attr($i) ?>" ><?php echo esc_html($product['SellingPrice'])?></span>
+                        R   <span class="cost-price" id="cost-price<?php echo esc_attr($i) ?>" >
+                                <?php echo esc_html(floatval($product['SellingPrice'])) ?>
+                            </span>
                     </td> 
                     <!-- Other Cost -->
                     <td class="other-cost"><input type="text" placeholder="Other Cost" data-index="<?php echo esc_html($i) ?>"></td> 

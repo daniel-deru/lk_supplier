@@ -12,9 +12,14 @@ class ProductTable {
     setPrices(){
         for(let i = 0; i< this.costOfGoods.length; i++){
             this.costOfGoods[i].innerHTML = this.prices[i]
-            this.sellingPrice[i].innerText = this.prices[i]
+            this.sellingPrice[i].innerText = (this.prices[i] * 1.15).toFixed(2)
             this.profit[i].innerText = 0
         }
+    }
+
+    addListeners(){
+        this.otherAddListener()
+        this.markupAddListener()
     }
 
 
@@ -28,7 +33,7 @@ class ProductTable {
     markupAddListener(){
         const markupInput = document.querySelectorAll(".markup input")
         for(let i = 0; i < markupInput.length; i++){
-            markupInput[i].addEventListener('change', this.markupListener)
+            markupInput[i].addEventListener('input', this.markupListener)
         }
     }
 
@@ -37,17 +42,10 @@ class ProductTable {
         return Array.from(document.querySelectorAll(".cost-price")).map(div => parseFloat(div.innerText))        
     }
 
-    markupListener(){
-        const markupType = document.querySelector(`#markup-type${this.dataset.index}`)
-        
-
-    }
-
 
     otherListener(){
         const otherCostRegex = /[0-9]{1,5}(\.[0-9]{1,3})?/
         const markupRegex = /[0-9]{1,9}(\.[0-9]{1,3})?/
-
 
         // Input elements
         let otherCost = this.value
@@ -60,32 +58,54 @@ class ProductTable {
         // Output elements
         let costOfGoods = document.querySelector(`#cost-of-goods${this.dataset.index}`)
         let sellingPrice = document.querySelector(`#price${this.dataset.index}`)
-        let profitValue = document.querySelector(`#price${this.dataset.index}`)
+        let profitValue = document.querySelector(`#profit${this.dataset.index}`)
 
 
         if(otherCostRegex.test(otherCost)){
 
-            let costOfGoodsValue = cost + parseFloat(otherCost)
-
-            costOfGoods.innerText = costOfGoodsValue
+            // cost + other cost = cost of goods
+            let costOfGoodsAmount = cost + parseFloat(otherCost)
 
             // calculate the selling price excluding
-            let sellingPriceExcl = markupType === "percent" ? costOfGoodsValue * (100 + markup) / 100 : costOfGoodsValue + markup
-
+            let sellingPriceExcl = markupType === "percent" ? costOfGoodsAmount * (100 + markup) / 100 : costOfGoodsAmount + markup
 
             // create vars for the output data
             let sellingPriceIncl = sellingPriceExcl * 1.15
-            let profit = sellingPriceExcl - costOfGoodsValue
+            let profit = sellingPriceExcl - costOfGoodsAmount
 
-            console.log(markupRegex.test(markup))
-            console.log(markupType)
-            console.log(`sellingPriceExcl: ${sellingPriceExcl} = cost: ${costOfGoodsValue} * (100 + ${markup}) / 100`)
-            console.log(sellingPriceIncl)
+
+            // set the cost of goods and selling price and profit
+            costOfGoods.innerText = costOfGoodsAmount.toFixed(2)
+            sellingPrice.innerText = sellingPriceIncl.toFixed(2)
+            profitValue.innerText = profit
+        }
+        
+    }
+
+    markupListener(){
+
+        const markupRegex = /[0-9]{1,9}(\.[0-9]{1,3})?/
+        
+        // grab the elements that you need
+        const markupType = document.querySelector(`#markup-type${this.dataset.index}`)
+        const costOfGoods = document.querySelector(`#cost-of-goods${this.dataset.index}`)
+        let sellingPrice = document.querySelector(`#price${this.dataset.index}`)
+        let profitValue = document.querySelector(`#profit${this.dataset.index}`)
+
+        
+        if(markupRegex.test(this.value)){
+            // calculate markup
+            const markup = markupType.value === 'percent'? parseFloat(costOfGoods.innerText) * (parseFloat(this.value) / 100) : parseFloat(this.value)
+
+            // calculate selling prices
+            const sellingPriceExcl = parseFloat(costOfGoods.innerText) + markup
+            const sellingPriceIncl = sellingPriceExcl * 1.15  
 
             // set the selling price and profit
             sellingPrice.innerText = sellingPriceIncl
-            profitValue.innerText = profit
+            profitValue.innerText = markup
         }
+
         
     }
 
@@ -94,4 +114,4 @@ class ProductTable {
 // event => ProductTable.#otherListener(event, i, this.prices[i], this.costOfGoods[i])
 
 const product = new ProductTable()
-product.otherAddListener()
+product.addListeners()
