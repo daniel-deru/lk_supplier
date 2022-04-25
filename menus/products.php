@@ -41,7 +41,7 @@ wp_localize_script("smt_smart_feeds_products_script", "rectron_products", array(
                 <input type="text" placeholder="Enter name or SKU" id="filter-description">
             </div>
             <div>
-                <input type="reset" value="Reset">
+                <input type="reset" value="Reset" id="reset-filter">
             </div>
         </div>
     </section>

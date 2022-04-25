@@ -115,6 +115,18 @@ class FilterFeed {
     constructor(){
         this.addPriceListener()
         this.addDescListener()
+        this.reset()
+    }
+
+    reset(){
+        document.getElementById("reset-filter").addEventListener("click", event => {
+
+            event.preventDefault()
+            document.getElementById("filter-description").value = ""
+            document.getElementById("price-filter").value = ""
+            Array.from(document.querySelectorAll(".smt-body")).forEach(el => el.classList.remove("filtered"))
+
+        })
     }
 
     addPriceListener(){
@@ -174,7 +186,7 @@ class FilterFeed {
     static filterPrice(comparison, comparePrice, elementList){
         let exclude = []
         let priceRegex = /[0-9]{1,9}(\.[0-9]{1,3})?/
-        
+
         if(priceRegex.test(comparePrice)){
             for(let i = 0; i < products.length; i++){
                 if(comparison === "more_than" && parseFloat(products[i].SellingPrice) <= parseFloat(comparePrice)) exclude.push(i)
@@ -192,7 +204,7 @@ class FilterFeed {
         // console.log(products)
     }
 }
-console.log(rectron_products.products)
+// console.log(rectron_products.products)
 const product = new ProductTable()
 const filter = new FilterFeed()
 
