@@ -3,20 +3,18 @@ let products = rectron_products.products
 class ProductTable {
     constructor(){
         this.addListeners()
-
     }
 
-    // setPrices(){
-    //     for(let i = 0; i< this.costOfGoods.length; i++){
-    //         this.costOfGoods[i].innerHTML = this.prices[i]
-    //         this.sellingPrice[i].innerText = (this.prices[i] * 1.15).toFixed(2)
-    //         this.profit[i].innerText = 0
-    //     }
-    // }
+
 
     addListeners(){
         this.otherAddListener()
         this.markupAddListener()
+        this.saveAddListner()
+    }
+
+    saveAddListner(){
+        document.getElementById("save-settings").addEventListener('click', this.saveClicked)
     }
 
 
@@ -34,11 +32,48 @@ class ProductTable {
         }
     }
 
+    saveClicked(){
+       let checkboxes = ProductTable.getImportCheckBoxes()
+       let othercost = ProductTable.getOtherCost()
+       let markup = ProductTable.getMarkup()
+       console.log("This is the other cost", othercost)
+       console.log("This is the markup", markup)
+    }
 
-    // getCostPrices(){
-    //     return Array.from(document.querySelectorAll(".cost-price")).map(div => parseFloat(div.innerText))        
-    // }
+    // This gets the "do not import" checkboxes for when the save button is clicked
+    static getImportCheckBoxes(){
+        let checkboxArray = []
+        const import_chcckboxes = document.querySelectorAll(".import")
 
+        for(let checkbox of import_chcckboxes){
+            if(checkbox.checked) checkboxArray.push(checkbox)
+        }
+        return checkboxArray
+    }
+
+    // This gets the other cost input for when the save button is clicked
+    static getOtherCost(){
+        let otherCostArray = []
+        const otherCostInputs = document.querySelectorAll(".other-cost input")
+
+        for(let input of otherCostInputs){
+            if(input.value) otherCostArray.push(input)
+        }
+
+        return otherCostArray
+    }
+
+    // This gets the markup input for when the save button is clicked
+    static getMarkup(){
+        let markupArray = []
+        const markupInputs = document.querySelectorAll(".markup input")
+
+        for(let input of markupInputs){
+            if(input.value) markupArray.push(input)
+        }
+
+        return markupArray
+    }
 
     otherListener(){
         const otherCostRegex = /[0-9]{1,5}(\.[0-9]{1,3})?/

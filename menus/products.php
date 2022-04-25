@@ -47,7 +47,7 @@ wp_localize_script("smt_smart_feeds_products_script", "rectron_products", array(
     </section>
     <section>
         <div id="save">
-            <button type="button">Save</button>
+            <button type="button" id="save-settings">Save</button>
         </div>
     </section>
 
@@ -56,6 +56,7 @@ wp_localize_script("smt_smart_feeds_products_script", "rectron_products", array(
         <table id="products-table">
             <tr id="smt-head">
                 <th id="index">No</th>
+                <th id="no-import">Skip</th>
                 <th id="name">Name</th>
                 <th id="cost-price">Cost Price <br> (excl.)</th> <?php // display only?>
                 <th id="other-cost">Other Cost <br> (excl.)</th>
@@ -69,6 +70,8 @@ wp_localize_script("smt_smart_feeds_products_script", "rectron_products", array(
             <?php foreach($rectron_products as $i => $product): ?>
                 <tr class="smt-body">
                     <td class="index"><?php echo esc_html($i + 1) ?></td>
+                    <!-- Don't import product -->
+                    <td class="no-import"><input type="checkbox" name="import" class="import" id="import<?php echo esc_html($i) ?>"></td>
                     <!-- Name -->
                     <td class="name">
                         <div><?php echo esc_html($product['Title'])?></div>
