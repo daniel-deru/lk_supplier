@@ -1,21 +1,18 @@
+let products = rectron_products.products
+
 class ProductTable {
     constructor(){
-        this.prices = this.getCostPrices()
-        // This is a nodelist of the element that has the data
-        this.costOfGoods = document.querySelectorAll(".cost-of-goods")
-        this.sellingPrice = document.querySelectorAll(".price")
-        this.profit = document.querySelectorAll(".profit")
-        this.setPrices()
+        this.addListeners()
 
     }
 
-    setPrices(){
-        for(let i = 0; i< this.costOfGoods.length; i++){
-            this.costOfGoods[i].innerHTML = this.prices[i]
-            this.sellingPrice[i].innerText = (this.prices[i] * 1.15).toFixed(2)
-            this.profit[i].innerText = 0
-        }
-    }
+    // setPrices(){
+    //     for(let i = 0; i< this.costOfGoods.length; i++){
+    //         this.costOfGoods[i].innerHTML = this.prices[i]
+    //         this.sellingPrice[i].innerText = (this.prices[i] * 1.15).toFixed(2)
+    //         this.profit[i].innerText = 0
+    //     }
+    // }
 
     addListeners(){
         this.otherAddListener()
@@ -38,9 +35,9 @@ class ProductTable {
     }
 
 
-    getCostPrices(){
-        return Array.from(document.querySelectorAll(".cost-price")).map(div => parseFloat(div.innerText))        
-    }
+    // getCostPrices(){
+    //     return Array.from(document.querySelectorAll(".cost-price")).map(div => parseFloat(div.innerText))        
+    // }
 
 
     otherListener(){
@@ -111,7 +108,91 @@ class ProductTable {
 
 
 }
-// event => ProductTable.#otherListener(event, i, this.prices[i], this.costOfGoods[i])
 
+
+// Add two event listeners to fire everytime there is an input
+class FilterFeed {
+    constructor(){
+        this.addPriceListener()
+        this.addDescListener()
+    }
+
+    addPriceListener(){
+        document.getElementById("price-filter").addEventListener('input', this.priceListener)
+    }
+
+    addDescListener(){
+        document.getElementById("filter-description").addEventListener("input", this.descListener)
+    }
+
+    priceListener(){
+        let comparePrice = parseFloat(this.value)
+        let comparison = document.getElementById("price-filter-compare").value
+        let rows = Array.from(document.querySelectorAll(".smt-body"))
+        let desc = document.getElementById("filter-description").value
+
+        rows.forEach(el => el.classList.remove("filtered"))
+
+        if(desc) rows = FilterFeed.filterDescription(desc, rows)
+        rows = FilterFeed.filterPrice(comparison, comparePrice, rows)
+
+        rows.forEach(el => el.classList.add("filtered"))        
+    }
+
+    descListener(){
+        // Get the necessary data 
+        let rows = Array.from(document.querySelectorAll(".smt-body"))
+        let comparePrice = parseFloat(document.getElementById("price-filter").value)
+        let comparison = document.getElementById("price-filter-compare").value
+        let description = this.value
+
+        // Remove previous filtered class
+        rows.forEach(el => el.classList.remove("filtered"))
+
+        // Use statc methods to process filtering
+        if(comparePrice) rows = FilterFeed.filterPrice(comparison, comparePrice, rows)
+        rows = FilterFeed.filterDescription(description, rows)
+
+        // Add style to the filtered Items
+        rows.forEach(el => el.classList.add("filtered"))
+        
+    }
+
+    static filterDescription(description, elementList){
+        let exclude = []
+        const descRegex = new RegExp(`${description}`, "gi")
+
+        for(let i = 0; i < products.length; i++){
+            if(!(descRegex.test(products[i].Code) || descRegex.test(products[i].Title))) exclude.push(i)
+        }
+
+        return elementList
+                    .map((el, index) => exclude.includes(index) ? null : el)
+                    .filter(el => el !== null)   
+    }
+
+    static filterPrice(comparison, comparePrice, elementList){
+        let exclude = []
+        let priceRegex = /[0-9]{1,9}(\.[0-9]{1,3})?/
+        
+        if(priceRegex.test(comparePrice)){
+            for(let i = 0; i < products.length; i++){
+                if(comparison === "more_than" && parseFloat(products[i].SellingPrice) <= parseFloat(comparePrice)) exclude.push(i)
+                else if(comparison === "less_than" && parseFloat(products[i].SellingPrice) >= parseFloat(comparePrice)) exclude.push(i)
+            }
+        }
+
+        return elementList
+                    .map((el, index) => exclude.includes(index) ? null : el)
+                    .filter(el => el !== null) 
+    }
+
+    getProducts(){
+        return document.querySelectorAll(".smt-body")
+        // console.log(products)
+    }
+}
+console.log(rectron_products.products)
 const product = new ProductTable()
-product.addListeners()
+const filter = new FilterFeed()
+

@@ -1,4 +1,4 @@
-#smt-products-filter {
+#smt-products-filter > div {
     display: flex;
     width: fit-content;
     margin: 2rem auto;
@@ -7,29 +7,69 @@
 table {
     border-collapse: collapse;
     width: 100%;
+    height: 50vh;
+    max-height: 50vh;
+    overflow: scroll;
 }
 
 
-tr:nth-child(odd){
-    background-color: rgb(199, 199, 199);
-}
+
 
 #smt-head {
     background-color: #21759b;
     color: white;
     height: 50px;
-    font-size: 1.5em;
+    font-size: 1.25em;
+}
+
+tr:nth-child(odd){
+    background-color: rgb(199, 199, 199);
 }
 
 td {
     padding: 5px;
 }
 
+.index, .profit-container {
+    font-weight: 900;
+}
+
 .name, #name {
-    max-width: 200px;
+    max-width: 600px;
+    width: 600px;
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
+}
+
+.other-cost, #other-cost {
+    width: 100px;
+    max-width: 100px;
+}
+
+.markup, #markup {
+    width: 100px;
+    max-width: 100px;
+}
+
+.markup input, .other-cost input {
+    width: 80px;
+}
+
+
+.cost-of-goods-container, .markup-type, #cost-of-goods, #markup-type {
+    width: 150px;
+}
+
+.final-price, #price {
+    width: 100px;
+}
+.final-price, #price {
+    width: 100px;
+}
+
+.stock, #stock {
+    width: 100px;
 }
 
 .smt-body td input {
@@ -39,6 +79,14 @@ td {
 
 .smt-body {
     text-align: center;
+}
+
+.name {
+    text-align: left;
+}
+
+.filtered {
+    border: 2px solid #21759b;
 }
 
 /* .smt-body {
