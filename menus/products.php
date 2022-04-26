@@ -71,7 +71,16 @@ wp_localize_script("smt_smart_feeds_products_script", "rectron_products", array(
                 <tr class="smt-body">
                     <td class="index"><?php echo esc_html($i + 1) ?></td>
                     <!-- Don't import product -->
-                    <td class="no-import"><input type="checkbox" name="import" class="import" id="import<?php echo esc_html($i) ?>"></td>
+                    <td class="no-import">
+                        <input 
+                            type="checkbox" 
+                            name="import" 
+                            class="import" 
+                            id="import<?php echo esc_html($i) ?>" 
+                            data-index="<?php echo esc_html($i) ?>" 
+                            data-sku="<?php echo esc_html($product['Code']) ?>"
+                        >
+                    </td>
                     <!-- Name -->
                     <td class="name">
                         <div><?php echo esc_html($product['Title'])?></div>
@@ -84,7 +93,9 @@ wp_localize_script("smt_smart_feeds_products_script", "rectron_products", array(
                             </span>
                     </td> 
                     <!-- Other Cost -->
-                    <td class="other-cost"><input type="text" placeholder="Other Cost" data-index="<?php echo esc_html($i) ?>"></td> 
+                    <td class="other-cost">
+                        <input type="text" placeholder="Other Cost" data-index="<?php echo esc_html($i) ?>" data-sku="<?php echo esc_html($product['Code']) ?>">
+                    </td> 
                     <!-- Cost Price + Other Cost -->
                     <td class="cost-of-goods-container">
                         R   <span class="cost-of-goods" id="cost-of-goods<?php echo esc_attr($i) ?>">
@@ -93,14 +104,14 @@ wp_localize_script("smt_smart_feeds_products_script", "rectron_products", array(
                     </td>
                     <!-- Markup Type -->
                     <td class="markup-type">
-                        <select name="markup-type" id="markup-type<?php echo esc_attr($i) ?>">
+                        <select name="markup-type" id="markup-type<?php echo esc_attr($i) ?>" data-sku="<?php echo esc_html($product['Code']) ?>">
                             <option value="percent">Percent</option>
                             <option value="fixed">Fixed Value</option>
                         </select>
                     </td>
                     <!-- Markup -->
                     <td class="markup">
-                        <input type="text" placeholder="Markup" data-index="<?php echo esc_attr($i) ?>" id="markup<?php echo esc_html($i) ?>">
+                        <input type="text" placeholder="Markup" data-index="<?php echo esc_attr($i) ?>" id="markup<?php echo esc_html($i) ?>" data-sku="<?php echo esc_html($product['Code']) ?>">
                     </td>
                     <!-- Price -->
                     <td class="final-price">

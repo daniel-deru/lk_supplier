@@ -33,46 +33,58 @@ class ProductTable {
     }
 
     saveClicked(){
-       let checkboxes = ProductTable.getImportCheckBoxes()
-       let othercost = ProductTable.getOtherCost()
-       let markup = ProductTable.getMarkup()
-       console.log("This is the other cost", othercost)
-       console.log("This is the markup", markup)
+        let ajax = {}
+        let checkboxObject = ProductTable.getImportCheckBoxes(ajax)
+        let otherCostObject = ProductTable.getOtherCost(checkboxObject)
+        let finalForm = ProductTable.getMarkup(otherCostObject)
+        console.log(finalForm)
     }
 
     // This gets the "do not import" checkboxes for when the save button is clicked
-    static getImportCheckBoxes(){
-        let checkboxArray = []
+    static getImportCheckBoxes(productObject){
         const import_chcckboxes = document.querySelectorAll(".import")
 
         for(let checkbox of import_chcckboxes){
-            if(checkbox.checked) checkboxArray.push(checkbox)
+            if(checkbox.checked){
+                const sku = checkbox.dataset.sku
+                if(sku in productObject) productObject[sku] = {...productObject[sku], skip: true}
+                else productObject[sku] = { skip: true } 
+            } 
         }
-        return checkboxArray
+
+        return productObject
     }
 
     // This gets the other cost input for when the save button is clicked
-    static getOtherCost(){
-        let otherCostArray = []
+    static getOtherCost(productObject){
         const otherCostInputs = document.querySelectorAll(".other-cost input")
 
         for(let input of otherCostInputs){
-            if(input.value) otherCostArray.push(input)
+            if(input.value){
+                const sku = input.dataset.sku
+                if(sku in productObject) productObject[sku] = {...productObject[sku], otherCost: parseFloat(input.value) }
+                else productObject[sku] = { otherCost: parseFloat(input.value) }
+            } 
         }
 
-        return otherCostArray
+        return productObject
     }
 
     // This gets the markup input for when the save button is clicked
-    static getMarkup(){
-        let markupArray = []
+    static getMarkup(productObject){
         const markupInputs = document.querySelectorAll(".markup input")
 
         for(let input of markupInputs){
-            if(input.value) markupArray.push(input)
+            if(input.value){
+                const sku = input.dataset.sku
+                const markupType = document.getElementById(`markup-type${input.dataset.index}`)
+
+                if(sku in productObject) productObject[sku] = {...productObject[sku], markup: parseFloat(input.value), markupType: markupType.value }
+                else productObject[sku] = { markup: parseFloat(input.value), markupType: markupType.value }
+            } 
         }
 
-        return markupArray
+        return productObject
     }
 
     otherListener(){
