@@ -43,7 +43,8 @@ function MenuSetup(){
 
     add_submenu_page( 
         'smt_smart_feeds_main_settings', 
-        "Products", "Products", 
+        "Products", 
+        "Products", 
         "manage_options", 
         "smt_smart_feeds_product_settings", // This is the page name
         "smt_smart_feed_admin_product_settings" 

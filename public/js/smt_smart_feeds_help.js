@@ -1,5 +1,23 @@
-// Get the interval from the hidden input and set the correct radio but to checked
-const interval = document.getElementById("interval")
-document.getElementById(interval.value).checked = true
 
+
+class DynamicRules {
+    static rules = []
+    constructor(){
+        this.addDynamicListener()
+    }
+
+    addDynamicListener(){
+        document.getElementById("add-rule").addEventListener('click', this.dynamicListener)
+    }
+
+    dynamicListener(){
+        const type = document.getElementById("dynamic_rules")
+
+        if(type.value){
+            DynamicRules.rules.push({ "type": type.value })
+        }
+    }
+}
+
+const rules = new DynamicRules()
 

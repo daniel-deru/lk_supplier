@@ -1,0 +1,17 @@
+[
+    {
+        "type": "import-price",
+        "more_than": 1000,
+        "less_than": 200
+    },
+    {
+        "type": "import-stock",
+        "less_than": 200
+    },
+    {
+        "type": "margin",
+        "margin": 20,
+        "less_than": 1000,
+        "more_than": 200
+    }
+]

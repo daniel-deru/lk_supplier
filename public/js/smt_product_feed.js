@@ -93,12 +93,13 @@ class ProductTable {
 
         // Input elements
         let otherCost = this.value
-        let cost = parseFloat(document.querySelector(`#cost-price${this.dataset.index}`).innerText)
+        let cost = document.querySelector(`#cost-price${this.dataset.index}`).innerText
         let markupType = document.querySelector(`#markup-type${this.dataset.index}`).value
         let markup = document.querySelector(`#markup${this.dataset.index}`).value
         // check if the markup isset and give a default value of 0
         markup = markupRegex.test(markup) ? parseInt(markup) : 0
-
+        cost = parseFloat(cost.replace(",", ""))
+        console.log(cost)
         // Output elements
         let costOfGoods = document.querySelector(`#cost-of-goods${this.dataset.index}`)
         let sellingPrice = document.querySelector(`#price${this.dataset.index}`)
@@ -146,8 +147,8 @@ class ProductTable {
             const sellingPriceIncl = sellingPriceExcl * 1.15  
 
             // set the selling price and profit
-            sellingPrice.innerText = sellingPriceIncl
-            profitValue.innerText = markup
+            sellingPrice.innerText = Math.round((sellingPriceIncl + Number.EPSILON) * 1_000_000) / 1_000_000
+            profitValue.innerText = Math.round((markup + Number.EPSILON) * 1_000_000) / 1_000_000
         }
 
         
@@ -251,7 +252,11 @@ class FilterFeed {
         // console.log(products)
     }
 }
-// console.log(rectron_products.products)
+
+// const cost = document.querySelectorAll(".cost-price")
+// for(let el of cost){
+//     console.log(parseFloat(el.innerText))
+// }
 const product = new ProductTable()
 const filter = new FilterFeed()
 

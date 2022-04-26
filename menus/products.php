@@ -56,8 +56,8 @@ wp_localize_script("smt_smart_feeds_products_script", "rectron_products", array(
         <table id="products-table">
             <tr id="smt-head">
                 <th id="index">No</th>
-                <th id="no-import">Skip</th>
                 <th id="name">Name</th>
+                <th id="no-import">Skip</th>
                 <th id="cost-price">Cost Price <br> (excl.)</th> <?php // display only?>
                 <th id="other-cost">Other Cost <br> (excl.)</th>
                 <th id="cost-of-goods">Cost of goods <br> (excl.)</th> <?php // display only?>
@@ -70,6 +70,11 @@ wp_localize_script("smt_smart_feeds_products_script", "rectron_products", array(
             <?php foreach($rectron_products as $i => $product): ?>
                 <tr class="smt-body">
                     <td class="index"><?php echo esc_html($i + 1) ?></td>
+                    <!-- Name -->
+                    <td class="name">
+                        <div><?php echo esc_html($product['Title'])?></div>
+                        <div>SKU: <?php echo esc_html($product['Code'])?></div>
+                    </td> 
                     <!-- Don't import product -->
                     <td class="no-import">
                         <input 
@@ -81,11 +86,6 @@ wp_localize_script("smt_smart_feeds_products_script", "rectron_products", array(
                             data-sku="<?php echo esc_html($product['Code']) ?>"
                         >
                     </td>
-                    <!-- Name -->
-                    <td class="name">
-                        <div><?php echo esc_html($product['Title'])?></div>
-                        <div>SKU: <?php echo esc_html($product['Code'])?></div>
-                    </td> 
                     <!-- Cost Price -->
                     <td class="cost-price-container">
                         R   <span class="cost-price" id="cost-price<?php echo esc_attr($i) ?>" >

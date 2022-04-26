@@ -4,7 +4,7 @@
     include dirname(plugin_dir_path(__FILE__)) . "/includes/link.php";
     require dirname(plugin_dir_path(__FILE__)) . "/rectron.php";
 
-    format($getHost());
+    $link = sanitize_url($getHost());
 
 if(isset($_POST['create-product'])){
     if(isset($_POST['consumer_key'])){
@@ -44,82 +44,105 @@ if(isset($_POST['create-product'])){
 // $smt_smart_feeds_updateProduct(19, array('attributes' => array(array('name' => 'rectron', 'options' => array()))));
 // $smt_smart_feeds_updateProduct(12, array('attributes' => array(array('name' => 'rectron', 'options' => array()))));
 
-$rectron = new Rectron();
-format($rectron->getWCProducts($woocommerce));
+// $rectron = new Rectron();
+// format($rectron->getWCProducts($woocommerce));
 
 ?>
 <main id="wp_smart_feed_admin">
-    <h1>WP Smart Feeds Settings</h1>
-    <form action="" method="post" >
+    <h1>Smart Feeds Settings</h1>
+    <div id="main-container">
+        <form action="" method="post" >
 
-        <div class="form-field">
-            <div class="label-container">
-                <label for="consumer_key">WooCommerce API Credentials</label>
-                <div id="woocommerce-help" class="help">
-                    <img src="<?php echo dirname(plugin_dir_url(__FILE__))?>/lk_supplier/public/images/help.png" alt="">
-                    <ol class="info">
-                        <li>1. Go to WooCommerce > settings > advanced. </li>
-                        <li>2. find the link that says "REST API" and click it.</li>
-                        <li>3. Click on add key and fill in the required details.</li>
-                        <li>4. Important* Permisions must be set to Read and Write.</li>
-                        <li>5. Click on generate API key.</li>
-                        <li>6. Copy the consumer key and secret to put into the required fields.</li>
-                    </ol>
+            <div class="form-field">
+                <label for="consumer_key">WooCommerce API Consumer Key</label>
+                <input type="text" name="consumer_key" value="<?php echo get_option("smt_smart_feeds_consumer_key");?>" placeholder="Consumer Key">
+            </div>
+
+            <div class="form-field">
+                <label for="consumer_secret">WooCommerce API Consumer Secret</label>
+                <input type="text" name="consumer_secret" value="<?php echo get_option("smt_smart_feeds_consumer_secret");?>" placeholder="Consumer Secret">
+                <div id="woocommerce-help-container">
+                    <a href="<?php echo esc_url($link . "/wp-admin/admin.php?page=wc-settings&tab=advanced&section=keys") ?>" target="_blank">Create a Key</a>
+                        <!-- This div is hidden -->
+                    <div id="woocommerce-help" class="help">
+                        <img src="<?php echo dirname(plugin_dir_url(__FILE__))?>/lk_supplier/public/images/help.png" alt="">
+                        <ol class="info">
+                            <li> Click on add key and fill in the required details.</li>
+                            <li> Important* Permisions must be set to Read and Write.</li>
+                            <li> Click on generate API key.</li>
+                            <li> Copy the consumer key and consumer secret to put into the required fields.</li>
+                        </ol>
+                    </div>
+                <!-- End of hidden div -->
                 </div>
             </div>
-            <input type="text" name="consumer_key" value="<?php echo get_option("smt_smart_feeds_consumer_key");?>" placeholder="Consumer Key">
-            <input type="text" name="consumer_secret" value="<?php echo get_option("smt_smart_feeds_consumer_secret");?>" placeholder="Consumer Secret">
-        </div>
-
-        <div class="form-field">
-            <div class="label-container">
-                <label for="base_margin">Global Base Margin (%)</label>
-            </div>
-            <input type="text" name="base_margin" value="<?php echo get_option("smt_smart_feeds_base_margin");?>" placeholder="Example: 76">
-        </div>
-
-        <div id="rectron" class="form-field">
-            <div class="label-container">
-                <label for="rectron">Rectron Feed (onhand)</label>
-            </div>
-            <input type="text" name="rectron_onhand" placeholder="Onhand Feed" value="<?php echo get_option("smt_smart_feeds_rectron_feed_onhand");?>">
-        </div>
-        <div  class="form-field">
-
-            <div class="label-container">
-                <label>Request Interval</label>
-                <input id="interval" type="hidden" value="<?php echo get_option("smt_smart_feeds_interval");?>">
+            <!-- Rectron Feed Onhand -->
+            <div id="rectron" class="form-field">
+                <div class="label-container">
+                    <label for="rectron">Rectron Feed (onhand)</label>
+                </div>
+                <input type="text" name="rectron_onhand" placeholder="Onhand Feed" value="<?php echo get_option("smt_smart_feeds_rectron_feed_onhand");?>">
             </div>
 
-            <div>
+            <div class="form-field">
+                <label for="feed_interval">Sync Interval</label>
+                <select name="feed_interval" id="feed_interal">
+                    <option value="10-min">Every 10 Minutes</option>
+                    <option value="hourly">Hourly</option>
+                    <option value="daily">Daily</option>
+                </select>
+            </div>
 
-                <div class="radio-input">
-                    <div>
-                        <input id="weekly" type="radio" name="interval" value="weekly">
-                        <label for="">Weekly</label>
-                    </div>
+            <!-- Base Margin -->
+            <div class="form-field">
+                <div class="label-container">
+                    <label for="base_margin">Base Margin (%)</label>
+                </div>
+                <input type="text" name="base_margin" value="<?php echo get_option("smt_smart_feeds_base_margin");?>" placeholder="Example: 76">
+            </div>
 
-                    <div>
-                        <input id="daily" type="radio" name="interval" value="daily">
-                        <label for="">Daily</label>
-                    </div>
-
-                    <div>
-                        <input id="hourly" type="radio" name="interval" value="hourly">
-                        <label for="">Monthly</label>
-                    </div>                  
+            <div class="form-field">
+                <label for="dynamic_rules">Dynamic Rules</label>
+                <div id="add-dynamic-rules">
+                    <select name="dynamic_rules" id="dynamic_rules">
+                        <option value="" disabled selected>Add Dynamic Rule</option>
+                        <option value="import-price">Don't Import According To Price</option>
+                        <option value="import-stock">Don't Import According To Stock</option>
+                        <option value="margin">Set Margin According To Price</option>
+                    </select>
+                    <button type="button" id="add-rule">Add</button>
                 </div>
 
+
             </div>
 
-        </div>
+            <!-- Save buttons  -->
+            <div id="button-container">
+                <button type="submit" name="create-product">Save Settings</button>
+                <button type="submit" name="refresh">Sync Now</button>
+            </div>
 
-        <div>
-            <button type="submit" name="create-product">Save Settings</button>
-            <button type="submit" name="refresh">Sync Now</button>
-        </div>
-        
-    </form>
-
-
+            </form>
+            <section id="dynamic-rule-section">
+            <h2>Dynamic Rules</h2>
+            <!-- Show the dynamic rules -->
+            <div id="dynamic-rules-display">
+                <div class="dynamic-rule">
+                    <span>Don't import if price is: </span>
+                    <span>Less Than: <input type="number" name="" id=""></span>
+                    <span>More Than: <input type="number"></span>
+                </div>
+                <div class="dynamic-rule">
+                    <span>Don't import if stock is: </span>
+                    <span>Less Than: <input type="number" name="" id=""></span>
+                </div>
+                <div class="dynamic-rule">
+                    <span>Set Margin as: <input type="number"> if price is: </span>
+                    <span>Less Than: <input type="number" name="" id=""></span>
+                    <span>More Than: <input type="number"></span>
+                </div>
+            </div>
+        </section>
+    </div>
+    
 </main>

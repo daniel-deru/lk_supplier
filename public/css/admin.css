@@ -1,9 +1,17 @@
+#main-container {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+}
+
+
+
 #wp_smart_feed_admin {
     font-size: 1.5em;
 }
 
-#wp_smart_feed_admin form div * {
-    display: block;
+#wp_smart_feed_admin form {
+    width: 40%;
 }
 
 #wp_smart_feed_admin .form-field {
@@ -20,19 +28,29 @@
 }
 
 
-#wp_smart_feed_admin input {
-    width: 40%;
+#wp_smart_feed_admin input:not(input[type="number"]), #wp_smart_feed_admin select {
+    width: 100%;
+    max-width: 100%;
     font-size: 0.75em;
     margin: 10px 0px;
 }
 
-#wp_smart_feed_admin button {
-    background-color: #9ecd16;
+#wp_smart_feed_admin button:not(#add-dynamic-rules button) {
+    background-color: #21759b;
+    max-width: 100%;
+    height: 30px;
+    font-size: 0.9em;
+    color: white;
     border: none;
-    padding: 5px 20px ;
+    padding: 0px 20px ;
     border-radius: 5px;
-    margin: 10px;
+    margin: 10px auto;
     cursor: pointer;
+}
+
+#woocommerce-help-container {
+    display: flex;
+    position: relative;
 }
 
 
@@ -52,7 +70,7 @@
     display: none;
     background-color: black;
     color: white;
-    padding: 10px;
+    padding: 20px;
     border-radius: 5px;
     top: 0px;
 }
@@ -61,25 +79,50 @@
     display: block;
 }
 
-#wp_smart_feed_admin input[type="radio"] {
-    width: fit-content;
-}
-#wp_smart_feed_admin .radio-input {
-    display: flex;
-    justify-content: space-between;
-    width: 40%;
-}
-
-#wp_smart_feed_admin .radio-input div {
+#add-dynamic-rules {
     display: flex;
     align-items: center;
     width: 100%;
 }
 
-#wp_smart_feed_admin .radio-input label {
-    display: inline;
-    margin: 0px 10px;
+#add-dynamic-rules select {
+    width: 70%;
 }
+
+#add-dynamic-rules button {
+    background-color: #21759b;
+    width: 20%;
+    font-size: 0.9em;
+    margin-left: auto;
+    height: 30px;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#button-container {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+}
+
+#wp_smart_feed_admin input[type="number"]{
+    width: 100px;
+}
+
+.dynamic-rule {
+    margin: 10px;
+    /* border: 2px solid #21759b; */
+    color: black;
+    font-weight: 400;
+    padding: 5px;
+    border-radius: 5px;
+    width: fit-content;
+    font-size: 0.9em;
+    background-color: rgb(211, 211, 211);
+}
+
 
 
 
