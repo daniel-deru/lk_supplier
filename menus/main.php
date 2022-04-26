@@ -127,7 +127,7 @@ if(isset($_POST['create-product'])){
             <h2>Dynamic Rules</h2>
             <!-- Show the dynamic rules -->
             <div id="dynamic-rules-display">
-                <div class="dynamic-rule">
+                <!-- <div class="dynamic-rule">
                     <span>Don't import if price is: </span>
                     <span>Less Than: <input type="number" name="" id=""></span>
                     <span>More Than: <input type="number"></span>
@@ -140,7 +140,7 @@ if(isset($_POST['create-product'])){
                     <span>Set Margin as: <input type="number"> if price is: </span>
                     <span>Less Than: <input type="number" name="" id=""></span>
                     <span>More Than: <input type="number"></span>
-                </div>
+                </div> -->
             </div>
         </section>
     </div>
