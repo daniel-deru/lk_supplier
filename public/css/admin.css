@@ -4,8 +4,6 @@
     width: 100%;
 }
 
-
-
 #wp_smart_feed_admin {
     font-size: 1.5em;
 }
@@ -51,6 +49,7 @@
 #woocommerce-help-container {
     display: flex;
     position: relative;
+    margin-left: 20px;
 }
 
 
@@ -116,19 +115,21 @@
 }
 
 .dynamic-rule {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin: 10px;
-    /* border: 2px solid #21759b; */
     color: black;
     font-weight: 400;
     padding: 5px;
     border-radius: 5px;
-    width: fit-content;
+    width: 100%;
     font-size: 0.9em;
     background-color: rgb(211, 211, 211);
 }
 
-#ruleset-save-container button {
-    display: inline-block;
+#ruleset-save-container {
+    width: fit-content;
     margin: auto;
 }
 

@@ -2,16 +2,19 @@
 
 require_once "woocommerce-api.php";
 require_once 'includes/convert.php';
+require_once 'includes/print.php';
 
 
 class Rectron  {
     private $onhand_feed;
     private $categories = "https://content.storefront7.co.za/stores/za.co.storefront7.rectron/xmlfeed/rectronfeed-637806849145434755.xml";
     private $attribute_name = "rectron";
+    public $categories_data = null;
     // private $woocommerce;
 
     function __construct(){
         $this->register_feed();
+        $this->categories_data = $this->get_categories();
     }
 
     // Called in the constructor to get the feed url
@@ -90,8 +93,8 @@ class Rectron  {
         }
     }
 
-    // Returns an array of the products that is indexed
-    function get_formated_data($dirty_data){
+    // This function is only callable from inside the class
+    private function get_formated_data($dirty_data){
         $formated_array = array();
         $i = 0;
         foreach($dirty_data->ProductDto as $product){
@@ -105,7 +108,7 @@ class Rectron  {
     }
 
     // Returns an associative array of products with the sku as the key
-    function get_formated_categories($dirty_data){
+    private function get_formated_categories($dirty_data){
         $formated_categories = array();
 
         foreach($dirty_data->product as $product){
@@ -119,7 +122,20 @@ class Rectron  {
 
 
     function create_product($product){
-        return;
+        $products = $this->get_data();
+        // for($i = 0; $i < count($products); $i++){
+            // $images = $this->categories_data[$products[$i]["Code"]]['pictures']['picture'];
+            // $images = array_map(function($image){ return preg_replace("/(\/\/)/", "", $image['@attributes']['path']); }, $images);
+            // echo "<br>" . $i . "<br>";
+            // format($this->categories_data[$products[$i]["Code"]]['@attributes']['sku']);
+            // format($products[$i]);
+            // UpcBarcode
+            // break;
+        // }
+        format($products[1]);
+        format($products[3]);
+        format($products[6]);
+        format($products[10]);
     }
 
     function update_product($store_product, $feed_product){

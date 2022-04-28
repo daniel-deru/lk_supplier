@@ -37,8 +37,13 @@ if(isset($_POST['save'])){
         $intervalRegex = "/(daily)|(weekly)|(hourly)/";
         if(preg_match($intervalRegex, $interval)) update_option("smt_smart_feeds_interval", $_POST['interval']);
     }
-    echo "This is the dynamic rules";
-    format(json_decode(get_option('smt_smart_feeds_dynamic_rules')));
+
+
+    wp_localize_script("smt_lk_supplier_admin_script", "smart_feed_data", array(
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'dynamic_rules' => get_option('smt_smart_feeds_dynamic_rules')
+    ));
+    format(count(json_decode(get_option('smt_smart_feeds_dynamic_rules'))));
 
 }
 
@@ -48,6 +53,8 @@ if(isset($_POST['save'])){
 
 // $rectron = new Rectron();
 // format($rectron->getWCProducts($woocommerce));
+$rectron = new Rectron();
+format($rectron->create_product(""));
 
 ?>
 <main id="wp_smart_feed_admin">
@@ -68,7 +75,7 @@ if(isset($_POST['save'])){
                         <!-- This div is hidden -->
                     <div id="woocommerce-help" class="help">
                         <!-- <img src="<?php echo dirname(plugin_dir_url(__FILE__))?>/lk_supplier/public/images/help.png" alt=""> -->
-                        <i class="fa fa-question-circle-o" aria-hidden="true"></i>
+                        <i class="fa fa-question-circle" aria-hidden="true"></i>
                         <ol class="info">
                             <li> Click on add key and fill in the required details.</li>
                             <li> Important* Permisions must be set to Read and Write.</li>
@@ -131,9 +138,9 @@ if(isset($_POST['save'])){
                 <!-- Show the dynamic rules -->
                 <div id="dynamic-rules-display">
                 </div>
-                <!-- <div id="ruleset-save-container">
+                <div id="ruleset-save-container">
                     <button type="button" id="ruleset-save-btn">Save Rules</button>
-                </div> -->
+                </div>
         </section>
     </div>
     

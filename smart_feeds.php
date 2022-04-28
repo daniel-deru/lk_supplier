@@ -78,7 +78,8 @@ function smt_lk_supplier_scripts(){
             wp_enqueue_style("smt_lk_supplier_admin_style", plugins_url("/public/css/admin.css", __FILE__));
             wp_enqueue_script("smt_lk_supplier_admin_script", plugins_url("/public/js/smt_smart_feeds_help.js", __FILE__), array('jquery'), false, true);
             wp_localize_script("smt_lk_supplier_admin_script", "smart_feed_data", array(
-                'ajax_url' => admin_url('admin-ajax.php')
+                'ajax_url' => admin_url('admin-ajax.php'),
+                'dynamic_rules' => get_option('smt_smart_feeds_dynamic_rules')
             ));
         }
         if($page === "smt_smart_feeds_product_settings"){
@@ -96,7 +97,8 @@ add_action('wp_ajax_get_rules', 'get_rules');
 add_action('wp_ajax_nopriv_get_rules', 'get_rules');
 
 function get_rules(){
-    $data = json_encode(['data' => $_POST['rules']]);
+    $data = json_encode($_POST['rules']);
+    echo count($_POST['rules']);
     update_option('smt_smart_feeds_dynamic_rules', $data);
     wp_die();
 };

@@ -260,3 +260,4 @@ class FilterFeed {
 const product = new ProductTable()
 const filter = new FilterFeed()
 
+console.log(rectron_products)

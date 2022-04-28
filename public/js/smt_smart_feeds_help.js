@@ -1,37 +1,27 @@
 
-let initial = [
-    {
-        "type": "import-price",
-        "less_than": 100,
-        "more_than": 200
-    },
-    {
-        "type": "import-stock",
-        "less_than": 300
-    },
-    {
-        "type": "margin",
-        "margin": 20,
-        "less_than": 100,
-        "more_than": 300
-    }
-]
 class DynamicRules {
-    static rules = initial
+    static rules = []
     constructor(){
+
+        let initialRules = JSON.parse(smart_feed_data.dynamic_rules)
+        if(initialRules.length > 0) DynamicRules.rules = initialRules
+
         this.addDynamicListener()
         this.saveListener()
+        console.log("The constructor function ran", initialRules)
         DynamicRules.createInitialRules()
+
     }
 
     saveListener(){
-        document.getElementById("settings-save-btn").addEventListener('click', function(){
+        document.getElementById("ruleset-save-btn").addEventListener('click', function(){
             const data = {
                 action: 'get_rules',
                 rules: DynamicRules.rules
             }
             jQuery.post(smart_feed_data.ajax_url, data, (response) => {
                 console.log(JSON.parse(response))
+                alert("Saved")
             })
         })
     }
@@ -63,8 +53,6 @@ class DynamicRules {
                 rule = DynamicRules.createMarginComponent(ruleIndex)
                 break
         }
-
-        console.log(DynamicRules.rules)
         outputContainer.appendChild(rule)
 
     }
@@ -208,5 +196,5 @@ class DynamicRules {
 }
 
 const rules = new DynamicRules()
-console.log(smart_feed_data)
+
 
