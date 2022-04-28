@@ -6,7 +6,7 @@
 
     $link = sanitize_url($getHost());
 
-if(isset($_POST['create-product'])){
+if(isset($_POST['save'])){
     if(isset($_POST['consumer_key'])){
         $consumer_key = sanitize_key($_POST['consumer_key']);
         $consumerKeyRegex = "/ck_[0-9a-f]{40}/i";
@@ -37,6 +37,8 @@ if(isset($_POST['create-product'])){
         $intervalRegex = "/(daily)|(weekly)|(hourly)/";
         if(preg_match($intervalRegex, $interval)) update_option("smt_smart_feeds_interval", $_POST['interval']);
     }
+    echo "This is the dynamic rules";
+    format(get_option('smt_smart_feeds_dynamic_rules'));
 
 }
 
@@ -119,7 +121,7 @@ if(isset($_POST['create-product'])){
 
             <!-- Save buttons  -->
             <div id="button-container">
-                <button type="submit" name="create-product">Save Settings</button>
+                <button type="submit" name="save" id="settings-save-btn">Save Settings</button>
                 <button type="submit" name="refresh">Sync Now</button>
             </div>
 
@@ -129,9 +131,9 @@ if(isset($_POST['create-product'])){
                 <!-- Show the dynamic rules -->
                 <div id="dynamic-rules-display">
                 </div>
-                <div id="ruleset-save-container">
+                <!-- <div id="ruleset-save-container">
                     <button type="button" id="ruleset-save-btn">Save Rules</button>
-                </div>
+                </div> -->
         </section>
     </div>
     

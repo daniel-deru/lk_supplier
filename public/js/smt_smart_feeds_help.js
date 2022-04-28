@@ -25,8 +25,14 @@ class DynamicRules {
     }
 
     saveListener(){
-        document.getElementById("ruleset-save-btn").addEventListener('click', function(){
-            console.log(DynamicRules.rules)
+        document.getElementById("settings-save-btn").addEventListener('click', function(){
+            const data = {
+                action: 'get_rules',
+                rules: DynamicRules.rules
+            }
+            jQuery.post(smart_feed_data.ajax_url, data, (response) => {
+                console.log(JSON.parse(response))
+            })
         })
     }
 
@@ -110,7 +116,6 @@ class DynamicRules {
         description.innerText = "Don't Import if stock: "
 
         const lessComponent = DynamicRules.createCompareComponent("less_than", ruleIndex, less_than_value)
-        if(value) lessComponent.value = value
 
         container.appendChild(description)
         container.appendChild(lessComponent)
@@ -128,7 +133,7 @@ class DynamicRules {
         marginContainer.innerText = "Set Margin as: "
 
         const margin = document.createElement('input')
-        if(margin_value) margin.value = value
+        if(margin_value) margin.value = margin_value
         margin.dataset.index = ruleIndex
         margin.type = 'number'
         
@@ -179,4 +184,5 @@ class DynamicRules {
 }
 
 const rules = new DynamicRules()
+console.log(smart_feed_data)
 

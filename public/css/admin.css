@@ -127,6 +127,11 @@
     background-color: rgb(211, 211, 211);
 }
 
+#ruleset-save-container button {
+    display: inline-block;
+    margin: auto;
+}
+
 
 
 
