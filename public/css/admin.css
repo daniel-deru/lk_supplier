@@ -132,6 +132,16 @@
     margin: auto;
 }
 
+.rule-delete-container {
+    padding: 5px;
+    color: firebrick;
+    cursor: pointer;
+}
+
+.rule-delete-container svg, .rule-delete-container i {
+    user-select: none;
+}
+
 
 
 

@@ -21,7 +21,7 @@ class DynamicRules {
     constructor(){
         this.addDynamicListener()
         this.saveListener()
-        this.createInitialRules()
+        DynamicRules.createInitialRules()
     }
 
     saveListener(){
@@ -69,9 +69,10 @@ class DynamicRules {
 
     }
 
-    createInitialRules(){
+    static createInitialRules(){
         let rules = DynamicRules.rules
         const outputContainer = document.getElementById("dynamic-rules-display")
+        outputContainer.innerHTML = ""
 
         for(let i = 0; i < rules.length; i++){
             let rule = null
@@ -98,12 +99,12 @@ class DynamicRules {
         description.innerText = "Don't import if price is: "
         const lessComponent = DynamicRules.createCompareComponent("less_than", ruleIndex, less_than_value)
         const moreComponent = DynamicRules.createCompareComponent("more_than", ruleIndex, more_than_value)
+        const deleteBtn = DynamicRules.createDeleteButton(ruleIndex)
 
         container.appendChild(description)
         container.appendChild(lessComponent)
         container.appendChild(moreComponent)
-
-        console.log(container)
+        container.appendChild(deleteBtn)
 
         return container
     }
@@ -116,11 +117,11 @@ class DynamicRules {
         description.innerText = "Don't Import if stock: "
 
         const lessComponent = DynamicRules.createCompareComponent("less_than", ruleIndex, less_than_value)
+        const deleteBtn = DynamicRules.createDeleteButton(ruleIndex)
 
         container.appendChild(description)
         container.appendChild(lessComponent)
-
-        console.log(container)
+        container.appendChild(deleteBtn)
 
         return container
     }
@@ -143,10 +144,12 @@ class DynamicRules {
 
         const lessComponent = DynamicRules.createCompareComponent("less_than", ruleIndex, less_than_value)
         const moreComponent = DynamicRules.createCompareComponent("more_than", ruleIndex, more_than_value)
+        const deleteBtn = DynamicRules.createDeleteButton(ruleIndex)
 
         container.appendChild(marginContainer)
         container.appendChild(lessComponent)
         container.appendChild(moreComponent)
+        container.appendChild(deleteBtn)
 
         return container
     }
@@ -180,6 +183,27 @@ class DynamicRules {
     static marginListner(){
         let ruleIndex = parseInt(this.dataset.index)
         DynamicRules.rules[ruleIndex]['margin'] = parseFloat(this.value)
+    }
+
+    static createDeleteButton(index){
+        let iconContainer = document.createElement('span')
+        iconContainer.classList.add("rule-delete-container")
+        iconContainer.dataset.index = index
+
+        iconContainer.addEventListener('click', DynamicRules.deleteRule)
+
+        let icon = document.createElement("i")
+        icon.classList.add("fa", "fa-times")
+        icon.setAttribute('aria-hidden', 'true')
+
+        iconContainer.appendChild(icon)
+        return iconContainer
+    }
+
+    static deleteRule(){
+        let index = parseInt(this.dataset.index)
+        DynamicRules.rules = DynamicRules.rules.filter((r, i) => index !== i )
+        DynamicRules.createInitialRules()
     }
 }
 

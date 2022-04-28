@@ -38,7 +38,7 @@ if(isset($_POST['save'])){
         if(preg_match($intervalRegex, $interval)) update_option("smt_smart_feeds_interval", $_POST['interval']);
     }
     echo "This is the dynamic rules";
-    format(get_option('smt_smart_feeds_dynamic_rules'));
+    format(json_decode(get_option('smt_smart_feeds_dynamic_rules')));
 
 }
 
