@@ -65,7 +65,8 @@ if(isset($_POST['create-product'])){
                     <a href="<?php echo esc_url($link . "/wp-admin/admin.php?page=wc-settings&tab=advanced&section=keys") ?>" target="_blank">Create a Key</a>
                         <!-- This div is hidden -->
                     <div id="woocommerce-help" class="help">
-                        <img src="<?php echo dirname(plugin_dir_url(__FILE__))?>/lk_supplier/public/images/help.png" alt="">
+                        <!-- <img src="<?php echo dirname(plugin_dir_url(__FILE__))?>/lk_supplier/public/images/help.png" alt=""> -->
+                        <i class="fa fa-question-circle-o" aria-hidden="true"></i>
                         <ol class="info">
                             <li> Click on add key and fill in the required details.</li>
                             <li> Important* Permisions must be set to Read and Write.</li>
@@ -124,24 +125,13 @@ if(isset($_POST['create-product'])){
 
             </form>
             <section id="dynamic-rule-section">
-            <h2>Dynamic Rules</h2>
-            <!-- Show the dynamic rules -->
-            <div id="dynamic-rules-display">
-                <!-- <div class="dynamic-rule">
-                    <span>Don't import if price is: </span>
-                    <span>Less Than: <input type="number" name="" id=""></span>
-                    <span>More Than: <input type="number"></span>
+                <h2>Dynamic Rules</h2>
+                <!-- Show the dynamic rules -->
+                <div id="dynamic-rules-display">
                 </div>
-                <div class="dynamic-rule">
-                    <span>Don't import if stock is: </span>
-                    <span>Less Than: <input type="number" name="" id=""></span>
+                <div id="ruleset-save-container">
+                    <button type="button" id="ruleset-save-btn">Save Rules</button>
                 </div>
-                <div class="dynamic-rule">
-                    <span>Set Margin as: <input type="number"> if price is: </span>
-                    <span>Less Than: <input type="number" name="" id=""></span>
-                    <span>More Than: <input type="number"></span>
-                </div> -->
-            </div>
         </section>
     </div>
     
