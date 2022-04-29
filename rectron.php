@@ -114,6 +114,7 @@ class Rectron  {
         foreach($dirty_data->product as $product){
             $json_product = json_encode($product);
             $array_product = json_decode($json_product, true);
+            format($array_product['@attributes']["sku"]);
             $formated_categories[(string)$product['sku']] = $array_product;
         }
         return $formated_categories;
@@ -123,19 +124,26 @@ class Rectron  {
 
     function create_product($product){
         $products = $this->get_data();
+        $total = 0;
+        $available = 0;
         // for($i = 0; $i < count($products); $i++){
             // $images = $this->categories_data[$products[$i]["Code"]]['pictures']['picture'];
             // $images = array_map(function($image){ return preg_replace("/(\/\/)/", "", $image['@attributes']['path']); }, $images);
             // echo "<br>" . $i . "<br>";
-            // format($this->categories_data[$products[$i]["Code"]]['@attributes']['sku']);
-            // format($products[$i]);
-            // UpcBarcode
+            // if(isset($this->categories_data[$products[$i]["Code"]])) format($this->categories_data[$products[$i]["Code"]]['@attributes']['sku']);
+            // else if(!isset($this->categories_data[$products[$i]["Code"]])) format($this->categories_data[$products[$i]["Code"] . "-NA"]['@attributes']['sku']);
+            // $total++;
+            // if(isset($this->categories_data[$products[$i]["Code"]])) $available++;
+            // if(isset($this->categories_data[$products[$i]["Code"] . "-NA"])) $available++;
+             // // UpcBarcode
             // break;
         // }
-        format($products[1]);
-        format($products[3]);
-        format($products[6]);
-        format($products[10]);
+        // echo $available . "/" . $total;
+        // format($products[1]);
+        // format($products[3]);
+        // format($products[6]);
+        // format($products[10]);
+        // 383/906
     }
 
     function update_product($store_product, $feed_product){
