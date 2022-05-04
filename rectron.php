@@ -15,6 +15,7 @@ class Rectron  {
     function __construct(){
         $this->register_feed();
         $this->categories_data = $this->get_categories();
+        $this->create_categories();
     }
 
     // Called in the constructor to get the feed url
@@ -114,8 +115,7 @@ class Rectron  {
         foreach($dirty_data->product as $product){
             $json_product = json_encode($product);
             $array_product = json_decode($json_product, true);
-            format($array_product['@attributes']["sku"]);
-            $formated_categories[(string)$product['sku']] = $array_product;
+            $formated_categories[(string)$product['fullName']] = $array_product;
         }
         return $formated_categories;
     }
@@ -124,26 +124,62 @@ class Rectron  {
 
     function create_product($product){
         $products = $this->get_data();
-        $total = 0;
-        $available = 0;
-        // for($i = 0; $i < count($products); $i++){
-            // $images = $this->categories_data[$products[$i]["Code"]]['pictures']['picture'];
-            // $images = array_map(function($image){ return preg_replace("/(\/\/)/", "", $image['@attributes']['path']); }, $images);
-            // echo "<br>" . $i . "<br>";
-            // if(isset($this->categories_data[$products[$i]["Code"]])) format($this->categories_data[$products[$i]["Code"]]['@attributes']['sku']);
-            // else if(!isset($this->categories_data[$products[$i]["Code"]])) format($this->categories_data[$products[$i]["Code"] . "-NA"]['@attributes']['sku']);
-            // $total++;
-            // if(isset($this->categories_data[$products[$i]["Code"]])) $available++;
-            // if(isset($this->categories_data[$products[$i]["Code"] . "-NA"])) $available++;
-             // // UpcBarcode
-            // break;
-        // }
-        // echo $available . "/" . $total;
-        // format($products[1]);
-        // format($products[3]);
-        // format($products[6]);
-        // format($products[10]);
-        // 383/906
+
+        for($i = 0; $i < count($products); $i++){
+            if(isset($this->categories_data[$products[$i]["Code"]]) && isset($this->categories_data[$products[$i]["Code"]]['pictures'])){
+                $images = $this->categories_data[$products[$i]["Code"]]['pictures']['picture'];
+                if(count($images) >= 2) $images = array_map(function($image){ return preg_replace("/(\/\/)/", "", $image['@attributes']['path']); }, $images);
+                else $images = preg_replace("/(\/\/)/", "", $images['@attributes']['path']);
+
+                $categories = $this->categories_data[$products[$i]["Code"]]['categories']['category'];
+                
+                if(count($categories) < 2){
+                    $categories = ltrim($categories['@attributes']['path'], "/");
+                    $categories = rtrim($categories, "/");
+                    $categories = explode("/", $categories);
+                } else {
+                    $categories_array = [];
+                    foreach($categories as $category){
+                        $category = ltrim($category['@attributes']['path'], "/");
+                        $category = rtrim($category, "/");
+                        $category = explode("/", $category);
+                        $categories_array = array_merge($categories_array, $category);
+                    }
+                    $categories = $categories_array;
+                }
+
+                
+
+            }
+
+        }
+    }
+
+    function create_categories(){
+        $categories_array = array();
+        // format(count($this->categories_data));
+        foreach($this->categories_data as $i => $category){
+            $cat = $category['categories']['category'];
+            format($cat);
+            if(count($cat) < 2){
+                // Get the main and sub categories
+                $cats = explode("/", rtrim(ltrim($cat['@attributes']['path'], "/"), "/"));
+                // Loop over the array and add to category array if the category isn't there
+                foreach($cats as $c){
+                    if(isset($categories_array[$c])) continue;
+                    else $categories_array[$c] = 1;
+                }
+            } else {
+                foreach($cat as $ca){
+                    format($ca);
+                }
+            }
+            // $category = $category['categories']['category'];
+            // if(isset($category['@attribute'])){
+            //     format($category['@attribute']['path']);
+            // }
+
+        }
     }
 
     function update_product($store_product, $feed_product){
