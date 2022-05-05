@@ -53,7 +53,10 @@ if(isset($_POST['save'])){
 
 // $rectron = new Rectron();
 // format($rectron->getWCProducts($woocommerce));
-$rectron = new Rectron();
+
+$existing_categories = json_decode($smt_smart_feeds_listCategories(), true);
+
+$rectron = new Rectron($existing_categories);
 format($rectron->create_product(""));
 
 ?>

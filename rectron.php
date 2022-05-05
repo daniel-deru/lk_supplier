@@ -3,6 +3,7 @@
 require_once "woocommerce-api.php";
 require_once 'includes/convert.php';
 require_once 'includes/print.php';
+require_once 'includes/categories.php';
 
 
 class Rectron  {
@@ -12,7 +13,8 @@ class Rectron  {
     public $categories_data = null;
     // private $woocommerce;
 
-    function __construct(){
+    function __construct($existing_categories){
+        $this->existing_categories = $existing_categories;
         $this->register_feed();
         $this->categories_data = $this->get_categories();
         $this->create_categories();
@@ -154,16 +156,19 @@ class Rectron  {
 
         }
     }
-
+    // Loop through the XML feed and get the categories
     function create_categories(){
         $categories_array = array();
-        // format(count($this->categories_data));
+        format($this->existing_categories);
+        
         foreach($this->categories_data as $i => $category){
-            if(!isset($category['categories']['category'])){
+            if(isset($category['categories']['category'])){
                 $cat = $category['categories']['category'];
                 if(count($cat) < 2){
                     // Get the main and sub categories
                     $cats = explode("/", rtrim(ltrim($cat['@attributes']['path'], "/"), "/"));
+                    register_category($cats);
+                    break;
                     // Loop over the array and add to category array if the category isn't there
                     foreach($cats as $c){
                         if(isset($categories_array[$c])) continue;
@@ -181,7 +186,6 @@ class Rectron  {
                 }
             }
         }
-        format($categories_array);
     }
 
     function update_product($store_product, $feed_product){
