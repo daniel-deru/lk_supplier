@@ -159,27 +159,29 @@ class Rectron  {
         $categories_array = array();
         // format(count($this->categories_data));
         foreach($this->categories_data as $i => $category){
-            $cat = $category['categories']['category'];
-            format($cat);
-            if(count($cat) < 2){
-                // Get the main and sub categories
-                $cats = explode("/", rtrim(ltrim($cat['@attributes']['path'], "/"), "/"));
-                // Loop over the array and add to category array if the category isn't there
-                foreach($cats as $c){
-                    if(isset($categories_array[$c])) continue;
-                    else $categories_array[$c] = 1;
-                }
-            } else {
-                foreach($cat as $ca){
-                    format($ca);
+            if(!isset($category['categories']['category'])){
+                $cat = $category['categories']['category'];
+                if(count($cat) < 2){
+                    // Get the main and sub categories
+                    $cats = explode("/", rtrim(ltrim($cat['@attributes']['path'], "/"), "/"));
+                    // Loop over the array and add to category array if the category isn't there
+                    foreach($cats as $c){
+                        if(isset($categories_array[$c])) continue;
+                        else $categories_array[$c] = 1;
+                    }
+                } 
+                else {
+                    foreach($category['categories']['category'] as $ca){
+                        $temp = explode("/", ltrim(rtrim($ca['@attributes']['path'], "/"), "/"));
+                        foreach($temp as $t){
+                            if(isset($categories_array[$t])) continue;
+                            else $categories_array[$t] = 1;
+                        }
+                    }
                 }
             }
-            // $category = $category['categories']['category'];
-            // if(isset($category['@attribute'])){
-            //     format($category['@attribute']['path']);
-            // }
-
         }
+        format($categories_array);
     }
 
     function update_product($store_product, $feed_product){
