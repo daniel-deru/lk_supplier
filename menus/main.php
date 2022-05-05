@@ -56,7 +56,7 @@ if(isset($_POST['save'])){
 
 $existing_categories = json_decode($smt_smart_feeds_listCategories(), true);
 
-$rectron = new Rectron($existing_categories);
+$rectron = new Rectron($existing_categories, $woocommerce);
 format($rectron->create_product(""));
 
 ?>

@@ -87,7 +87,7 @@ $smt_smart_feeds_listCategories = function() use ($woocommerce) {
     return json_encode($categories);
 };
 
-$smt_smart_feeds_createCategory = function($data) use ($woocommerce) {
+function smt_smart_feeds_createCategory($data, $woocommerce) {
     $data = $woocommerce->post('products/categories', $data);
     return json_encode($data);
 };

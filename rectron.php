@@ -13,8 +13,9 @@ class Rectron  {
     public $categories_data = null;
     // private $woocommerce;
 
-    function __construct($existing_categories){
+    function __construct($existing_categories, $woocommerce){
         $this->existing_categories = $existing_categories;
+        $this->woocommerce = $woocommerce;
         $this->register_feed();
         $this->categories_data = $this->get_categories();
         $this->create_categories();
@@ -159,7 +160,6 @@ class Rectron  {
     // Loop through the XML feed and get the categories
     function create_categories(){
         $categories_array = array();
-        format($this->existing_categories);
         
         foreach($this->categories_data as $i => $category){
             if(isset($category['categories']['category'])){
@@ -167,7 +167,7 @@ class Rectron  {
                 if(count($cat) < 2){
                     // Get the main and sub categories
                     $cats = explode("/", rtrim(ltrim($cat['@attributes']['path'], "/"), "/"));
-                    register_category($cats);
+                    register_category($cats, convert_existing_categories($this->existing_categories), $this->woocommerce);
                     break;
                     // Loop over the array and add to category array if the category isn't there
                     foreach($cats as $c){
