@@ -135,7 +135,6 @@ class Rectron  {
                 else $images = preg_replace("/(\/\/)/", "", $images['@attributes']['path']);
 
                 $categories = $this->categories_data[$products[$i]["Code"]]['categories']['category'];
-                format($categories);
                 if(count($categories) < 2){
                     $categories = ltrim($categories['@attributes']['path'], "/");
                     $categories = rtrim($categories, "/");
@@ -168,7 +167,9 @@ class Rectron  {
                 if(count($cat) < 2){
                     // Get the main and sub categories
                     $cats = explode("/", rtrim(ltrim($cat['@attributes']['path'], "/"), "/"));
-                    register_category($cats, $categories_array, convert_existing_categories($this->existing_categories), $this->woocommerce);
+                    $result = register_category($cats, $categories_array, convert_existing_categories($this->existing_categories), $this->woocommerce);
+                    if(isset($result['error'])) break;
+                    break;
                     // Loop over the array and add to category array if the category isn't there
                     // foreach($cats as $c){
                     //     if(isset($categories_array[$c])) continue;
@@ -178,7 +179,9 @@ class Rectron  {
                 else {
                     foreach($category['categories']['category'] as $ca){
                         $temp = explode("/", ltrim(rtrim($ca['@attributes']['path'], "/"), "/"));
-                        register_category($temp, $categories_array, convert_existing_categories($this->existing_categories), $this->woocommerce);
+                        $result = register_category($temp, $categories_array, convert_existing_categories($this->existing_categories), $this->woocommerce);
+                        if(isset($result['error'])) break;
+                        break;
                         // foreach($temp as $t){
                         //     if(isset($categories_array[$t])) continue;
                         //     else $categories_array[$t] = 1;
@@ -187,8 +190,8 @@ class Rectron  {
                 }
             }
         }
-        // format("helo");
-        // format($categories_array);
+
+        format($categories_array);
     }
 
     function update_product($store_product, $feed_product){

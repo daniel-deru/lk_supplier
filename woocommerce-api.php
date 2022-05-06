@@ -82,14 +82,19 @@ $smt_smart_feeds_units = function() use ($woocommerce){
     return json_encode($data);
 };
 
-$smt_smart_feeds_listCategories = function() use ($woocommerce) {
-    $categories = $woocommerce->get("products/categories");
-    return json_encode($categories);
-};
+// $smt_smart_feeds_listCategories = function() use ($woocommerce) {
+//     $categories = $woocommerce->get("products/categories");
+//     return json_encode($categories);
+// };
 
 function smt_smart_feeds_createCategory($data, $woocommerce) {
-    $data = $woocommerce->post('products/categories', $data);
-    return json_encode($data);
+    try{
+        $data = $woocommerce->post('products/categories', $data);
+        return json_encode($data);
+    } catch (Exception $e) {
+        return json_encode(array('error' => true, 'message' => $e->getMessage()));
+    }
+
 };
 
 $smt_smart_feeds_getTaxClasses = function() use ($woocommerce) {
