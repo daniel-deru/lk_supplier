@@ -7,9 +7,7 @@ function register_category($categories, &$unique_categories, $existing_categorie
     $category_id = null;
 
     foreach($categories as $category){
-        
         $category = preg_replace("/-(?=-)/", "", $category);
-        format($existing_categories);
         if(isset($existing_categories[$category])){
             $category_id = $existing_categories[$category]['id'];
             continue;

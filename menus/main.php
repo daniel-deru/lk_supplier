@@ -59,11 +59,10 @@ $existing_categories = array_merge($existing_categories, $request['data']);
 
 $total_pages = $request['headers']["x-wp-totalpages"];
 for($i = 2; $i <= $total_pages; $i++){
-    format($i);
     $addon_categories = json_decode($smt_smart_feeds_listCategories($i), true);
     $existing_categories = array_merge($existing_categories, $addon_categories['data']);
 }
-$rectron = new Rectron($existing_categories['data'], $woocommerce);
+$rectron = new Rectron($existing_categories, $woocommerce);
 format($rectron->create_product(""));
 
 ?>
