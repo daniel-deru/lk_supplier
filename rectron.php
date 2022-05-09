@@ -13,7 +13,6 @@ require_once 'includes/categories.php';
     4. Description
     5. Short Description
     6. SKU
-    7. Price
     8. Regular Price
     9. Sale Price
     10. Manage Stock = true
@@ -155,8 +154,14 @@ class Rectron  {
 
                 // Get the images from the category feed
                 $images = $this->categories_data[$products[$i]["Code"]]['pictures']['picture'];
-                if(count($images) >= 2) $images = array_map(function($image){ return preg_replace("/(\/\/)/", "", $image['@attributes']['path']); }, $images);
-                else $images = preg_replace("/(\/\/)/", "", $images['@attributes']['path']);
+
+                if(count($images) >= 2) $images = array_map(function($image){ 
+                    return array( 'src' => preg_replace("/(\/\/)/", "https://", $image['@attributes']['path'])); 
+                }, $images);
+
+                else $images = array(
+                    'src' => preg_replace("/(\/\/)/", "https://", $images['@attributes']['path'])
+                );
 
                 // Get the categories from the category feed
                 $categories = $this->categories_data[$products[$i]["Code"]]['categories']['category'];
@@ -179,10 +184,30 @@ class Rectron  {
                 $product_categories = [];
                 foreach($categories as $category){
                     $category = $category = preg_replace("/-(?=-)/", "", $category);
-                    array_push($product_categories, $wp_categories[$category]["id"]);
+
+                    array_push($product_categories, array('id' => $wp_categories[$category]["id"]));
                 }
                 
-                format($products[$i]);
+                // format($products[$i]);
+                $product_data = array(
+                    'name' => $products[$i]['Title'],
+                    'description' => $products[$i]['Description'],
+                    'short_description' => $products[$i]['Description'],
+                    'sku' => $products[$i]['Code'],
+                    'regular_price' => $products[$i]['SellingPrice'],
+                    'manage_stock' => true,
+                    'stock_quantity' => $products[$i]['OnHand'],
+                    'images' => $images,
+                    'categories' => $product_categories
+                );
+                // smt_smart_feeds_addProduct
+                try {
+                    smt_smart_feeds_addProduct($product_data, $this->woocommerce);
+                } catch(Exception $e) {
+                    
+                }
+                // format($product_data);
+                // break;
             }
 
         }

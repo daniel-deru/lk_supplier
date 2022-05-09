@@ -102,3 +102,12 @@ function get_rules(){
     update_option('smt_smart_feeds_dynamic_rules', $data);
     wp_die();
 };
+
+// Update the woocommerce batch product limit
+function smt_smart_feeds_wc_api_batch_limit($limit){
+    $limit = 5000;
+    return $limit;
+}
+
+add_filter("woocommerce_rest_batch_limit", 'smt_smart_feeds_wc_api_batch_limit');
+add_filter('woocommerce_api_bulk_limit', 'smt_smart_feeds_wc_api_batch_limit', 10, 2);

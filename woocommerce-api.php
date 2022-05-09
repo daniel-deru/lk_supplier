@@ -58,6 +58,15 @@ function smt_smart_feeds_addProduct($data, $woocommerce){
 
 };
 
+// Update products in batches
+function smt_smart_feeds_batch($data, $woocommerce){
+    try{
+        return json_encode($woocommerce->post('products/batch', $data));
+    } catch (Exception $e){
+        return json_encode(array('message' => $e->getMessage()));
+    }
+}
+
 $smt_smart_feeds_getProduct = function($id) use ($woocommerce){
     if($id){
         $data = $woocommerce->get('products/' . $id);
