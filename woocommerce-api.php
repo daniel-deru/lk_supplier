@@ -48,7 +48,7 @@ function smt_smart_feeds_getHeaders($woocommerce){
     return json_encode($data);
  };
 
-$smt_smart_feeds_addProduct = function($data) use ($woocommerce){
+function smt_smart_feeds_addProduct($data, $woocommerce){
 
     if($data['name']){
         $request = $woocommerce->post('products', $data);

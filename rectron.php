@@ -5,6 +5,24 @@ require_once 'includes/convert.php';
 require_once 'includes/print.php';
 require_once 'includes/categories.php';
 
+/*
+    Things you need to add to the wp product
+    1. Categories
+    2. Images
+    3. Name
+    4. Description
+    5. Short Description
+    6. SKU
+    7. Price
+    8. Regular Price
+    9. Sale Price
+    10. Manage Stock = true
+    11. Stock Quantity
+
+
+
+*/
+
 
 class Rectron  {
     private $onhand_feed;
@@ -17,6 +35,7 @@ class Rectron  {
         $this->existing_categories = $existing_categories;
         $this->woocommerce = $woocommerce;
         $this->register_feed();
+        // This categories data is the data from the feed NOT the wordpress categories
         $this->categories_data = $this->get_categories();
         $this->create_categories();
     }
@@ -127,13 +146,19 @@ class Rectron  {
 
     function create_product($product){
         $products = $this->get_data();
-
+        $wp_categories = convert_existing_categories($this->existing_categories);
+        // Loop over the rectron feed products
         for($i = 0; $i < count($products); $i++){
+
+            // Check if the product has a code and pictures
             if(isset($this->categories_data[$products[$i]["Code"]]) && isset($this->categories_data[$products[$i]["Code"]]['pictures'])){
+
+                // Get the images from the category feed
                 $images = $this->categories_data[$products[$i]["Code"]]['pictures']['picture'];
                 if(count($images) >= 2) $images = array_map(function($image){ return preg_replace("/(\/\/)/", "", $image['@attributes']['path']); }, $images);
                 else $images = preg_replace("/(\/\/)/", "", $images['@attributes']['path']);
 
+                // Get the categories from the category feed
                 $categories = $this->categories_data[$products[$i]["Code"]]['categories']['category'];
                 if(count($categories) < 2){
                     $categories = ltrim($categories['@attributes']['path'], "/");
@@ -150,9 +175,14 @@ class Rectron  {
                     }
                     $categories = $categories_array;
                 }
-
+                // This is the categories that will be added to the product creation API call
+                $product_categories = [];
+                foreach($categories as $category){
+                    $category = $category = preg_replace("/-(?=-)/", "", $category);
+                    array_push($product_categories, $wp_categories[$category]["id"]);
+                }
                 
-
+                format($products[$i]);
             }
 
         }
@@ -167,34 +197,23 @@ class Rectron  {
                 if(count($cat) < 2){
                     // Get the main and sub categories
                     $cats = explode("/", rtrim(ltrim($cat['@attributes']['path'], "/"), "/"));
-                    /*$result = */register_category($cats, $categories_array, convert_existing_categories($this->existing_categories), $this->woocommerce);
-                    // if(isset($result['error'])) break;
+                    register_category($cats, $categories_array, convert_existing_categories($this->existing_categories), $this->woocommerce);
 
-                    // Loop over the array and add to category array if the category isn't there
-                    // foreach($cats as $c){
-                    //     if(isset($categories_array[$c])) continue;
-                    //     else $categories_array[$c] = 1;
-                    // }
                 } 
                 else {
                     foreach($category['categories']['category'] as $ca){
                         $temp = explode("/", ltrim(rtrim($ca['@attributes']['path'], "/"), "/"));
-                        /*$result = */register_category($temp, $categories_array, convert_existing_categories($this->existing_categories), $this->woocommerce);
-                        // if(isset($result['error'])) break;
-                        // foreach($temp as $t){
-                        //     if(isset($categories_array[$t])) continue;
-                        //     else $categories_array[$t] = 1;
-                        // }
+                        register_category($temp, $categories_array, convert_existing_categories($this->existing_categories), $this->woocommerce);
                     }
                 }
             }
         }
 
-        // format($categories_array);
     }
 
     function update_product($store_product, $feed_product){
         echo "Product needs to be updated";
     }
+
 
 }

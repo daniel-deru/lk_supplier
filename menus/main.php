@@ -2,6 +2,7 @@
     include_once  dirname(plugin_dir_path(__FILE__)) . "/woocommerce-api.php";
     require dirname(plugin_dir_path(__FILE__)) . "/includes/print.php";
     include dirname(plugin_dir_path(__FILE__)) . "/includes/link.php";
+    include dirname(plugin_dir_path(__FILE__)) . "/includes/categories.php";
     require dirname(plugin_dir_path(__FILE__)) . "/rectron.php";
 
     $link = sanitize_url($getHost());
@@ -62,8 +63,9 @@ for($i = 2; $i <= $total_pages; $i++){
     $addon_categories = json_decode($smt_smart_feeds_listCategories($i), true);
     $existing_categories = array_merge($existing_categories, $addon_categories['data']);
 }
+
 $rectron = new Rectron($existing_categories, $woocommerce);
-format($rectron->create_product(""));
+$rectron->create_product("");
 
 ?>
 <main id="wp_smart_feed_admin">

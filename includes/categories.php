@@ -4,6 +4,7 @@ require_once "print.php";
 
 // This is the function that will create the categories from the main loop in rectron.php
 function register_category($categories, &$unique_categories, $existing_categories, $woocommerce){
+    if(count($categories) <= 1) return;
     $category_id = null;
 
     foreach($categories as $category){
@@ -47,7 +48,6 @@ function register_category($categories, &$unique_categories, $existing_categorie
             // }
 
         }
-        // format($category);
         $unique_categories[$category] = $category_id;
     }
 }
