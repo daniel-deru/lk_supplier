@@ -22,7 +22,6 @@ require_once 'includes/categories.php';
 
 */
 
-
 class Rectron  {
     private $onhand_feed;
     private $categories = "https://content.storefront7.co.za/stores/za.co.storefront7.rectron/xmlfeed/rectronfeed-637806849145434755.xml";
@@ -38,6 +37,7 @@ class Rectron  {
         // This categories data is the data from the feed NOT the wordpress categories
         $this->categories_data = $this->get_categories();
         $this->create_categories();
+        $this->create_images();
     }
 
     // Called in the constructor to get the feed url
@@ -145,27 +145,35 @@ class Rectron  {
 
 
 
-    function create_product($product){
+    function feed_loop(){
         $products = $this->get_data();
         $wp_categories = convert_existing_categories($this->existing_categories);
+        set_time_limit(0);
+        ignore_user_abort(true);
         // Loop over the rectron feed products
-        $product_batches = array('create' => []);
-        ini_set("default_socket_timeout", 60000);
         for($i = 0; $i < count($products); $i++){
 
             // Check if the product has a code and pictures
             if(isset($this->categories_data[$products[$i]["Code"]]) && isset($this->categories_data[$products[$i]["Code"]]['pictures'])){
 
                 // Get the images from the category feed
-                $images = $this->categories_data[$products[$i]["Code"]]['pictures']['picture'];
+                // $images = $this->categories_data[$products[$i]["Code"]]['pictures']['picture'];
+                // // There is more than one image
+                // if(count($images) >= 2) $images = array_map(function($image){ 
+                    
+                //     $image_url = preg_replace("/(\/\/)/", "https://", $image['@attributes']['path']);
+                //     $image_construct_array = array('name' => wp_basename($image_url), 'tmp_name' => download_url($image_url));
+                //     $image_id = media_handle_sideload($image_construct_array);
 
-                if(count($images) >= 2) $images = array_map(function($image){ 
-                    return array( 'src' => preg_replace("/(\/\/)/", "https://", $image['@attributes']['path'])); 
-                }, $images);
-
-                else $images = array(
-                    'src' => preg_replace("/(\/\/)/", "https://", $images['@attributes']['path'])
-                );
+                //     return $image_id; 
+                // }, $images);
+                // // There is only one image
+                // else {
+                //     $image_url = preg_replace("/(\/\/)/", "https://", $images['@attributes']['path']);
+                //     $image_construct_array = array('name' => wp_basename($image_url), 'tmp_name' => download_url($image_url));
+                //     $image_id = media_handle_sideload($image_construct_array);
+                //     $images = [$image_id];
+                // }
 
                 // Get the categories from the category feed
                 $categories = $this->categories_data[$products[$i]["Code"]]['categories']['category'];
@@ -188,11 +196,13 @@ class Rectron  {
                 $product_categories = [];
                 foreach($categories as $category){
                     $category = $category = preg_replace("/-(?=-)/", "", $category);
-
-                    array_push($product_categories, array('id' => $wp_categories[$category]["id"]));
+                    // Find the category
+                    $cat = get_term_by('slug', $category, 'product_cat')->term_id;
+                    // Put category in a list of categories for the product
+                    array_push($product_categories, $cat);
                 }
                 
-                // format($products[$i]);
+
                 $product_data = array(
                     'name' => $products[$i]['Title'],
                     'description' => $products[$i]['Description'],
@@ -201,23 +211,22 @@ class Rectron  {
                     'regular_price' => $products[$i]['SellingPrice'],
                     'manage_stock' => true,
                     'stock_quantity' => $products[$i]['OnHand'],
-                    'images' => $images,
+                    // 'images' => $images,
                     'categories' => $product_categories
                 );
-                // if($i > 99) break;
-                array_push($product_batches['create'], $product_data);
+
+                $product_id = wc_get_product_id_by_sku( $product_data['sku'] );
+                if(empty($product_id)){
+                    // There is no product so create one
+                    // $this->create_product($product_data);
+                } 
+                else{
+                    // The product exists so update it
+                } 
+                // if($i > 100) break;
             }
 
         }
-
-        format($product_batches);
-        // try{
-        //     // smt_smart_feeds_batch
-        //     $result = smt_smart_feeds_batch($product_batches, $this->woocommerce);
-        //     format(json_decode($result));
-        // } catch (Exception $e){
-        //     format($e->getMessage());
-        // }
     }
     // Loop through the XML feed and get the categories
     function create_categories(){
@@ -240,6 +249,41 @@ class Rectron  {
                 }
             }
         }
+
+    }
+
+    function create_images(){
+        $query_args = array(
+            'post_type' => 'attachment',
+            'post_mime_type' => 'image',
+            'post_status' => 'inherit',
+            'posts_per_page' => -1
+        );
+
+        $query = new WP_Query($query_args);
+        $images = [];
+        foreach($query->posts as $image){
+            $images[] = $image;
+        }
+        format($images);
+    }
+
+    function create_product($product_data, $product_id=0){
+        // Create the product object to create or update the product
+        $product = new WC_Product($product_id);
+
+        $product->set_sku($product_data['sku']);
+        $product->set_name($product_data['name']);
+        $product->set_description($product_data['description']);
+        $product->set_short_description($product_data['short_description']);
+        $product->set_regular_price($product_data['regular_price']);
+        $product->set_manage_stock(true);
+        $product->set_stock_quantity($product_data['stock_quantity']);
+        $product->set_category_ids($product_data['categories']);
+        // $product->set_image_id($product_data['images'][0]);
+        // $product->set_gallery_image_ids($product_data['images']);
+
+        return $product->save();
 
     }
 

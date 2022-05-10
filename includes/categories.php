@@ -2,6 +2,13 @@
 include_once  dirname(plugin_dir_path(__FILE__)) . "/woocommerce-api.php";
 require_once "print.php";
 
+// Use this to create the categories insteads
+// wp_insert_term( 'My New Category', 'product_cat', array(
+//     'description' => 'Description for category', // optional
+//     'parent' => 0, // optional
+//     'slug' => 'my-new-category' // optional
+// ) );
+
 // This is the function that will create the categories from the main loop in rectron.php
 function register_category($categories, &$unique_categories, $existing_categories, $woocommerce){
     if(count($categories) <= 1) return;

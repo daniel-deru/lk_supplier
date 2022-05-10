@@ -69,7 +69,7 @@ if(isset($request['headers']["x-wp-totalpages"])){
 
 
 $rectron = new Rectron($existing_categories, $woocommerce);
-$rectron->create_product("");
+$rectron->feed_loop();
 
 ?>
 <main id="wp_smart_feed_admin">
