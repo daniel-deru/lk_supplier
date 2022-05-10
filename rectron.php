@@ -37,7 +37,7 @@ class Rectron  {
         // This categories data is the data from the feed NOT the wordpress categories
         $this->categories_data = $this->get_categories();
         $this->create_categories();
-        $this->create_images();
+        // $this->create_images();
     }
 
     // Called in the constructor to get the feed url
@@ -150,6 +150,7 @@ class Rectron  {
         $wp_categories = convert_existing_categories($this->existing_categories);
         set_time_limit(0);
         ignore_user_abort(true);
+        $problem = "https://content.storefront7.co.za/stores/za.co.storefront7.rectron/products/cmk16gx4m2b3200c16/pictures/corsair-vengeance-performance-8gb-ddr4-2666-1.2v-260-pin-so-dimm-memory-cmsx8gx4m1a2666c18-4_pz5e.jpg";
         // Loop over the rectron feed products
         for($i = 0; $i < count($products); $i++){
 
@@ -157,23 +158,22 @@ class Rectron  {
             if(isset($this->categories_data[$products[$i]["Code"]]) && isset($this->categories_data[$products[$i]["Code"]]['pictures'])){
 
                 // Get the images from the category feed
-                // $images = $this->categories_data[$products[$i]["Code"]]['pictures']['picture'];
-                // // There is more than one image
-                // if(count($images) >= 2) $images = array_map(function($image){ 
-                    
-                //     $image_url = preg_replace("/(\/\/)/", "https://", $image['@attributes']['path']);
-                //     $image_construct_array = array('name' => wp_basename($image_url), 'tmp_name' => download_url($image_url));
-                //     $image_id = media_handle_sideload($image_construct_array);
+                $images = $this->categories_data[$products[$i]["Code"]]['pictures']['picture'];
+                // There is more than one image
+                if(count($images) >= 2) $images = array_map(function($image){ 
 
-                //     return $image_id; 
-                // }, $images);
-                // // There is only one image
-                // else {
-                //     $image_url = preg_replace("/(\/\/)/", "https://", $images['@attributes']['path']);
-                //     $image_construct_array = array('name' => wp_basename($image_url), 'tmp_name' => download_url($image_url));
-                //     $image_id = media_handle_sideload($image_construct_array);
-                //     $images = [$image_id];
-                // }
+                    $image_url = preg_replace("/(\/\/)/", "https://", $image['@attributes']['path']);
+                    $image_id = $this->upload_image($image_url);
+
+                    return $image_id; 
+                }, $images);
+                // There is only one image
+                else {
+                    $image_url = preg_replace("/(\/\/)/", "https://", $images['@attributes']['path']);
+                    $image_id = $this->upload_image($image_url);
+                    $images = [$image_id];
+
+                }
 
                 // Get the categories from the category feed
                 $categories = $this->categories_data[$products[$i]["Code"]]['categories']['category'];
@@ -214,7 +214,6 @@ class Rectron  {
                     // 'images' => $images,
                     'categories' => $product_categories
                 );
-
                 $product_id = wc_get_product_id_by_sku( $product_data['sku'] );
                 if(empty($product_id)){
                     // There is no product so create one
@@ -253,6 +252,41 @@ class Rectron  {
     }
 
     function create_images(){
+        $images = $this->get_wp_images();
+        $product_images = $this->categories_data;
+        // format($product_images);
+        // if(!isset($product_images['pictures']['picture']['@attributes'])) format("Product with no pictures");
+    }
+
+    function upload_image($url) {
+        $image = "";
+        if($url != "") {
+         
+            $file = array();
+            $file['name'] = $url;
+            $file['tmp_name'] = download_url($url);
+     
+            if (is_wp_error($file['tmp_name'])) {
+                @unlink($file['tmp_name']);
+                var_dump( $file['tmp_name']->get_error_messages( ) );
+                var_dump(array("message" => "tmp name error"));
+            } else {
+                $attachmentId = media_handle_sideload($file);
+                 
+                if ( is_wp_error($attachmentId) ) {
+                    @unlink($file['tmp_name']);
+                    var_dump( $attachmentId->get_error_messages( ) );
+                    var_dump(array("name" => "error with attachment"));
+                } else {                
+                    $image = wp_get_attachment_url( $attachmentId );
+                }
+            }
+        }
+        return $image;
+    }
+    
+
+    function get_wp_images(){
         $query_args = array(
             'post_type' => 'attachment',
             'post_mime_type' => 'image',
@@ -263,9 +297,9 @@ class Rectron  {
         $query = new WP_Query($query_args);
         $images = [];
         foreach($query->posts as $image){
-            $images[] = $image;
+            $images[wp_basename($image->guid)] = wp_basename($image->guid);
         }
-        format($images);
+        return $images;
     }
 
     function create_product($product_data, $product_id=0){
@@ -280,8 +314,8 @@ class Rectron  {
         $product->set_manage_stock(true);
         $product->set_stock_quantity($product_data['stock_quantity']);
         $product->set_category_ids($product_data['categories']);
-        // $product->set_image_id($product_data['images'][0]);
-        // $product->set_gallery_image_ids($product_data['images']);
+        $product->set_image_id($product_data['images'][0]);
+        $product->set_gallery_image_ids($product_data['images']);
 
         return $product->save();
 
