@@ -44,7 +44,7 @@ if(isset($_POST['save'])){
         'ajax_url' => admin_url('admin-ajax.php'),
         'dynamic_rules' => get_option('smt_smart_feeds_dynamic_rules')
     ));
-    format(count(json_decode(get_option('smt_smart_feeds_dynamic_rules'))));
+    // format(count(json_decode(get_option('smt_smart_feeds_dynamic_rules'))));
 
 }
 
@@ -54,15 +54,19 @@ if(isset($_POST['save'])){
 
 // $rectron = new Rectron();
 // format($rectron->getWCProducts($woocommerce));
+
 $existing_categories = [];
 $request = json_decode($smt_smart_feeds_listCategories(), true);
 $existing_categories = array_merge($existing_categories, $request['data']);
 
-$total_pages = $request['headers']["x-wp-totalpages"];
-for($i = 2; $i <= $total_pages; $i++){
-    $addon_categories = json_decode($smt_smart_feeds_listCategories($i), true);
-    $existing_categories = array_merge($existing_categories, $addon_categories['data']);
+if(isset($request['headers']["x-wp-totalpages"])){
+    $total_pages = $request['headers']["x-wp-totalpages"];
+    for($i = 2; $i <= $total_pages; $i++){
+        $addon_categories = json_decode($smt_smart_feeds_listCategories($i), true);
+        $existing_categories = array_merge($existing_categories, $addon_categories['data']);
+    }
 }
+
 
 $rectron = new Rectron($existing_categories, $woocommerce);
 $rectron->create_product("");

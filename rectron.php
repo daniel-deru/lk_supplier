@@ -30,6 +30,7 @@ class Rectron  {
     public $categories_data = null;
     // private $woocommerce;
 
+    // Class constructor function
     function __construct($existing_categories, $woocommerce){
         $this->existing_categories = $existing_categories;
         $this->woocommerce = $woocommerce;
@@ -71,6 +72,7 @@ class Rectron  {
         return WCConvert($rectronProducts);
     }
 
+    // Main function to the the data from the onhand feed
     function get_data(){
         if($this->onhand_feed){
             $options = array(
@@ -147,6 +149,8 @@ class Rectron  {
         $products = $this->get_data();
         $wp_categories = convert_existing_categories($this->existing_categories);
         // Loop over the rectron feed products
+        $product_batches = array('create' => []);
+        ini_set("default_socket_timeout", 60000);
         for($i = 0; $i < count($products); $i++){
 
             // Check if the product has a code and pictures
@@ -200,17 +204,20 @@ class Rectron  {
                     'images' => $images,
                     'categories' => $product_categories
                 );
-                // smt_smart_feeds_addProduct
-                try {
-                    smt_smart_feeds_addProduct($product_data, $this->woocommerce);
-                } catch(Exception $e) {
-                    
-                }
-                // format($product_data);
-                // break;
+                // if($i > 99) break;
+                array_push($product_batches['create'], $product_data);
             }
 
         }
+
+        format($product_batches);
+        // try{
+        //     // smt_smart_feeds_batch
+        //     $result = smt_smart_feeds_batch($product_batches, $this->woocommerce);
+        //     format(json_decode($result));
+        // } catch (Exception $e){
+        //     format($e->getMessage());
+        // }
     }
     // Loop through the XML feed and get the categories
     function create_categories(){

@@ -21,10 +21,11 @@ function register_category($categories, &$unique_categories, $existing_categorie
         if($category_id == null){
             // try{
                 $category_id = json_decode(smt_smart_feeds_createCategory(array('name' => $category), $woocommerce), true);
-                if(isset($category_id['error'])) {
-                    format($category_id['message']);
-                    return array('error' => true);
-                } else if(isset($category_id['id'])) $category_id = $category_id['id'];
+                // if(isset($category_id['error'])) {
+                //     format($category_id['message']);
+                //     return array('error' => true);
+                // } else 
+                if(isset($category_id['id'])) $category_id = $category_id['id'];
             // } catch(Exception $e) {
             //     format("category id doesn't exist");
             //     format($e);
@@ -38,10 +39,11 @@ function register_category($categories, &$unique_categories, $existing_categorie
                         'parent' => $category_id
                     ), $woocommerce), true);
 
-                if(isset($category_id['error'])) {
-                    format($category_id['message']);
-                    return array('error' => true);
-                } else if(isset($category_id['id'])) $category_id = $category_id['id'];
+                // if(isset($category_id['error'])) {
+                //     format($category_id['message']);
+                //     return array('error' => true);
+                // } else 
+                if(isset($category_id['id'])) $category_id = $category_id['id'];
             // } catch(Exception $e) {
             //     format("category does exist");
             //     format($e);
