@@ -111,3 +111,11 @@ function smt_smart_feeds_wc_api_batch_limit($limit){
 
 add_filter("woocommerce_rest_batch_limit", 'smt_smart_feeds_wc_api_batch_limit');
 add_filter('woocommerce_api_bulk_limit', 'smt_smart_feeds_wc_api_batch_limit', 10, 2);
+
+
+add_filter( 'upload_mimes', 'custom_mime_types', 1, 1 );
+function custom_mime_types( $mime_types ) {
+$mime_types['jfif'] = 'image/jfif+xml'; // Adding .jfif extension
+
+return $mime_types;
+}

@@ -150,7 +150,9 @@ class Rectron  {
         $wp_categories = convert_existing_categories($this->existing_categories);
         set_time_limit(0);
         ignore_user_abort(true);
-        $problem = "https://content.storefront7.co.za/stores/za.co.storefront7.rectron/products/cmk16gx4m2b3200c16/pictures/corsair-vengeance-performance-8gb-ddr4-2666-1.2v-260-pin-so-dimm-memory-cmsx8gx4m1a2666c18-4_pz5e.jpg";
+        $wp_images = $this->get_wp_images();
+
+        // format($wp_images);
         // Loop over the rectron feed products
         for($i = 0; $i < count($products); $i++){
 
@@ -159,19 +161,45 @@ class Rectron  {
 
                 // Get the images from the category feed
                 $images = $this->categories_data[$products[$i]["Code"]]['pictures']['picture'];
+                $imageRegex = "/(\.(jpe?g|png|webp))$/";
+                // $imageRegex = "/(\.(jp(e)?g|png|webp|jfif))$/";
                 // There is more than one image
                 if(count($images) >= 2) $images = array_map(function($image){ 
-
+                    $imageRegex = "/(\.(jpe?g|png|webp))$/";
                     $image_url = preg_replace("/(\/\/)/", "https://", $image['@attributes']['path']);
-                    $image_id = $this->upload_image($image_url);
+                    // TODO: Important pull images in on separate method for simplicity
+                    /* 
 
-                    return $image_id; 
+                        Solution 1: pull images in on separate method and match to product
+                        Solution 2: check if product exists and if it does no need to create the images becuase the product already 
+                                    exists
+                    */
+                    $image_index = preg_replace("/(\.(webp|jp(e)?g|png))$/", "", wp_basename($image_url));
+                    if(isset($wp_images[$image_index])){
+                        return;
+                    }
+                    else if(preg_match($imageRegex, $image_url)){
+                        // $image_id = $this->upload_image($image_url);
+                    } 
+                    if(isset($image_id)) return $image_id;
                 }, $images);
                 // There is only one image
                 else {
+                    // Remove the ?// and add https://
                     $image_url = preg_replace("/(\/\/)/", "https://", $images['@attributes']['path']);
-                    $image_id = $this->upload_image($image_url);
-                    $images = [$image_id];
+                    // format($image_url);
+                    // Remove to file extension (file extension changes when uploaded to wordpress)
+                    $image_index = preg_replace("/(\.(webp|jp(e)?g|png))$/", "", wp_basename($image_url));
+                    // Add Under score in front of 
+                    // format($image_index);
+                    // Check if the image already exists
+                    if(isset($wp_images[$image_index])){
+                        continue;
+                    }
+                    // If the image doesn't exist validate the image and add it.
+                    else if(preg_match($imageRegex, $image_url)){
+                        $image_id = $this->upload_image($image_url);
+                    } 
 
                 }
 
@@ -222,6 +250,7 @@ class Rectron  {
                 else{
                     // The product exists so update it
                 } 
+                // break;
                 // if($i > 100) break;
             }
 
@@ -259,30 +288,23 @@ class Rectron  {
     }
 
     function upload_image($url) {
-        $image = "";
-        if($url != "") {
-         
-            $file = array();
-            $file['name'] = $url;
-            $file['tmp_name'] = download_url($url);
-     
-            if (is_wp_error($file['tmp_name'])) {
-                @unlink($file['tmp_name']);
-                var_dump( $file['tmp_name']->get_error_messages( ) );
-                var_dump(array("message" => "tmp name error"));
-            } else {
-                $attachmentId = media_handle_sideload($file);
-                 
-                if ( is_wp_error($attachmentId) ) {
-                    @unlink($file['tmp_name']);
-                    var_dump( $attachmentId->get_error_messages( ) );
-                    var_dump(array("name" => "error with attachment"));
-                } else {                
-                    $image = wp_get_attachment_url( $attachmentId );
-                }
+        if($url == "") return null;
+        $file = array('name' => wp_basename($url), 'tmp_name' => download_url($url));
+
+        if (is_wp_error($file['tmp_name'])) {
+            unlink($file['tmp_name']);
+            var_dump( $file['tmp_name']->get_error_messages( ) );
+        } else {
+            $attachmentId = media_handle_sideload($file);
+                
+            if ( is_wp_error($attachmentId) ) {
+                unlink($file['tmp_name']);
+                var_dump( $attachmentId->get_error_messages( ) );
+                return null;
             }
+            return $attachmentId;
         }
-        return $image;
+        return null;
     }
     
 
@@ -297,7 +319,9 @@ class Rectron  {
         $query = new WP_Query($query_args);
         $images = [];
         foreach($query->posts as $image){
-            $images[wp_basename($image->guid)] = wp_basename($image->guid);
+            // format(wp_basename($image->guid));
+            $index = preg_replace("/(\.(webp|jp(e)?g|png))$/", "", wp_basename($image->guid));
+            $images[$index] = wp_basename($image->guid);
         }
         return $images;
     }
@@ -314,8 +338,8 @@ class Rectron  {
         $product->set_manage_stock(true);
         $product->set_stock_quantity($product_data['stock_quantity']);
         $product->set_category_ids($product_data['categories']);
-        $product->set_image_id($product_data['images'][0]);
-        $product->set_gallery_image_ids($product_data['images']);
+        // $product->set_image_id($product_data['images'][0]);
+        // $product->set_gallery_image_ids($product_data['images']);
 
         return $product->save();
 
