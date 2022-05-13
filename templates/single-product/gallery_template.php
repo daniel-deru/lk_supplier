@@ -1,5 +1,7 @@
 <?php
 
+// require dirname(plugin_dir_path(__FILE__)) . "../includes/print.php";
+
 defined( 'ABSPATH' ) || exit;
 
 // Note: `wc_get_gallery_image_html` was added in WC 3.3.2 and did not exist prior. This check protects against theme overrides being used on older versions of WC.
@@ -8,10 +10,6 @@ if ( ! function_exists( 'wc_get_gallery_image_html' ) ) return;
 global $product;
 $product = new WC_Product($product->get_id());
 $images = $product->get_attributes()['external_image']->get_options();
-format("<h1>Hello, World</h1>");
-format("<h1>Hello, World</h1>");
-format("<h1>Hello, World</h1>");
-format("<h1>Hello, World</h1>");
 
 foreach ( $images as $image ) {
 	if ( ! $image ) continue;

@@ -106,30 +106,14 @@ function get_rules(){
 
 // add_filter( 'post_thumbnail_html', 'thumbnail_external_replace', 10, PHP_INT_MAX );
 add_filter( 'woocommerce_product_get_image', 'thumbnail_external_replace', 10, PHP_INT_MAX );
-
 function thumbnail_external_replace( $html, $product ) {
-    // $url =  get_post_meta( $post_id, '_thumbnail_ext_url', TRUE );
     $product = new WC_Product($product->get_id());
     $images = $product->get_attributes()['external_image']->get_options();
     return '<img width="260" height="300" src="' . esc_url( $images[0] ) . '" class="attachment-woocommerce_thumbnail size-woocommerce_thumbnail" alt="" loading="lazy" />';
-    // if ( empty( $images[0] )) {
-    //     return $html;
-    // }
-    // $alt = get_post_field( 'post_title', $post_id ) . ' ' .  __( 'thumbnail', 'txtdomain' );
-    // $attr = array( 'alt' => $alt );
-    // $attr = array();
-    // $attr = apply_filters( 'wp_get_attachment_image_attributes', $attr, NULL );
-    // $attr = array_map( 'esc_attr', $attr );
-    // $html = sprintf( '<img src="%s"', esc_url($images[0]) );
-    // foreach ( $attr as $name => $value ) {
-    //     $html .= " $name=" . '"' . $value . '"';
-    // }
-    // $html .= ' />';
-    // return $html;
+
 }
 
 add_filter('woocommerce_single_product_image_thumbnail_html', "product_page_html", 10, 2);
-
 function product_page_html($html, $post_thumnail_id){
     global $product;
     $product = new WC_Product($product->get_id());
@@ -139,46 +123,12 @@ function product_page_html($html, $post_thumnail_id){
     return sprintf($image, $images[0]);
 }
 
-// add_filter('wc_get_template', "product_gallery_template", 999, 2);
 
-// function product_gallery_template($template, $template_name){
-//     if($template_name === "single-product/gallery_template.php"){
-//         $template = path_join( get_stylesheet_directory(), 'templates/single-product/gallery_template.php' );
-//     }
-//     return $template;
-// }
+add_filter('wc_get_template', "product_gallery_template", 999, 2);
 
-add_filter('woocommerce_product_get_gallery_image_ids', 'set_custom_gallery_image_ids', 99, 2);
-
-function set_custom_gallery_image_ids($value, $product){
-    $product_id = $product->get_id();
-
-    $product = new WC_Product($product_id);
-    $images = $product->get_attributes()['external_image']->get_options();
-
-    if(empty($product_id)) return $value;
-    if(empty($images)) return $value;
-
-    $gallery_ids = [];
-    for($i = 0; $i < count($images); $i++){
-        $gallery_ids[] = $i . "__" . $product_id . "__" . $images[$i];
+function product_gallery_template($template, $template_name){
+    if($template_name === "single-product/product-thumbnails.php"){
+        $template = plugin_dir_path( __FILE__ ) . 'templates/single-product/gallery_template.php' ;
     }
-    return $gallery_ids;
-
-}
-
-add_filter('wp_get_attachment_image_src', 'gallery_images', 99, 2);
-
-function gallery_images($image, $attachment_id){
-    $attachment = explode("__", $attachment_id);
-    if(count($attachment) > 1){
-        // $image_num = $attachment[0];
-        // $product_id = $attachment[1];
-        $image_url = $attachment[2];
-        // $product = new WC_Product($product_id);
-        // $images = $product->get_attributes()['external_image']->get_options();
-        return array($image_url, 800, 600, false);
-    }
-
-    return $image;
+    return $template;
 }
