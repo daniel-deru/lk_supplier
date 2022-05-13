@@ -7,7 +7,7 @@ require_once "print.php";
 //     'description' => 'Description for category', // optional
 //     'parent' => 0, // optional
 //     'slug' => 'my-new-category' // optional
-// ) );
+// ));
 
 // This is the function that will create the categories from the main loop in rectron.php
 function register_category($categories, &$unique_categories, $existing_categories, $woocommerce){
@@ -26,35 +26,17 @@ function register_category($categories, &$unique_categories, $existing_categorie
         }
 
         if($category_id == null){
-            // try{
                 $category_id = json_decode(smt_smart_feeds_createCategory(array('name' => $category), $woocommerce), true);
-                // if(isset($category_id['error'])) {
-                //     format($category_id['message']);
-                //     return array('error' => true);
-                // } else 
                 if(isset($category_id['id'])) $category_id = $category_id['id'];
-            // } catch(Exception $e) {
-            //     format("category id doesn't exist");
-            //     format($e);
-            // }
         } 
         else if($category_id){
-            // try{
                 $category_id = json_decode(smt_smart_feeds_createCategory(
                     array(
                         'name' => $category, 
                         'parent' => $category_id
                     ), $woocommerce), true);
 
-                // if(isset($category_id['error'])) {
-                //     format($category_id['message']);
-                //     return array('error' => true);
-                // } else 
                 if(isset($category_id['id'])) $category_id = $category_id['id'];
-            // } catch(Exception $e) {
-            //     format("category does exist");
-            //     format($e);
-            // }
 
         }
         $unique_categories[$category] = $category_id;
