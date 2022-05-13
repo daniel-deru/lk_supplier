@@ -162,46 +162,55 @@ class Rectron  {
                 // Get the images from the category feed
                 $images = $this->categories_data[$products[$i]["Code"]]['pictures']['picture'];
                 $imageRegex = "/(\.(jpe?g|png|webp))$/";
+                // More than two images
+                $image_array = [];
+                if(count($images) >= 2){
+                    foreach($images as $image){
+                        $image_url = preg_replace("/(\/\/)/", "https://", $image['@attributes']['path']);
+                        array_push($image_array, $image_url);
+                    }
+                } else {  // Just one image
+                    $image_url = preg_replace("/(\/\/)/", "https://", $images['@attributes']['path']);
+                    array_push($image_array, $image_url);
+                }
                 // $imageRegex = "/(\.(jp(e)?g|png|webp|jfif))$/";
                 // There is more than one image
-                if(count($images) >= 2) $images = array_map(function($image){ 
-                    $imageRegex = "/(\.(jpe?g|png|webp))$/";
-                    $image_url = preg_replace("/(\/\/)/", "https://", $image['@attributes']['path']);
-                    // TODO: Important pull images in on separate method for simplicity
-                    /* 
+                // if(count($images) >= 2) $images = array_map(function($image){ 
+                //     $imageRegex = "/(\.(jpe?g|png|webp))$/";
+                //     $image_url = preg_replace("/(\/\/)/", "https://", $image['@attributes']['path']);
+                //     // TODO: Important pull images in on separate method for simplicity
+                //     /* 
 
-                        Solution 1: pull images in on separate method and match to product
-                        Solution 2: check if product exists and if it does no need to create the images becuase the product already 
-                                    exists
-                    */
-                    $image_index = preg_replace("/(\.(webp|jp(e)?g|png))$/", "", wp_basename($image_url));
-                    if(isset($wp_images[$image_index])){
-                        return;
-                    }
-                    else if(preg_match($imageRegex, $image_url)){
-                        // $image_id = $this->upload_image($image_url);
-                    } 
-                    if(isset($image_id)) return $image_id;
-                }, $images);
+                //         Solution 1: pull images in on separate method and match to product
+                //         Solution 2: check if product exists and if it does no need to create the images becuase the product already 
+                //                     exists
+                //     */
+                //     $image_index = preg_replace("/(\.(webp|jp(e)?g|png))$/", "", wp_basename($image_url));
+                //     if(isset($wp_images[$image_index])){
+                //         return;
+                //     }
+                //     else if(preg_match($imageRegex, $image_url)){
+                //         // $image_id = $this->upload_image($image_url);
+                //     } 
+                //     if(isset($image_id)) return $image_id;
+                // }, $images);
                 // There is only one image
-                else {
-                    // Remove the ?// and add https://
-                    $image_url = preg_replace("/(\/\/)/", "https://", $images['@attributes']['path']);
-                    // format($image_url);
-                    // Remove to file extension (file extension changes when uploaded to wordpress)
-                    $image_index = preg_replace("/(\.(webp|jp(e)?g|png))$/", "", wp_basename($image_url));
-                    // Add Under score in front of 
-                    // format($image_index);
-                    // Check if the image already exists
-                    if(isset($wp_images[$image_index])){
-                        continue;
-                    }
-                    // If the image doesn't exist validate the image and add it.
-                    else if(preg_match($imageRegex, $image_url)){
-                        $image_id = $this->upload_image($image_url);
-                    } 
+                // else {
+                //     // Remove the // and add https://
+                //     $image_url = preg_replace("/(\/\/)/", "https://", $images['@attributes']['path']);
+                //     // Remove to file extension (file extension changes when uploaded to wordpress)
+                //     $image_index = preg_replace("/(\.(webp|jp(e)?g|png))$/", "", sanitize_file_name(wp_basename($image_url)));
+                //     // format($image_index);
+                //     // Check if the image already exists
+                //     if(isset($wp_images[$image_index])){
+                //         continue;
+                //     }
+                //     // If the image doesn't exist validate the image and add it.
+                //     else if(preg_match($imageRegex, $image_url)){
+                //         // $image_id = $this->upload_image($image_url);
+                //     } 
 
-                }
+                // }
 
                 // Get the categories from the category feed
                 $categories = $this->categories_data[$products[$i]["Code"]]['categories']['category'];
@@ -239,19 +248,20 @@ class Rectron  {
                     'regular_price' => $products[$i]['SellingPrice'],
                     'manage_stock' => true,
                     'stock_quantity' => $products[$i]['OnHand'],
-                    // 'images' => $images,
+                    'images' => $image_array,
                     'categories' => $product_categories
                 );
                 $product_id = wc_get_product_id_by_sku( $product_data['sku'] );
                 if(empty($product_id)){
                     // There is no product so create one
-                    // $this->create_product($product_data);
+                    $this->create_product($product_data);
                 } 
                 else{
                     // The product exists so update it
-                } 
-                // break;
-                // if($i > 100) break;
+                    $product = new WC_Product($product_id);
+                    format($product->get_attributes()['external_image']->get_options());
+                }
+
             }
 
         }
@@ -289,17 +299,21 @@ class Rectron  {
 
     function upload_image($url) {
         if($url == "") return null;
-        $file = array('name' => wp_basename($url), 'tmp_name' => download_url($url));
+        // format($url);
+        // format(download_url($url));
+        $file = array('name' => sanitize_file_name(wp_basename($url)), 'tmp_name' => download_url($url));
 
         if (is_wp_error($file['tmp_name'])) {
-            unlink($file['tmp_name']);
+            @unlink($file['tmp_name']);
             var_dump( $file['tmp_name']->get_error_messages( ) );
+            var_dump(array("message" => "error with tmp name"));
         } else {
             $attachmentId = media_handle_sideload($file);
                 
             if ( is_wp_error($attachmentId) ) {
-                unlink($file['tmp_name']);
+                @unlink($file['tmp_name']);
                 var_dump( $attachmentId->get_error_messages( ) );
+                var_dump(array("message" => "error with attachment id"));
                 return null;
             }
             return $attachmentId;
@@ -329,6 +343,11 @@ class Rectron  {
     function create_product($product_data, $product_id=0){
         // Create the product object to create or update the product
         $product = new WC_Product($product_id);
+        $attribute = new WC_Product_Attribute();
+        $attribute->set_id(0);
+        $attribute->set_name('external_image');
+        $attribute->set_visible(false);
+        $attribute->set_options($product_data['images']);
 
         $product->set_sku($product_data['sku']);
         $product->set_name($product_data['name']);
@@ -338,6 +357,7 @@ class Rectron  {
         $product->set_manage_stock(true);
         $product->set_stock_quantity($product_data['stock_quantity']);
         $product->set_category_ids($product_data['categories']);
+        $product->set_attributes(array($attribute));
         // $product->set_image_id($product_data['images'][0]);
         // $product->set_gallery_image_ids($product_data['images']);
 
