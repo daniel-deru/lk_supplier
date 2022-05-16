@@ -165,7 +165,8 @@ class Rectron  {
 
     function feed_loop(){
         $products = $this->get_data();
-        $wp_categories = convert_existing_categories($this->existing_categories);
+        // $wp_categories = convert_existing_categories($this->existing_categories);
+        $rectron_products = [];
         $existing_products = $this->getProducts();
         set_time_limit(0);
         ignore_user_abort(true);
@@ -234,7 +235,7 @@ class Rectron  {
                 $product_id = wc_get_product_id_by_sku( $product_data['sku'] );
                 if(empty($product_id)){
                     // There is no product so create one
-                    format($product_data);
+
                     $this->create_product($product_data);
                 } 
                 else {
@@ -248,9 +249,13 @@ class Rectron  {
                     if($stock_quantity != $products[$i]['OnHand']) $existing_product->set_stock_quantity($products[$i]['OnHand']);
                 }
 
+                $rectron_products[$products[$i]['Code']] = $product_data;
+
             }
 
         }
+        $this->delete_products($rectron_products, $existing_products);
+        // return $rectron_products;
     }
     // Loop through the XML feed and get the categories
     function create_categories(){
@@ -276,6 +281,21 @@ class Rectron  {
 
     }
 
+    function delete_products($rectron_products, $existing_products){
+        foreach($existing_products as $existing_product){
+            $sku = $existing_product->get_sku();
+            $attributes = $existing_product->get_attributes();
+
+            if(isset($attributes['rectron'])){ // Check if the product is a rectron product
+                // Check the product is not in the rectron products array which means the onhand needs to be set to 0
+                if(!isset($rectron_products[$sku])){
+
+                    $existing_product->set_stock_quantity(0);
+                }
+            }
+        }
+    }
+
     function create_product($product_data, $product_id=0){
         // Create the product object to create or update the product
         $product = new WC_Product($product_id);
@@ -288,7 +308,7 @@ class Rectron  {
 
         // Set the rectron data attribute to identify unique rectron products
         $rectron_attribute = new WC_Product_Attribute();
-        $rectron_attribute->set_id(1);
+        $rectron_attribute->set_id(0);
         $rectron_attribute->set_name('rectron');
         $rectron_attribute->set_visible(false);
 

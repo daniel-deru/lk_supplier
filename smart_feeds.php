@@ -10,7 +10,11 @@ Author URI: https://smartmetatec.com
 
 */
 
+require_once "woocommerce-api.php";
+require_once "rectron.php";
+
 register_activation_hook(__FILE__, 'check_plugin_activation');
+
 
 function check_plugin_activation(){
     // Required to interact with woocommerce
@@ -70,7 +74,6 @@ add_action("admin_enqueue_scripts", "smt_lk_supplier_scripts");
 function smt_lk_supplier_scripts(){
     global $pagenow;
     if(isset($_GET['page'])) $page = sanitize_text_field($_GET['page']);
-
     wp_enqueue_style("smt_smart_commerce_fontawesome_css", "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css");
     wp_enqueue_script("smt_smart_commerce_fontawesome_js", "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js", [], false, true);
     if($pagenow === 'admin.php'){
@@ -132,3 +135,36 @@ function product_gallery_template($template, $template_name){
     }
     return $template;
 }
+
+// Add the scheduled times
+add_filter('cron_schedules', 'smt_lk_run_every_ten_minutes');
+
+function smt_lk_run_every_ten_minutes($schedules){
+    $schedules['every_ten_minutes'] = array(
+        'interval' => 10*60,
+        'display' => __("Every 10 Minutes")
+    );
+    return $schedules;
+}
+
+// if(!wp_next_scheduled('smt_lk_run_every_ten_minutes')){
+//     wp_schedule_event(time(), 'every_ten_minutes', 'smt_lk_run_every_ten_minutes');
+// }
+
+// add_action('every_ten_minutes', 'smt_lk_update_products');
+// function smt_lk_update_products(){
+//     global $woocommerce;
+//     $existing_categories = [];
+//     $request = json_decode($smt_smart_feeds_listCategories(), true);
+//     $existing_categories = array_merge($existing_categories, $request['data']);
+
+//     if(isset($request['headers']["x-wp-totalpages"])){
+//         $total_pages = $request['headers']["x-wp-totalpages"];
+//         for($i = 2; $i <= $total_pages; $i++){
+//             $addon_categories = json_decode($smt_smart_feeds_listCategories($i), true);
+//             $existing_categories = array_merge($existing_categories, $addon_categories['data']);
+//         }
+//     }
+//     $rectron = new Rectron($existing_categories, $woocommerce);
+//     $rectron->feed_loop();
+// }

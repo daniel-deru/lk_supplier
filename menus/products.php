@@ -10,7 +10,7 @@
 
 // $feedData = new Rectron(get_option("smt_smart_feeds_rectron_feed_onhand"));
 
-// format($feedData->get_data());
+
 // $rectron_products = $feedData->get_data();
 
 wp_localize_script("smt_smart_feeds_products_script", "rectron_products", array(

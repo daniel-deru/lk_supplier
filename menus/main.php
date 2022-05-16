@@ -1,9 +1,9 @@
 <?php
-    include_once  dirname(plugin_dir_path(__FILE__)) . "/woocommerce-api.php";
-    require dirname(plugin_dir_path(__FILE__)) . "/includes/print.php";
+    include  dirname(plugin_dir_path(__FILE__)) . "/woocommerce-api.php";
+    require_once dirname(plugin_dir_path(__FILE__)) . "/includes/print.php";
     include dirname(plugin_dir_path(__FILE__)) . "/includes/link.php";
-    include dirname(plugin_dir_path(__FILE__)) . "/includes/categories.php";
-    require dirname(plugin_dir_path(__FILE__)) . "/rectron.php";
+    include_once dirname(plugin_dir_path(__FILE__)) . "/includes/categories.php";
+    require_once dirname(plugin_dir_path(__FILE__)) . "/rectron.php";
 
     $link = sanitize_url($getHost());
 
@@ -44,7 +44,7 @@ if(isset($_POST['save'])){
         'ajax_url' => admin_url('admin-ajax.php'),
         'dynamic_rules' => get_option('smt_smart_feeds_dynamic_rules')
     ));
-    // format(count(json_decode(get_option('smt_smart_feeds_dynamic_rules'))));
+
 
 }
 
@@ -53,7 +53,6 @@ if(isset($_POST['save'])){
 // $smt_smart_feeds_updateProduct(12, array('attributes' => array(array('name' => 'rectron', 'options' => array()))));
 
 // $rectron = new Rectron();
-// format($rectron->getWCProducts($woocommerce));
 
 $existing_categories = [];
 $request = json_decode($smt_smart_feeds_listCategories(), true);
@@ -66,6 +65,9 @@ if(isset($request['headers']["x-wp-totalpages"])){
         $existing_categories = array_merge($existing_categories, $addon_categories['data']);
     }
 }
+
+$categories = get_term('product_cat');
+// format($categories);
 
 
 $rectron = new Rectron($existing_categories, $woocommerce);
