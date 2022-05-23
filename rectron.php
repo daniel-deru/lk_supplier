@@ -30,9 +30,8 @@ class Rectron  {
     // private $woocommerce;
 
     // Class constructor function
-    function __construct($existing_categories, $woocommerce){
-        $this->existing_categories = $existing_categories;
-        $this->woocommerce = $woocommerce;
+    function __construct(){
+        // Get the feed URL from WP DB
         $this->register_feed();
         // This categories data is the data from the feed NOT the wordpress categories
         $this->categories_data = $this->get_categories();
@@ -164,8 +163,9 @@ class Rectron  {
 
 
     function feed_loop(){
+        // Get the latest data from the onhand feed
         $products = $this->get_data();
-        // $wp_categories = convert_existing_categories($this->existing_categories);
+
         $rectron_products = [];
         $existing_products = $this->getProducts();
         set_time_limit(0);
@@ -257,23 +257,38 @@ class Rectron  {
         $this->delete_products($rectron_products, $existing_products);
         // return $rectron_products;
     }
+
+    function get_wp_categories(){
+        // Array for the cleaned categories after they have been converted from WP_Term Object
+        $categories_array = [];
+        $categories = get_terms(['taxonomy' => 'product_cat', 'hide_empty' => false]);
+        foreach($categories as $category){
+            array_push($categories_array, $category->to_array());
+        }
+
+        return $categories_array;
+    }
     // Loop through the XML feed and get the categories
     function create_categories(){
+        // Array for unique values to keep track of which categories have been added
         $categories_array = array();
-        
+        // TODO convert to category name as the key
+        $existing_categories = convert_existing_categories($this->get_wp_categories());
+
         foreach($this->categories_data as $i => $category){
             if(isset($category['categories']['category'])){
                 $cat = $category['categories']['category'];
                 if(count($cat) < 2){
                     // Get the main and sub categories
                     $cats = explode("/", rtrim(ltrim($cat['@attributes']['path'], "/"), "/"));
-                    register_category($cats, $categories_array, convert_existing_categories($this->existing_categories), $this->woocommerce);
+                    register_category($cats, $categories_array, $existing_categories);
 
                 } 
                 else {
+                    // This if for products with more than one category tree
                     foreach($category['categories']['category'] as $ca){
                         $temp = explode("/", ltrim(rtrim($ca['@attributes']['path'], "/"), "/"));
-                        register_category($temp, $categories_array, convert_existing_categories($this->existing_categories), $this->woocommerce);
+                        register_category($temp, $categories_array, $existing_categories);
                     }
                 }
             }

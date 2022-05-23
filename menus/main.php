@@ -1,5 +1,5 @@
 <?php
-    include  dirname(plugin_dir_path(__FILE__)) . "/woocommerce-api.php";
+    require_once  dirname(plugin_dir_path(__FILE__)) . "/woocommerce-api.php";
     require_once dirname(plugin_dir_path(__FILE__)) . "/includes/print.php";
     include dirname(plugin_dir_path(__FILE__)) . "/includes/link.php";
     include_once dirname(plugin_dir_path(__FILE__)) . "/includes/categories.php";
@@ -54,23 +54,20 @@ if(isset($_POST['save'])){
 
 // $rectron = new Rectron();
 
-$existing_categories = [];
-$request = json_decode($smt_smart_feeds_listCategories(), true);
-$existing_categories = array_merge($existing_categories, $request['data']);
+// $existing_categories = [];
+// $request = json_decode($smt_smart_feeds_listCategories(), true);
+// $existing_categories = array_merge($existing_categories, $request['data']);
 
-if(isset($request['headers']["x-wp-totalpages"])){
-    $total_pages = $request['headers']["x-wp-totalpages"];
-    for($i = 2; $i <= $total_pages; $i++){
-        $addon_categories = json_decode($smt_smart_feeds_listCategories($i), true);
-        $existing_categories = array_merge($existing_categories, $addon_categories['data']);
-    }
-}
-
-$categories = get_term('product_cat');
-// format($categories);
+// if(isset($request['headers']["x-wp-totalpages"])){
+//     $total_pages = $request['headers']["x-wp-totalpages"];
+//     for($i = 2; $i <= $total_pages; $i++){
+//         $addon_categories = json_decode($smt_smart_feeds_listCategories($i), true);
+//         $existing_categories = array_merge($existing_categories, $addon_categories['data']);
+//     }
+// }
 
 
-$rectron = new Rectron($existing_categories, $woocommerce);
+$rectron = new Rectron();
 $rectron->feed_loop();
 
 ?>
