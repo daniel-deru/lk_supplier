@@ -12,13 +12,13 @@ if(isset($_POST['save'])){
     if(isset($_POST['consumer_key'])){
         $consumer_key = sanitize_key($_POST['consumer_key']);
         $consumerKeyRegex = "/ck_[0-9a-f]{40}/i";
-        if(preg_match($consumerKeyRegex, $consumer_key)) update_option("smt_smart_feeds_consumer_key", $_POST['consumer_key']);
+        // if(preg_match($consumerKeyRegex, $consumer_key)) update_option("smt_smart_feeds_consumer_key", $_POST['consumer_key']);
     }
 
     if(isset($_POST['consumer_secret'])){
         $consumer_secret = sanitize_key($_POST['consumer_secret']);
         $consumerSecretRegex = "/cs_[0-9a-f]{40}/i";
-        if(preg_match($consumerSecretRegex, $consumer_secret)) update_option("smt_smart_feeds_consumer_secret", $_POST['consumer_secret']);
+        // if(preg_match($consumerSecretRegex, $consumer_secret)) update_option("smt_smart_feeds_consumer_secret", $_POST['consumer_secret']);
     }
 
     if(isset($_POST['rectron_onhand'])){
@@ -53,20 +53,28 @@ if(isset($_POST['save'])){
         
     }
 
+    if(isset($_POST['import_stock'])){
+        $import_stock = sanitize_text_field($_POST['import_stock']);
+        $import_regex = "/[0-9]*/";
+        if(preg_match($import_regex, $import_stock)) update_option("smt_smart_feeds_import_stock", $import_stock);
+    }
+
 
     wp_localize_script("smt_lk_supplier_admin_script", "smart_feed_data", array(
         'ajax_url' => admin_url('admin-ajax.php'),
         'dynamic_rules' => get_option('smt_smart_feeds_dynamic_rules')
     ));
 
-
+    $rectron = new Rectron();
+    $rectron->feed_loop();
 
 }
 
-// update_option("smt_smart_feeds_dynamic_rules", json_encode([]));
+if(isset($_POST['refresh'])){
+    $rectron = new Rectron();
+    $rectron->feed_loop();
+}
 
-$rectron = new Rectron();
-$rectron->feed_loop();
 
 ?>
 <main id="wp_smart_feed_admin">
@@ -74,30 +82,30 @@ $rectron->feed_loop();
     <div id="main-container">
         <form action="" method="post" >
 
-            <div class="form-field">
+            <!-- <div class="form-field">
                 <label for="consumer_key">WooCommerce API Consumer Key</label>
-                <input type="text" name="consumer_key" value="<?php echo get_option("smt_smart_feeds_consumer_key");?>" placeholder="Consumer Key">
-            </div>
+                <input type="text" name="consumer_key" value="<?php //echo get_option("smt_smart_feeds_consumer_key");?>" placeholder="Consumer Key">
+            </div> -->
 
-            <div class="form-field">
+            <!-- <div class="form-field">
                 <label for="consumer_secret">WooCommerce API Consumer Secret</label>
-                <input type="text" name="consumer_secret" value="<?php echo get_option("smt_smart_feeds_consumer_secret");?>" placeholder="Consumer Secret">
-                <div id="woocommerce-help-container">
-                    <a href="<?php echo esc_url($link . "/wp-admin/admin.php?page=wc-settings&tab=advanced&section=keys") ?>" target="_blank">Create a Key</a>
+                <input type="text" name="consumer_secret" value="<?php // echo get_option("smt_smart_feeds_consumer_secret");?>" placeholder="Consumer Secret">
+                <div id="woocommerce-help-container"> -->
+                    <!-- <a href="<?php //echo esc_url($link . "/wp-admin/admin.php?page=wc-settings&tab=advanced&section=keys") ?>" target="_blank">Create a Key</a> -->
                         <!-- This div is hidden -->
-                    <div id="woocommerce-help" class="help">
-                        <!-- <img src="<?php echo dirname(plugin_dir_url(__FILE__))?>/lk_supplier/public/images/help.png" alt=""> -->
-                        <i class="fa fa-question-circle" aria-hidden="true"></i>
+                    <!-- <div id="woocommerce-help" class="help"> -->
+                        <!-- <img src="<?php //echo dirname(plugin_dir_url(__FILE__))?>/lk_supplier/public/images/help.png" alt=""> -->
+                        <!-- <i class="fa fa-question-circle" aria-hidden="true"></i>
                         <ol class="info">
                             <li> Click on add key and fill in the required details.</li>
                             <li> Important* Permisions must be set to Read and Write.</li>
                             <li> Click on generate API key.</li>
                             <li> Copy the consumer key and consumer secret to put into the required fields.</li>
-                        </ol>
-                    </div>
+                        </ol> -->
+                    <!-- </div> -->
                 <!-- End of hidden div -->
-                </div>
-            </div>
+                <!-- </div>
+            </div> -->
             <!-- Rectron Feed Onhand -->
             <div id="rectron" class="form-field">
                 <div class="label-container">
@@ -144,7 +152,7 @@ $rectron->feed_loop();
                 <div class="label-container">
                     <label for="round_cents">Don't import product if the stock is less than:</label>
                 </div>
-                <input type="text" name="import_stock" value="<?php echo get_option("smt_smart_feeds_round_cent"); ?>">
+                <input type="text" name="import_stock" value="<?php echo get_option("smt_smart_feeds_import_stock"); ?>">
             </div>
 
 

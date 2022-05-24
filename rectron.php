@@ -48,21 +48,21 @@ class Rectron  {
     }
 
     // Get WooCommerce Products filter out rectron products and convert to associative array
-    function getWCProducts($woocommerce){
-        if(!(get_option("smt_smart_feeds_consumer_key") && get_option("smt_smart_feeds_consumer_secret"))) return;
+    // function getWCProducts($woocommerce){
+    //     if(!(get_option("smt_smart_feeds_consumer_key") && get_option("smt_smart_feeds_consumer_secret"))) return;
 
-        $WCProducts = json_decode(smt_smart_feeds_listProducts(1, $woocommerce), true);
+    //     $WCProducts = json_decode(smt_smart_feeds_listProducts(1, $woocommerce), true);
 
-        $rectronProducts = array_filter($WCProducts['data'], function($product){
-            foreach($product['attributes'] as $attribute){
-                if($attribute['name'] === $this->attribute_name) return true;
-            }
-            return false;
+    //     $rectronProducts = array_filter($WCProducts['data'], function($product){
+    //         foreach($product['attributes'] as $attribute){
+    //             if($attribute['name'] === $this->attribute_name) return true;
+    //         }
+    //         return false;
             
-        });
+    //     });
 
-        return WCConvert($rectronProducts);
-    }
+    //     return WCConvert($rectronProducts);
+    // }
 
     function getProducts(){
         $products_array = [];
@@ -227,9 +227,10 @@ class Rectron  {
 
                 $product_id = wc_get_product_id_by_sku( $product_data['sku'] );
                 if(empty($product_id)){
+                    $import_quantity = intval($product_data['stock_quantity']);
+                    $minimum_required_quantity = intval(get_option('smt_smart_feeds_import_stock'));
                     // There is no product so create one
-
-                    $this->create_product($product_data);
+                    if( $import_quantity > $minimum_required_quantity) $this->create_product($product_data);
                 } 
                 else {
                     // The product exists so update it
@@ -297,6 +298,7 @@ class Rectron  {
             if(isset($attributes['rectron'])){ // Check if the product is a rectron product
                 // Check the product is not in the rectron products array which means the onhand needs to be set to 0
                 if(!isset($rectron_products[$sku])){
+                    format("This product quantity has been set to zero" . $existing_product->get_name());
                     $existing_product->set_stock_quantity(0);
                 }
             }

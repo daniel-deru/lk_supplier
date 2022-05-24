@@ -21,9 +21,9 @@ wp_localize_script("smt_smart_feeds_products_script", "rectron_products", array(
 ?>
 <main id="smt_smart_feeds_products">
     <h1>Edit Products</h1>
-    <?php if(!(get_option("smt_smart_feeds_consumer_key") && get_option("smt_smart_feeds_consumer_secret"))): ?>
-        <h2>Please enter the WooCommerce API keys to continue</h2>
-    <?php endif ?>
+    <?php // if(!(get_option("smt_smart_feeds_consumer_key") && get_option("smt_smart_feeds_consumer_secret"))): ?>
+        <!-- <h2>Please enter the WooCommerce API keys to continue</h2> -->
+    <?php //endif ?>
     <?php // This is the filter for the table?>
 
     <section id="smt-products-filter">

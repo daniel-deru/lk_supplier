@@ -199,7 +199,7 @@ class DynamicRules {
 //             }
 //         }
 //     }
-// }
+}
 const rules = new DynamicRules()
 
 
