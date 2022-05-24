@@ -25,6 +25,8 @@ function check_plugin_activation(){
     if(!get_option("smt_smart_feeds_rectron_feed_onhand")) add_option("smt_smart_feeds_rectron_feed_onhand", "", "", "yes");
     if(!get_option("smt_smart_feeds_base_margin")) add_option("smt_smart_feeds_base_margin", "", "", "yes");
     if(!get_option("smt_smart_feeds_interval")) add_option("smt_smart_feeds_interval", "", "", "yes");
+    if(!get_option("smt_smart_feeds_tax_rate")) add_option("smt_smart_feeds_tax_rate");
+    if(!get_option("smt_smart_feeds_round_cent")) add_option("smt_smart_feeds_round_cent");
 
     if(!get_option('smt_smart_feeds_exclude_products')) add_option('smt_smart_feeds_exclude_products');
     if(!get_option('smt_smart_feeds_dynamic_rules')) add_option('smt_smart_feeds_dynamic_rules');
@@ -151,20 +153,17 @@ if(!wp_next_scheduled('smt_lk_run_every_ten_minutes')){
     wp_schedule_event(time(), 'every_ten_minutes', 'smt_lk_run_every_ten_minutes');
 }
 
-// add_action('every_ten_minutes', 'smt_lk_update_products');
-// function smt_lk_update_products(){
-//     global $woocommerce;
-//     $existing_categories = [];
-//     $request = json_decode($smt_smart_feeds_listCategories(), true);
-//     $existing_categories = array_merge($existing_categories, $request['data']);
+add_action('every_ten_minutes', 'smt_lk_update_products');
+function smt_lk_update_products(){
+    $rectron = new Rectron();
+    $rectron->feed_loop();
+}
 
-//     if(isset($request['headers']["x-wp-totalpages"])){
-//         $total_pages = $request['headers']["x-wp-totalpages"];
-//         for($i = 2; $i <= $total_pages; $i++){
-//             $addon_categories = json_decode($smt_smart_feeds_listCategories($i), true);
-//             $existing_categories = array_merge($existing_categories, $addon_categories['data']);
-//         }
-//     }
-//     $rectron = new Rectron($existing_categories, $woocommerce);
-//     $rectron->feed_loop();
-// }
+
+function smt_smart_feeds_round_price($price, $product = NULL){
+    $price = floor($price) + .9;
+    return $price;
+}
+add_filter('woocommerce_product_get_price', 'smt_smart_feeds_round_price', 99, 2);
+add_filter('woocommerce_get_variation_regular_price', 'smt_smart_feeds_round_price', 99);
+add_filter('woocommerce_get_variation_price', 'smt_smart_feeds_round_price', 99);

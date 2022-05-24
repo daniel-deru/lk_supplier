@@ -35,8 +35,9 @@ class Rectron  {
         $this->register_feed();
         // This categories data is the data from the feed NOT the wordpress categories
         $this->categories_data = $this->get_categories();
+        $this->tax_rate = intval(get_option("smt_smart_feeds_tax_rate"));
         $this->create_categories();
-        // $this->create_images();
+        $this->base_margin = $this->set_base_margin();
     }
 
     // Called in the constructor to get the feed url
@@ -46,6 +47,15 @@ class Rectron  {
         if(!$feed) return;
 
         if($this->verify($feed)) $this->onhand_feed = $feed;
+    }
+    // Set the base margin from the wordpress options db
+    function set_base_margin(){
+        $base_margin = intval(get_option("smt_smart_feeds_base_margin"));
+
+        if(isset($base_margin)) $base_margin = ($base_margin + 100) / 100;
+        else $base_margin = 1;
+
+        return $base_margin;
     }
 
     // Helper function to verify the feed
@@ -254,8 +264,8 @@ class Rectron  {
             }
 
         }
+        // Set the stock quantity to zero if the product is not in the $rectron_products array
         $this->delete_products($rectron_products, $existing_products);
-        // return $rectron_products;
     }
 
     function get_wp_categories(){
@@ -295,7 +305,7 @@ class Rectron  {
         }
 
     }
-
+    // Set the stock quantity to 0 if the product is no longer onhand
     function delete_products($rectron_products, $existing_products){
         foreach($existing_products as $existing_product){
             $sku = $existing_product->get_sku();
@@ -304,7 +314,6 @@ class Rectron  {
             if(isset($attributes['rectron'])){ // Check if the product is a rectron product
                 // Check the product is not in the rectron products array which means the onhand needs to be set to 0
                 if(!isset($rectron_products[$sku])){
-
                     $existing_product->set_stock_quantity(0);
                 }
             }
@@ -331,10 +340,14 @@ class Rectron  {
         $product->set_name($product_data['name']);
         $product->set_description($product_data['description']);
         $product->set_short_description($product_data['short_description']);
-        $product->set_regular_price($product_data['regular_price']);
+        $price_excl = intval($product_data['regular_price']) * $this->base_margin;
+        $price_incl = $price_excl * ($this->tax_rate + 100) / 100;
+        $product->set_regular_price($price_incl);
+
         $product->set_manage_stock(true);
         $product->set_stock_quantity($product_data['stock_quantity']);
         $product->set_category_ids($product_data['categories']);
+        $product->set_tax_class("Feed Tax");
         $product->set_attributes(array($image_attribute, $rectron_attribute));
 
         return $product->save();

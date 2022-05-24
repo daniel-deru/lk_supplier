@@ -3,6 +3,7 @@
     require_once dirname(plugin_dir_path(__FILE__)) . "/includes/print.php";
     include dirname(plugin_dir_path(__FILE__)) . "/includes/link.php";
     include_once dirname(plugin_dir_path(__FILE__)) . "/includes/categories.php";
+    include_once dirname(plugin_dir_path(__FILE__)) . "/includes/tax_classes.php";
     require_once dirname(plugin_dir_path(__FILE__)) . "/rectron.php";
 
     $link = sanitize_url($getHost());
@@ -39,6 +40,19 @@ if(isset($_POST['save'])){
         if(preg_match($intervalRegex, $interval)) update_option("smt_smart_feeds_interval", $_POST['interval']);
     }
 
+    if(isset($_POST['tax_rate'])){
+        $tax_rate = sanitize_text_field($_POST['tax_rate']);
+        $tax_rate_regex = "/[0-9]*/";
+        $current_tax = get_option("smt_smart_feeds_tax_rate");
+    
+        // if($current_tax != $tax_rate){
+            $tax_class = new TaxClass(get_option("smt_smart_feeds_tax_rate"));
+        // }
+        if(preg_match($tax_rate_regex, $tax_rate)) update_option("smt_smart_feeds_tax_rate", $tax_rate);
+        // Create or update the tax class settings
+        
+    }
+
 
     wp_localize_script("smt_lk_supplier_admin_script", "smart_feed_data", array(
         'ajax_url' => admin_url('admin-ajax.php'),
@@ -46,25 +60,9 @@ if(isset($_POST['save'])){
     ));
 
 
+
 }
 
-// $smt_smart_feeds_updateProduct(18, array('attributes' => array(array('name' => 'rectron', 'options' => array()))));
-// $smt_smart_feeds_updateProduct(19, array('attributes' => array(array('name' => 'rectron', 'options' => array()))));
-// $smt_smart_feeds_updateProduct(12, array('attributes' => array(array('name' => 'rectron', 'options' => array()))));
-
-// $rectron = new Rectron();
-
-// $existing_categories = [];
-// $request = json_decode($smt_smart_feeds_listCategories(), true);
-// $existing_categories = array_merge($existing_categories, $request['data']);
-
-// if(isset($request['headers']["x-wp-totalpages"])){
-//     $total_pages = $request['headers']["x-wp-totalpages"];
-//     for($i = 2; $i <= $total_pages; $i++){
-//         $addon_categories = json_decode($smt_smart_feeds_listCategories($i), true);
-//         $existing_categories = array_merge($existing_categories, $addon_categories['data']);
-//     }
-// }
 
 
 $rectron = new Rectron();
@@ -124,6 +122,30 @@ $rectron->feed_loop();
                 </div>
                 <input type="text" name="base_margin" value="<?php echo get_option("smt_smart_feeds_base_margin");?>" placeholder="Example: 76">
             </div>
+
+            <!-- Tax Rate -->
+            <div class="form-field">
+                <div class="label-container">
+                    <label for="tax_rate">Tax Rate (%)</label>
+                </div>
+                <input type="text" name="tax_rate" value="<?php echo get_option("smt_smart_feeds_tax_rate"); ?>" placeholder="Example: 76">
+            </div>
+
+            <!-- Round Cents -->
+            <div class="form-field">
+                <div class="label-container">
+                    <label for="round_cents">Round Cents</label>
+                </div>
+                <input type="text" name="round_cents" value="<?php echo get_option("smt_smart_feeds_round_cent"); ?>">
+            </div>
+
+            <!-- Round Rands -->
+            <!-- <div class="form-field">
+                <div class="label-container">
+                    <label for="round_cents">Round Rands</label>
+                </div>
+                <input type="text" name="round_rands">
+            </div> -->
 
             <div class="form-field">
                 <label for="dynamic_rules">Dynamic Rules</label>
