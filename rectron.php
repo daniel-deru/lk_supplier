@@ -5,23 +5,6 @@ require_once 'includes/convert.php';
 require_once 'includes/print.php';
 require_once 'includes/categories.php';
 
-/*
-    Things you need to add to the wp product
-    1. Categories
-    2. Images
-    3. Name
-    4. Description
-    5. Short Description
-    6. SKU
-    8. Regular Price
-    9. Sale Price
-    10. Manage Stock = true
-    11. Stock Quantity
-
-
-
-*/
-
 class Rectron  {
     private $onhand_feed;
     private $categories = "https://content.storefront7.co.za/stores/za.co.storefront7.rectron/xmlfeed/rectronfeed-637806849145434755.xml";

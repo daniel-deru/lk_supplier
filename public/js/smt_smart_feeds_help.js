@@ -4,15 +4,16 @@ class DynamicRules {
     constructor(){
 
         let initialRules = JSON.parse(smart_feed_data.dynamic_rules)
-        if(initialRules.length > 0) DynamicRules.rules = initialRules
+
+
+        if(initialRules && initialRules.length > 0) DynamicRules.rules = initialRules
 
         this.addDynamicListener()
         this.saveListener()
-        console.log("The constructor function ran", initialRules)
         DynamicRules.createInitialRules()
 
     }
-
+    // Send the data to php
     saveListener(){
         document.getElementById("ruleset-save-btn").addEventListener('click', function(){
             const data = {
@@ -26,37 +27,27 @@ class DynamicRules {
         })
     }
 
+    // Add the listener for the add button
     addDynamicListener(){
         document.getElementById("add-rule").addEventListener('click', this.dynamicListener)
     }
 
+    // Callback function for the add button event
     dynamicListener(){
         const type = document.getElementById("dynamic_rules")
         const outputContainer = document.getElementById("dynamic-rules-display")
         let rule = null
 
-        if(type.value){
-            DynamicRules.rules.push({ "type": type.value })
-        }
+        DynamicRules.rules.push({more_than: 0, less_than: -Infinity})
 
         let ruleIndex = DynamicRules.rules.length - 1
+    
+        rule = DynamicRules.createMarginComponent(ruleIndex)
 
-        
-        switch(type.value){
-            case "import-price":  
-                rule = DynamicRules.createImportPriceComponent(ruleIndex)
-                break
-            case "import-stock":
-                rule = DynamicRules.createImportStockComponent(ruleIndex)
-                break
-            case "margin":
-                rule = DynamicRules.createMarginComponent(ruleIndex)
-                break
-        }
         outputContainer.appendChild(rule)
 
     }
-
+    // Put the initial rules in the DOM
     static createInitialRules(){
         let rules = DynamicRules.rules
         const outputContainer = document.getElementById("dynamic-rules-display")
@@ -64,17 +55,7 @@ class DynamicRules {
 
         for(let i = 0; i < rules.length; i++){
             let rule = null
-            switch(rules[i]['type']){
-                case "import-price":  
-                    rule = DynamicRules.createImportPriceComponent(i, rules[i]['less_than'], rules[i]['more_than'])
-                    break
-                case "import-stock":
-                    rule = DynamicRules.createImportStockComponent(i, rules[i]['less_than'])
-                    break
-                case "margin":
-                    rule = DynamicRules.createMarginComponent(i, rules[i]['less_than'], rules[i]['more_than'], rules[i]['margin'])
-                    break
-            }
+            rule = DynamicRules.createMarginComponent(i, rules[i]['less_than'], rules[i]['more_than'], rules[i]['margin'])
             outputContainer.appendChild(rule)
         }
     }
@@ -90,8 +71,8 @@ class DynamicRules {
         const deleteBtn = DynamicRules.createDeleteButton(ruleIndex)
 
         container.appendChild(description)
-        container.appendChild(lessComponent)
         container.appendChild(moreComponent)
+        container.appendChild(lessComponent)
         container.appendChild(deleteBtn)
 
         return container
@@ -135,8 +116,8 @@ class DynamicRules {
         const deleteBtn = DynamicRules.createDeleteButton(ruleIndex)
 
         container.appendChild(marginContainer)
-        container.appendChild(lessComponent)
         container.appendChild(moreComponent)
+        container.appendChild(lessComponent)
         container.appendChild(deleteBtn)
 
         return container
@@ -193,8 +174,32 @@ class DynamicRules {
         DynamicRules.rules = DynamicRules.rules.filter((r, i) => index !== i )
         DynamicRules.createInitialRules()
     }
-}
 
+    static checkRule(newRule){
+        let rules = DynamicRules.rules
+        console.log(rules)
+        if(!rules) return true
+        if(rules.length <= 0) return true
+
+        for(let rule of rules){
+            if(rule.type === "import-stock" && newRule.type === "import-stock") return new Error("There can only be one import stock rule.")
+        }
+    }
+
+//     static checkValidity(){
+//         let rules = DynamicRules.rules
+        
+//         for(let i = 0; i < rules.length - 1; i++){
+
+//             let lessThan = parseFloat(rules[i].less_than)
+
+//             for(let j = i+1; j < rules.length; j++){
+//                 let moreThan = parseFloat(rules[j].more_than)
+//                 if(lessThan > moreThan) return Error("There is a conflict in the dynamic margin.")
+//             }
+//         }
+//     }
+// }
 const rules = new DynamicRules()
 
 

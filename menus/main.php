@@ -63,7 +63,7 @@ if(isset($_POST['save'])){
 
 }
 
-
+// update_option("smt_smart_feeds_dynamic_rules", json_encode([]));
 
 $rectron = new Rectron();
 $rectron->feed_loop();
@@ -122,6 +122,14 @@ $rectron->feed_loop();
                 </div>
                 <input type="text" name="base_margin" value="<?php echo get_option("smt_smart_feeds_base_margin");?>" placeholder="Example: 76">
             </div>
+            
+            <!-- Dynamic Margin -->
+            <div class="form-field">
+                <div id="add-dynamic-rules">
+                    <label for="dynamic_rules">Dynamic Margin</label>
+                    <button type="button" id="add-rule">Add</button>
+                </div>
+            </div>
 
             <!-- Tax Rate -->
             <div class="form-field">
@@ -131,36 +139,14 @@ $rectron->feed_loop();
                 <input type="text" name="tax_rate" value="<?php echo get_option("smt_smart_feeds_tax_rate"); ?>" placeholder="Example: 76">
             </div>
 
-            <!-- Round Cents -->
+            <!-- Import Rule -->
             <div class="form-field">
                 <div class="label-container">
-                    <label for="round_cents">Round Cents</label>
+                    <label for="round_cents">Don't import product if the stock is less than:</label>
                 </div>
-                <input type="text" name="round_cents" value="<?php echo get_option("smt_smart_feeds_round_cent"); ?>">
+                <input type="text" name="import_stock" value="<?php echo get_option("smt_smart_feeds_round_cent"); ?>">
             </div>
 
-            <!-- Round Rands -->
-            <!-- <div class="form-field">
-                <div class="label-container">
-                    <label for="round_cents">Round Rands</label>
-                </div>
-                <input type="text" name="round_rands">
-            </div> -->
-
-            <div class="form-field">
-                <label for="dynamic_rules">Dynamic Rules</label>
-                <div id="add-dynamic-rules">
-                    <select name="dynamic_rules" id="dynamic_rules">
-                        <option value="" disabled selected>Add Dynamic Rule</option>
-                        <option value="import-price">Don't Import According To Price</option>
-                        <option value="import-stock">Don't Import According To Stock</option>
-                        <option value="margin">Set Margin According To Price</option>
-                    </select>
-                    <button type="button" id="add-rule">Add</button>
-                </div>
-
-
-            </div>
 
             <!-- Save buttons  -->
             <div id="button-container">
@@ -170,7 +156,7 @@ $rectron->feed_loop();
 
             </form>
             <section id="dynamic-rule-section">
-                <h2>Dynamic Rules</h2>
+                <h2>Dynamic Margin</h2>
                 <!-- Show the dynamic rules -->
                 <div id="dynamic-rules-display">
                 </div>

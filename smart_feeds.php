@@ -25,11 +25,11 @@ function check_plugin_activation(){
     if(!get_option("smt_smart_feeds_rectron_feed_onhand")) add_option("smt_smart_feeds_rectron_feed_onhand", "", "", "yes");
     if(!get_option("smt_smart_feeds_base_margin")) add_option("smt_smart_feeds_base_margin", "", "", "yes");
     if(!get_option("smt_smart_feeds_interval")) add_option("smt_smart_feeds_interval", "", "", "yes");
-    if(!get_option("smt_smart_feeds_tax_rate")) add_option("smt_smart_feeds_tax_rate");
-    if(!get_option("smt_smart_feeds_round_cent")) add_option("smt_smart_feeds_round_cent");
+    if(!get_option("smt_smart_feeds_tax_rate")) add_option("smt_smart_feeds_tax_rate", 15);
+    if(!get_option("smt_smart_feeds_import_stock")) add_option("smt_smart_feeds_import_stock", 0);
 
     if(!get_option('smt_smart_feeds_exclude_products')) add_option('smt_smart_feeds_exclude_products');
-    if(!get_option('smt_smart_feeds_dynamic_rules')) add_option('smt_smart_feeds_dynamic_rules');
+    if(!get_option('smt_smart_feeds_dynamic_rules')) add_option('smt_smart_feeds_dynamic_rules', json_encode([]));
 
 }
 
@@ -141,6 +141,7 @@ function product_gallery_template($template, $template_name){
 // Add the scheduled times
 add_filter('cron_schedules', 'smt_lk_run_every_ten_minutes');
 
+// Function to add the custom 10 min interval function
 function smt_lk_run_every_ten_minutes($schedules){
     $schedules['every_ten_minutes'] = array(
         'interval' => 10*60,
@@ -149,17 +150,19 @@ function smt_lk_run_every_ten_minutes($schedules){
     return $schedules;
 }
 
+// Check if the event is already scheduled and schedule the event
 if(!wp_next_scheduled('smt_lk_run_every_ten_minutes')){
     wp_schedule_event(time(), 'every_ten_minutes', 'smt_lk_run_every_ten_minutes');
 }
 
+// Function to fire everytime the wp_cron event occurs
 add_action('every_ten_minutes', 'smt_lk_update_products');
 function smt_lk_update_products(){
     $rectron = new Rectron();
     $rectron->feed_loop();
 }
 
-
+// Round the woocommerce price according to preferance
 function smt_smart_feeds_round_price($price, $product = NULL){
     $price = floor($price) + .9;
     return $price;
