@@ -35,9 +35,9 @@ class ProductTable {
     saveClicked(){
         let ajax = {}
         let checkboxObject = ProductTable.getImportCheckBoxes(ajax)
-        let otherCostObject = ProductTable.getOtherCost(checkboxObject)
-        let finalForm = ProductTable.getMarkup(otherCostObject)
-        console.log(finalForm)
+        // let otherCostObject = ProductTable.getOtherCost(checkboxObject)
+        // let finalForm = ProductTable.getMarkup(otherCostObject)
+        console.log(checkboxObject)
     }
 
     // This gets the "do not import" checkboxes for when the save button is clicked
@@ -45,11 +45,15 @@ class ProductTable {
         const import_chcckboxes = document.querySelectorAll(".import")
 
         for(let checkbox of import_chcckboxes){
-            if(checkbox.checked){
-                const sku = checkbox.dataset.sku
+            const sku = checkbox.dataset.sku
+            if(checkbox.checked && products[sku]['status'] === 'publish'){
                 if(sku in productObject) productObject[sku] = {...productObject[sku], skip: true}
                 else productObject[sku] = { skip: true } 
-            } 
+            }
+            else if(!checkbox.checked && products[sku]['status'] !== 'publish'){
+                if(sku in productObject) productObject[sku] = {...productObject[sku], skip: false}
+                else productObject[sku] = { skip: false }
+            }
         }
 
         return productObject
@@ -133,21 +137,21 @@ class ProductTable {
         
         // grab the elements that you need
         const markupType = document.querySelector(`#markup-type${this.dataset.index}`)
-        const costOfGoods = document.querySelector(`#cost-of-goods${this.dataset.index}`)
+        const costOfGoods = parseFloat(document.querySelector(`#cost-of-goods${this.dataset.index}`).innerText.replace(/\,+/g, ""))
         let sellingPrice = document.querySelector(`#price${this.dataset.index}`)
         let profitValue = document.querySelector(`#profit${this.dataset.index}`)
 
         
         if(markupRegex.test(this.value)){
             // calculate markup
-            const markup = markupType.value === 'percent'? parseFloat(costOfGoods.innerText) * (parseFloat(this.value) / 100) : parseFloat(this.value)
+            const markup = markupType.value === 'percent'? costOfGoods * (parseFloat(this.value) / 100) : parseFloat(this.value)
 
             // calculate selling prices
-            const sellingPriceExcl = parseFloat(costOfGoods.innerText) + markup
-            const sellingPriceIncl = sellingPriceExcl * 1.15  
+            const sellingPriceExcl = costOfGoods + markup
+            const sellingPriceIncl = sellingPriceExcl * 1.15
 
             // set the selling price and profit
-            sellingPrice.innerText = Math.round((sellingPriceIncl + Number.EPSILON) * 1_000_000) / 1_000_000
+            sellingPrice.innerText = Math.floor(Math.round((sellingPriceIncl + Number.EPSILON) * 1_000_000) / 1_000_000) + .9
             profitValue.innerText = Math.round((markup + Number.EPSILON) * 1_000_000) / 1_000_000
         }
 
@@ -222,8 +226,11 @@ class FilterFeed {
         let exclude = []
         const descRegex = new RegExp(`${description}`, "gi")
 
-        for(let i = 0; i < products.length; i++){
-            if(!(descRegex.test(products[i].Code) || descRegex.test(products[i].Title))) exclude.push(i)
+        // for(let i = 0; i < products.length; i++){
+        //     if(!(descRegex.test(products[i].Code) || descRegex.test(products[i].Title))) exclude.push(i)
+        // }
+        for(let product in products){
+            if(!(descRegex.test(products[product]['sku']) || descRegex.test(products[product]['name']))) exclude.push(i)
         }
 
         return elementList
@@ -236,9 +243,14 @@ class FilterFeed {
         let priceRegex = /[0-9]{1,9}(\.[0-9]{1,3})?/
 
         if(priceRegex.test(comparePrice)){
-            for(let i = 0; i < products.length; i++){
-                if(comparison === "more_than" && parseFloat(products[i].SellingPrice) <= parseFloat(comparePrice)) exclude.push(i)
-                else if(comparison === "less_than" && parseFloat(products[i].SellingPrice) >= parseFloat(comparePrice)) exclude.push(i)
+            // for(let i = 0; i < products.length; i++){
+            //     if(comparison === "more_than" && parseFloat(products[i].SellingPrice) <= parseFloat(comparePrice)) exclude.push(i)
+            //     else if(comparison === "less_than" && parseFloat(products[i].SellingPrice) >= parseFloat(comparePrice)) exclude.push(i)
+            // }
+
+            for(let product in product){
+                if(comparison === "more_than" && parseFloat(products[product]['price']) <= parseFloat(comparePrice)) exclude.push(i)
+                else if(comparison === "less_than" && parseFloat(products[product]['price']) >= parseFloat(comparePrice)) exclude.push(i)
             }
         }
 

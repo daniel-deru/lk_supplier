@@ -296,6 +296,44 @@ class Rectron  {
         // format($dynamic_margin);
         // Create the product object to create or update the product
         $product = new WC_Product($product_id);
+
+
+
+
+        $product->set_sku($product_data['sku']);
+        $product->set_name($product_data['name']);
+        $product->set_description($product_data['description']);
+        $product->set_short_description($product_data['short_description']);
+
+        // Calculate the price of the product
+        $cost = intval($product_data['regular_price']);
+        $margin = $this->base_margin;
+
+        if($dynamic_margins){
+            foreach($dynamic_margins as $dynamic_margin){
+                $from = intval($dynamic_margin->more_than);
+                $to = intval($dynamic_margin->less_than);
+
+                // Check if the cost is between the range of the dynamic rule
+                if($cost > $from && $cost < $to){
+                    $margin = (intval($dynamic_margin->margin) + 100) / 100;
+
+                } 
+            }
+        }else {
+            $margin = $this->base_margin;
+        }
+        
+        $price_excl = $cost * $margin;
+        $price_incl = $price_excl * ($this->tax_rate + 100) / 100;
+
+        $product->set_regular_price($price_incl);
+        $product->set_manage_stock(true);
+        $product->set_stock_quantity($product_data['stock_quantity']);
+        $product->set_category_ids($product_data['categories']);
+        $product->set_tax_class("Feed Tax");
+
+
         // Set the image urls as data attributes
         $image_attribute = new WC_Product_Attribute();
         $image_attribute->set_id(0);
@@ -309,44 +347,14 @@ class Rectron  {
         $rectron_attribute->set_name('rectron');
         $rectron_attribute->set_visible(false);
 
-        $product->set_sku($product_data['sku']);
-        $product->set_name($product_data['name']);
-        $product->set_description($product_data['description']);
-        $product->set_short_description($product_data['short_description']);
+        // This is a custom attribute for customized settings
+        $custom_attribute = new WC_Product_Attribute();
+        $custom_attribute->set_id(0);
+        $custom_attribute->set_name('custom');
+        $custom_attribute->set_visible(false);
+        $custom_attribute->set_options(['skip' => 0, 'other_cost' => 0, 'margin' => ($margin * 100) - 100,  'margin_type' => 'percent']);
 
-        // Calculate the price of the product
-        $cost = intval($product_data['regular_price']);
-        $margin = $this->base_margin;
-
-        if($dynamic_margins)
-        {
-            foreach($dynamic_margins as $dynamic_margin)
-            {
-                $from = intval($dynamic_margin->more_than);
-                $to = intval($dynamic_margin->less_than);
-
-                // Check if the cost is between the range of the dynamic rule
-                if($cost > $from && $cost < $to){
-                    $margin = (intval($dynamic_margin->margin) + 100) / 100;
-
-                } 
-            }
-        }
-        else 
-        {
-            $margin = $this->base_margin;
-        }
-        
-        $price_excl = $cost * $margin;
-        $price_incl = $price_excl * ($this->tax_rate + 100) / 100;
-
-        $product->set_regular_price($price_incl);
-
-        $product->set_manage_stock(true);
-        $product->set_stock_quantity($product_data['stock_quantity']);
-        $product->set_category_ids($product_data['categories']);
-        $product->set_tax_class("Feed Tax");
-        $product->set_attributes(array($image_attribute, $rectron_attribute));
+        $product->set_attributes(array($image_attribute, $rectron_attribute, $custom_attribute));
 
         return $product->save();
 

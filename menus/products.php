@@ -30,9 +30,12 @@ foreach($wp_products as $product){
         'sku' => $product->get_sku(),
         'stock_quantity' => $product->get_stock_quantity(),
         'price' => $product->get_price(),
-        'margin' => $rectron->getProductMargin($product->get_price())
+        'margin' => $rectron->getProductMargin($product->get_price()),
+        'attributes' => explode(" | ", $product->get_attribute('custom')),
+        'status' => $product->get_status()
     );
-    array_push($products, $product_array);
+    // array_push($products, $product_array);
+    $products[$product->get_sku()] = $product_array;
 }
 
 // format($products);
@@ -43,6 +46,8 @@ wp_localize_script("smt_smart_feeds_products_script", "rectron_products", array(
     'products' => $products,
     'ajax_url' => admin_url('admin-ajax.php')
 ));
+
+$tableIndex = 0;
 
 ?>
 <main id="smt_smart_feeds_products">
@@ -89,9 +94,11 @@ wp_localize_script("smt_smart_feeds_products_script", "rectron_products", array(
                 <th id="stock">Stock</th>  <?php // display only?>
                 <th id="profit">Profit <br> (excl.)</th> <?php // display only?>
             </tr>
-            <?php foreach($products as $i => $product): ?>
+            <?php foreach($products as $i => $product): 
+                $tableIndex++;
+                ?>
                 <tr class="smt-body">
-                    <td class="index"><?php echo esc_html($i + 1) ?></td>
+                    <td class="index"><?php echo esc_html($tableIndex) ?></td>
                     <!-- Name -->
                     <td class="name">
                         <!-- Fix Title -->
