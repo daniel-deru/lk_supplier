@@ -103,7 +103,11 @@ add_action('wp_ajax_nopriv_get_rules', 'get_rules');
 
 function get_rules(){
     $data = json_encode($_POST['rules']);
-    echo count($_POST['rules']);
+
+    echo "<pre>";
+    print_r($data);
+    echo "</pre>";
+    
     update_option('smt_smart_feeds_dynamic_rules', $data);
     wp_die();
 };

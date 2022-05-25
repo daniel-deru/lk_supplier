@@ -47,22 +47,6 @@ class Rectron  {
         return preg_match($onhand_pattern, $feed) ? true : false;
     }
 
-    // Get WooCommerce Products filter out rectron products and convert to associative array
-    // function getWCProducts($woocommerce){
-    //     if(!(get_option("smt_smart_feeds_consumer_key") && get_option("smt_smart_feeds_consumer_secret"))) return;
-
-    //     $WCProducts = json_decode(smt_smart_feeds_listProducts(1, $woocommerce), true);
-
-    //     $rectronProducts = array_filter($WCProducts['data'], function($product){
-    //         foreach($product['attributes'] as $attribute){
-    //             if($attribute['name'] === $this->attribute_name) return true;
-    //         }
-    //         return false;
-            
-    //     });
-
-    //     return WCConvert($rectronProducts);
-    // }
 
     function getProducts(){
         $products_array = [];
@@ -246,6 +230,7 @@ class Rectron  {
                 $rectron_products[$products[$i]['Code']] = $product_data;
 
             }
+            // if($i == 100) break;
 
         }
         // Set the stock quantity to zero if the product is not in the $rectron_products array
@@ -290,7 +275,7 @@ class Rectron  {
 
     }
     // Set the stock quantity to 0 if the product is no longer onhand
-    function delete_products($rectron_products, $existing_products){
+    function delete_products($rectron_products, &$existing_products){
         foreach($existing_products as $existing_product){
             $sku = $existing_product->get_sku();
             $attributes = $existing_product->get_attributes();
@@ -299,13 +284,16 @@ class Rectron  {
                 // Check the product is not in the rectron products array which means the onhand needs to be set to 0
                 if(!isset($rectron_products[$sku])){
                     format("This product quantity has been set to zero" . $existing_product->get_name());
-                    $existing_product->set_stock_quantity(0);
+                    $existing_product->set_stock_quantity("0");
                 }
             }
         }
     }
 
     function create_product($product_data, $product_id=0){
+        $dynamic_margins = json_decode(get_option("smt_smart_feeds_dynamic_rules"));
+        // format($dynamic_margins);
+        // format($dynamic_margin);
         // Create the product object to create or update the product
         $product = new WC_Product($product_id);
         // Set the image urls as data attributes
@@ -325,8 +313,33 @@ class Rectron  {
         $product->set_name($product_data['name']);
         $product->set_description($product_data['description']);
         $product->set_short_description($product_data['short_description']);
-        $price_excl = intval($product_data['regular_price']) * $this->base_margin;
+
+        // Calculate the price of the product
+        $cost = intval($product_data['regular_price']);
+        $margin = $this->base_margin;
+
+        if($dynamic_margins)
+        {
+            foreach($dynamic_margins as $dynamic_margin)
+            {
+                $from = intval($dynamic_margin->more_than);
+                $to = intval($dynamic_margin->less_than);
+
+                // Check if the cost is between the range of the dynamic rule
+                if($cost > $from && $cost < $to){
+                    $margin = (intval($dynamic_margin->margin) + 100) / 100;
+
+                } 
+            }
+        }
+        else 
+        {
+            $margin = $this->base_margin;
+        }
+        
+        $price_excl = $cost * $margin;
         $price_incl = $price_excl * ($this->tax_rate + 100) / 100;
+
         $product->set_regular_price($price_incl);
 
         $product->set_manage_stock(true);
@@ -337,5 +350,22 @@ class Rectron  {
 
         return $product->save();
 
+    }
+    
+    function getProductMargin($productPrice){
+        $dynamic_margins = json_decode(get_option("smt_smart_feeds_dynamic_rules"));
+        $base_margin = intval(get_option("smt_smart_feeds_base_margin"));
+
+        $margin = $base_margin;
+
+        if($dynamic_margins){
+            foreach($dynamic_margins as $dynamic_margin){
+                if($productPrice > $dynamic_margin->more_than && $productPrice < $dynamic_margin->less_than){
+                    $margin = $dynamic_margin->margin;
+                }
+            }
+        }
+
+        return ($margin + 100) / 100;
     }
 }

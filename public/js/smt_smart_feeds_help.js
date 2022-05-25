@@ -21,7 +21,7 @@ class DynamicRules {
                 rules: DynamicRules.rules
             }
             jQuery.post(smart_feed_data.ajax_url, data, (response) => {
-                console.log(JSON.parse(response))
+                console.log(response)
                 alert("Saved")
             })
         })
@@ -124,7 +124,7 @@ class DynamicRules {
     }
 
     static createCompareComponent(type, ruleIndex, value=null){
-        let text = type === "more_than" ? " More Than: " : " Less than: "
+        let text = type === "more_than" ? " From: " : " To: "
 
         const container = document.createElement('span')
         const input = document.createElement('input')
