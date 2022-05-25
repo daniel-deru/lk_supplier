@@ -35,9 +35,9 @@ class ProductTable {
     saveClicked(){
         let ajax = {}
         let checkboxObject = ProductTable.getImportCheckBoxes(ajax)
-        // let otherCostObject = ProductTable.getOtherCost(checkboxObject)
-        // let finalForm = ProductTable.getMarkup(otherCostObject)
-        console.log(checkboxObject)
+        let otherCostObject = ProductTable.getOtherCost(checkboxObject)
+        let finalForm = ProductTable.getMarkup(otherCostObject)
+        console.log(finalForm)
     }
 
     // This gets the "do not import" checkboxes for when the save button is clicked
@@ -62,13 +62,20 @@ class ProductTable {
     // This gets the other cost input for when the save button is clicked
     static getOtherCost(productObject){
         const otherCostInputs = document.querySelectorAll(".other-cost input")
-
+        const numberRegex = /[0-9]*(\.[0-9]*)?/
         for(let input of otherCostInputs){
-            if(input.value){
-                const sku = input.dataset.sku
-                if(sku in productObject) productObject[sku] = {...productObject[sku], otherCost: parseFloat(input.value) }
-                else productObject[sku] = { otherCost: parseFloat(input.value) }
-            } 
+
+            const sku = input.dataset.sku
+
+            if(input.value === '' && products[sku]['attributes'][1] == '0') continue
+
+            if(input.value != products[sku]['attributes'][1] && numberRegex.test(input.value)){
+
+                let otherCost = input.value ? parseFloat(input.value) : 0
+
+                if(sku in productObject) productObject[sku] = {...productObject[sku], otherCost }
+                else productObject[sku] = { otherCost }
+            }
         }
 
         return productObject
@@ -79,12 +86,15 @@ class ProductTable {
         const markupInputs = document.querySelectorAll(".markup input")
 
         for(let input of markupInputs){
-            if(input.value){
-                const sku = input.dataset.sku
-                const markupType = document.getElementById(`markup-type${input.dataset.index}`)
 
-                if(sku in productObject) productObject[sku] = {...productObject[sku], markup: parseFloat(input.value), markupType: markupType.value }
-                else productObject[sku] = { markup: parseFloat(input.value), markupType: markupType.value }
+            const sku = input.dataset.sku
+            const markupType = document.getElementById(`markup-type${input.dataset.index}`)
+            const currentMarkup = parseFloat(products[sku]['margin'][2] * 100 - 100)
+            console.log(`This is the input: ${parseFloat(input.value)}, This is the current: ${currentMarkup}`)
+            if(parseFloat(input.value) != currentMarkup){
+                let markup = (parseFloat(input.value) + 100) / 100
+                if(sku in productObject) productObject[sku] = {...productObject[sku], markup, markupType: markupType.value }
+                else productObject[sku] = { markup, markupType: markupType.value }
             } 
         }
 

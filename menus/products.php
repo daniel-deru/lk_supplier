@@ -124,7 +124,7 @@ $tableIndex = 0;
                     </td> 
                     <!-- Other Cost -->
                     <td class="other-cost">
-                        <input type="text" placeholder="Other Cost" data-index="<?php echo esc_html($i) ?>" data-sku="<?php echo esc_html($product['sku']) ?>">
+                        <input type="text" value="<?php echo esc_attr($product['attributes'][1]) ?>" placeholder="Other Cost" data-index="<?php echo esc_html($i) ?>" data-sku="<?php echo esc_html($product['sku']) ?>">
                     </td> 
                     <!-- Cost Price + Other Cost -->
                     <td class="cost-of-goods-container">
