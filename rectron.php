@@ -306,7 +306,7 @@ class Rectron  {
         $product->set_short_description($product_data['short_description']);
 
         // Calculate the price of the product
-        $cost = intval($product_data['regular_price']);
+        $cost = floatval($product_data['regular_price']);
         $margin = $this->base_margin;
 
         if($dynamic_margins){
@@ -352,7 +352,7 @@ class Rectron  {
         $custom_attribute->set_id(0);
         $custom_attribute->set_name('custom');
         $custom_attribute->set_visible(false);
-        $custom_attribute->set_options(['skip' => 0, 'other_cost' => 0, 'margin' => ($margin * 100) - 100,  'margin_type' => 'percent']);
+        $custom_attribute->set_options(['skip' => 0, 'other_cost' => 0, 'margin' => ($this->getProductMargin($price_incl) * 100) - 100,  'margin_type' => 'percent']);
 
         $product->set_attributes(array($image_attribute, $rectron_attribute, $custom_attribute));
 

@@ -37,7 +37,16 @@ class ProductTable {
         let checkboxObject = ProductTable.getImportCheckBoxes(ajax)
         let otherCostObject = ProductTable.getOtherCost(checkboxObject)
         let finalForm = ProductTable.getMarkup(otherCostObject)
-        console.log(finalForm)
+        // console.log(finalForm)
+
+        const data = {
+            action: 'smt_smart_feeds_get_custom_product_data',
+            data: finalForm
+        }
+        jQuery.post(rectron_products.ajax_url, data, (response) => {
+            console.log(response)
+            alert("Saved")
+        })
     }
 
     // This gets the "do not import" checkboxes for when the save button is clicked
@@ -89,10 +98,10 @@ class ProductTable {
 
             const sku = input.dataset.sku
             const markupType = document.getElementById(`markup-type${input.dataset.index}`)
-            const currentMarkup = parseFloat(products[sku]['margin'][2] * 100 - 100)
-            console.log(`This is the input: ${parseFloat(input.value)}, This is the current: ${currentMarkup}`)
-            if(parseFloat(input.value) != currentMarkup){
-                let markup = (parseFloat(input.value) + 100) / 100
+            const currentMarkup = parseFloat(products[sku]['attributes'][2])
+            if(parseFloat(input.value) != parseFloat(currentMarkup)){
+                // console.log(input.value)
+                let markup = parseFloat(input.value)
                 if(sku in productObject) productObject[sku] = {...productObject[sku], markup, markupType: markupType.value }
                 else productObject[sku] = { markup, markupType: markupType.value }
             } 

@@ -10,7 +10,7 @@ Author URI: https://smartmetatec.com
 
 */
 
-require_once "woocommerce-api.php";
+// require_once "woocommerce-api.php";
 require_once "rectron.php";
 
 register_activation_hook(__FILE__, 'check_plugin_activation');
@@ -109,6 +109,53 @@ function get_rules(){
     echo "</pre>";
     
     update_option('smt_smart_feeds_dynamic_rules', $data);
+    wp_die();
+};
+
+add_action('wp_ajax_smt_smart_feeds_get_custom_product_data', 'smt_smart_feeds_get_custom_product_data');
+add_action('wp_ajax_nopriv_smt_smart_feeds_get_custom_product_data', 'smt_smart_feeds_get_custom_product_data');
+
+function smt_smart_feeds_get_custom_product_data(){
+    $data = $_POST['data'];
+
+    $products_array = [];
+    $query_args = array(
+        'post_type' => 'product',
+        'posts_per_page' => -1
+    );
+    $products = new WP_Query($query_args);
+    if($products->have_posts()){
+        while($products->have_posts()){
+            $products->the_post();
+            global $product;
+            $sku = $product->get_sku();
+            $products_array[$sku] = $product;
+        }
+    }
+    
+
+    foreach($data as $sku => $custom_data){
+        if(!$products_array[$sku]) continue;
+
+        $product = $products_array[$sku];
+        // All the product attributes
+        $product_attributes = $product->get_attributes();
+        $custom_attribute = $product_attributes['custom'];
+        $options = $custom_attribute->get_options();
+        if($custom_data['skip']){
+            
+        }
+        if($custom_data['otherCost']){
+
+        }
+        if($custom_data['markup']){
+            
+        }
+        if($custom_data['markupType']){
+
+        }
+    }
+    // return $data;
     wp_die();
 };
 
