@@ -43,4 +43,16 @@ class TaxClass {
         // format($tax_rate);
 
     }
+
+    static function getTaxRate(){
+        $rates = WC_Tax::get_rates_for_tax_class("Feed Tax");
+        $tax_id = null;
+
+        foreach($rates as $rate){
+            if($rate->tax_rate_name === "Feed Tax") $tax_id = $rate->tax_rate_id;
+        }
+        // See info about the tax class
+        $tax_rate = WC_Tax::_get_tax_rate($tax_id);
+        return $tax_rate['tax_rate'];
+    }
 }

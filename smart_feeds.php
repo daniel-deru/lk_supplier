@@ -12,6 +12,8 @@ Author URI: https://smartmetatec.com
 
 // require_once "woocommerce-api.php";
 require_once "rectron.php";
+require_once "includes/tax_classes.php";
+require_once "includes/convert.php";
 
 register_activation_hook(__FILE__, 'check_plugin_activation');
 
@@ -139,21 +141,59 @@ function smt_smart_feeds_get_custom_product_data(){
 
         $product = $products_array[$sku];
         // All the product attributes
+    
+
         $product_attributes = $product->get_attributes();
         $custom_attribute = $product_attributes['custom'];
         $options = $custom_attribute->get_options();
-        if($custom_data['skip']){
-            
-        }
-        if($custom_data['otherCost']){
 
-        }
-        if($custom_data['markup']){
-            
-        }
-        if($custom_data['markupType']){
+        $product_price = floatval($product->get_price());
+        $product_tax = (floatval(TaxClass::getTaxRate()) + 100) / 100;
+        $product_profit = (floatval($options[2]) + 100) / 100;
 
+        $cost = calcCostPrice($product_price, $product_tax, $product_profit);
+
+        if(isset($custom_data['skip'])){
+            $options[0] = $custom_data['skip'];
+            if($custom_data['skip'] == 0){
+                // Make the product a draft
+            } else {
+                // Make the product published
+            }
         }
+        if(isset($custom_data['otherCost'])){
+            $otherCost = floatval($custom_data['otherCost']);
+            $options[1] = $otherCost;
+            // Get the product price before vat and profit and add the other cost to the product
+            $cost += $otherCost;
+        }
+        if(isset($custom_data['markup'])){
+
+            $markup = floatval($custom_data['markup']);
+            $markupType = $custom_data['markupType'];
+
+            $options[2] = $markup;
+            $options[3] = $markupType;
+
+            if($markupType == "fixed") $cost += $markup;
+            else if($markupType == "percent") $cost += $cost * ($markup / 100);
+            // Get the product price before vat and profit and add the new profit
+
+        } else {
+            $markup = floatval($options[2]);
+            $markupType = $options[3];
+
+            if($markupType == "fixed") $cost += $markup;
+            else if($markupType == "percent") $cost += $cost * ($markup / 100);
+        }
+
+        $product_price_including = $cost * $product_tax;
+        
+        $product_attributes['custom'] = $options;
+
+        $product->set_attributes($product_attributes);
+        $product->set_price($product_price_including);
+
     }
     // return $data;
     wp_die();

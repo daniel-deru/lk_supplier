@@ -56,12 +56,12 @@ class ProductTable {
         for(let checkbox of import_chcckboxes){
             const sku = checkbox.dataset.sku
             if(checkbox.checked && products[sku]['status'] === 'publish'){
-                if(sku in productObject) productObject[sku] = {...productObject[sku], skip: true}
-                else productObject[sku] = { skip: true } 
+                if(sku in productObject) productObject[sku] = {...productObject[sku], skip: 1}
+                else productObject[sku] = { skip: 1 } 
             }
             else if(!checkbox.checked && products[sku]['status'] !== 'publish'){
-                if(sku in productObject) productObject[sku] = {...productObject[sku], skip: false}
-                else productObject[sku] = { skip: false }
+                if(sku in productObject) productObject[sku] = {...productObject[sku], skip: 0}
+                else productObject[sku] = { skip: 0 }
             }
         }
 
