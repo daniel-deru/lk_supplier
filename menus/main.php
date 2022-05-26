@@ -1,5 +1,5 @@
 <?php
-    require_once  dirname(plugin_dir_path(__FILE__)) . "/woocommerce-api.php";
+    // require_once  dirname(plugin_dir_path(__FILE__)) . "/woocommerce-api.php";
     require_once dirname(plugin_dir_path(__FILE__)) . "/includes/print.php";
     include dirname(plugin_dir_path(__FILE__)) . "/includes/link.php";
     include_once dirname(plugin_dir_path(__FILE__)) . "/includes/categories.php";

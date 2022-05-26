@@ -1,9 +1,10 @@
 <?php
 
-require_once "woocommerce-api.php";
+// require_once "woocommerce-api.php";
 require_once 'includes/convert.php';
 require_once 'includes/print.php';
 require_once 'includes/categories.php';
+require_once 'includes/product.php';
 
 class Rectron  {
     private $onhand_feed;
@@ -218,12 +219,18 @@ class Rectron  {
                 } 
                 else {
                     // The product exists so update it
+                    // TODO make sure there is no clash between products
                     $existing_product = $existing_products[$product_data['sku']];
 
-                    $regular_price = $existing_product->get_regular_price();
+                    // $regular_price = $existing_product->get_regular_price();
+
+                    $cost_price = smt_smart_feeds_get_meta_data('original', $existing_product);
+                    $cost_price = floatval($cost_price['cost']);
+
+
                     $stock_quantity = $existing_product->get_stock_quantity();
 
-                    if($regular_price != $products[$i]['SellingPrice']) $existing_product->set_regular_price($products[$i]['SellingPrice']);
+                    if($cost_price != $products[$i]['SellingPrice']) $existing_product->set_regular_price($products[$i]['SellingPrice']);
                     if($stock_quantity != $products[$i]['OnHand']) $existing_product->set_stock_quantity($products[$i]['OnHand']);
 
                     $existing_product->save();
@@ -300,9 +307,6 @@ class Rectron  {
         // Create the product object to create or update the product
         $product = new WC_Product($product_id);
 
-
-
-
         $product->set_sku($product_data['sku']);
         $product->set_name($product_data['name']);
         $product->set_description($product_data['description']);
@@ -349,13 +353,6 @@ class Rectron  {
         $rectron_attribute->set_id(0);
         $rectron_attribute->set_name('rectron');
         $rectron_attribute->set_visible(false);
-
-        // This is a custom attribute for customized settings
-        // $custom_attribute = new WC_Product_Attribute();
-        // $custom_attribute->set_id(0);
-        // $custom_attribute->set_name('custom');
-        // $custom_attribute->set_visible(false);
-        // $custom_attribute->set_options(['skip' => 0, 'other_cost' => 0, 'margin' => ($this->getProductMargin($price_incl) * 100) - 100,  'margin_type' => 'percent']);
 
         $product->set_attributes(array($image_attribute, $rectron_attribute));
 

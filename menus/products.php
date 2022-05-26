@@ -3,6 +3,7 @@
     include_once  dirname(plugin_dir_path(__FILE__)) . "/rectron.php";
     include_once  dirname(plugin_dir_path(__FILE__)) . "/includes/print.php";
     include_once dirname(plugin_dir_path(__FILE__)) . "/includes/convert.php";
+    include_once dirname(plugin_dir_path(__FILE__)) . "/includes/product.php";
 
 
 // $categoryList = json_decode($smt_smart_feeds_listCategories(), true);
@@ -23,22 +24,23 @@ Margin
 */
 $wp_products = $rectron->getProducts();
 $products = [];
-$count = 1;
+// $count = 1;
 foreach($wp_products as $product){
 
     // Get the metadata
-    $meta_data = $product->get_meta_data();
-    $custom_data = null;
-    foreach($meta_data as $meta){
-        $data = $meta->get_data();
-        if($data['key'] === 'custom') $custom_data = $data['value'];
-        if($data['key'] === 'original') $custom_data['cost'] = $data['value']['cost'];
-    }
+    // $meta_data = $product->get_meta_data();
+    // $custom_data = null;
+    // foreach($meta_data as $meta){
+    //     $data = $meta->get_data();
+    //     if($data['key'] === 'custom') $custom_data = $data['value'];
+    //     if($data['key'] === 'original') $custom_data['cost'] = $data['value']['cost'];
+    // }
     
-    format($count . ": \n");
-    // format($meta_data);
-    format($custom_data);
-    $count++;
+
+    $custom_data = smt_smart_feeds_get_meta_data('custom', $product);
+    $original = smt_smart_feeds_get_meta_data('original', $product);
+    $custom_data['cost'] = $original['cost'];
+
 
     $product_array = array(
         'name' => $product->get_name(),
