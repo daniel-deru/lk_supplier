@@ -145,7 +145,7 @@ $tableIndex = 0;
                     </td> 
                     <!-- Cost Price + Other Cost -->
                     <td class="cost-of-goods-container">
-                        R   <span class="cost-of-goods" id="cost-of-goods<?php echo esc_attr($tableIndex) ?>">
+                        R   <span class="cost-of-goods" id="cost-of-goods<?php echo esc_attr($tableIndex) ?>" data-sku="<?php echo esc_attr($i) ?>">
                                 <?php echo esc_html(number_format(round(floatval(calcCostPrice($product['price'], $tax, $product['margin'])), 2), 2)) ?>
                             </span>
                     </td>

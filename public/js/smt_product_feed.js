@@ -3,6 +3,7 @@ let products = rectron_products.products
 class ProductTable {
     constructor(){
         this.addListeners()
+        this.setCostOfGoods()
     }
 
 
@@ -176,6 +177,16 @@ class ProductTable {
         }
 
         
+    }
+
+    setCostOfGoods(){
+        const costOfGoods = document.querySelectorAll(".cost-of-goods")
+        for(let node of costOfGoods){
+            const sku = node.dataset.sku
+            const cost = parseFloat(products[sku]['custom_data']['cost'])
+            const other_cost = parseFloat(products[sku]['custom_data']['other_cost'])
+            node.innerText = cost + other_cost
+        }
     }
 
 
