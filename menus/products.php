@@ -32,11 +32,13 @@ foreach($wp_products as $product){
     foreach($meta_data as $meta){
         $data = $meta->get_data();
         if($data['key'] === 'custom') $custom_data = $data['value'];
+        if($data['key'] === 'original') $custom_data['cost'] = $data['value']['cost'];
     }
-    // $count++;
-    // format($count . ": \n");
+    
+    format($count . ": \n");
     // format($meta_data);
-    // format($custom_data);
+    format($custom_data);
+    $count++;
 
     $product_array = array(
         'name' => $product->get_name(),
@@ -44,7 +46,7 @@ foreach($wp_products as $product){
         'stock_quantity' => $product->get_stock_quantity(),
         'price' => $product->get_price(),
         'margin' => $rectron->getProductMargin($product->get_price()),
-        'attributes' => explode(" | ", $product->get_attribute('custom')),
+        // 'attributes' => explode(" | ", $product->get_attribute('custom')),
         'status' => $product->get_status(),
         'custom_data' => $custom_data
     );
@@ -126,24 +128,24 @@ $tableIndex = 0;
                             name="import" 
                             class="import"
                             <?php echo $product['custom_data']['skip'] == '0' ? '' : 'checked'; ?>
-                            id="import<?php echo esc_html($i) ?>" 
-                            data-index="<?php echo esc_html($i) ?>" 
+                            id="import<?php echo esc_html($tableIndex) ?>" 
+                            data-index="<?php echo esc_html($tableIndex) ?>" 
                             data-sku="<?php echo esc_html($product['sku']) ?>"
                         >
                     </td>
                     <!-- Cost Price -->
                     <td class="cost-price-container">
-                        R   <span class="cost-price" id="cost-price<?php echo esc_attr($i) ?>" >
-                                <?php echo esc_html(number_format(round(floatval(calcCostPrice($product['price'], $tax, $product['margin'])), 2), 2)) ?>
+                        R   <span class="cost-price" id="cost-price<?php echo esc_attr($tableIndex) ?>" >
+                                <?php echo esc_html(number_format(round(floatval($product['custom_data']['cost']), 2), 2)) ?>
                             </span>
                     </td> 
                     <!-- Other Cost -->
                     <td class="other-cost">
-                        <input type="text" value="<?php echo esc_attr($product['custom_data']['other_cost']) ?>" placeholder="Other Cost" data-index="<?php echo esc_html($i) ?>" data-sku="<?php echo esc_html($product['sku']) ?>">
+                        <input type="text" value="<?php echo esc_attr($product['custom_data']['other_cost']) ?>" placeholder="Other Cost" data-index="<?php echo esc_html($tableIndex) ?>" data-sku="<?php echo esc_html($product['sku']) ?>">
                     </td> 
                     <!-- Cost Price + Other Cost -->
                     <td class="cost-of-goods-container">
-                        R   <span class="cost-of-goods" id="cost-of-goods<?php echo esc_attr($i) ?>">
+                        R   <span class="cost-of-goods" id="cost-of-goods<?php echo esc_attr($tableIndex) ?>">
                                 <?php echo esc_html(number_format(round(floatval(calcCostPrice($product['price'], $tax, $product['margin'])), 2), 2)) ?>
                             </span>
                     </td>
@@ -151,7 +153,7 @@ $tableIndex = 0;
                     <td class="markup-type">
                         <select 
                             name="markup-type" 
-                            id="markup-type<?php echo esc_attr($i) ?>" 
+                            id="markup-type<?php echo esc_attr($tableIndex) ?>" 
                             data-sku="<?php echo esc_html($product['sku']) ?>"
                             value="<?php echo esc_attr($product['custom_data']['margin_type']); ?>"
                             >
@@ -161,11 +163,11 @@ $tableIndex = 0;
                     </td>
                     <!-- Markup -->
                     <td class="markup">
-                        <input type="text" placeholder="Markup" value="<?php echo esc_html(floatval($product['margin']) * 100 - 100)?>" data-index="<?php echo esc_attr($i) ?>" id="markup<?php echo esc_html($i) ?>" data-sku="<?php echo esc_html($product['sku']) ?>">
+                        <input type="text" placeholder="Markup" value="<?php echo esc_html(floatval($product['margin']) * 100 - 100)?>" data-index="<?php echo esc_attr($tableIndex) ?>" id="markup<?php echo esc_html($tableIndex) ?>" data-sku="<?php echo esc_html($product['sku']) ?>">
                     </td>
                     <!-- Price -->
                     <td class="final-price">
-                        R   <span class="price" id="price<?php echo esc_html($i) ?>">
+                        R   <span class="price" id="price<?php echo esc_html($tableIndex) ?>">
                                 <?php echo esc_html(number_format(round(floatval($product['price']), 2), 2)) ?>
                             </span>
                     </td>
@@ -173,7 +175,7 @@ $tableIndex = 0;
                     <td class="stock"><?php echo esc_html($product['stock_quantity'])?></td> 
                     <!-- Profit -->
                     <td class="profit-container">
-                        R <span class="profit" id="profit<?php echo esc_attr($i) ?>"><?php echo esc_html(number_format(round(floatval(calcProfit($product['price'], $tax, $product['margin'])), 2), 2));?></span>
+                        R <span class="profit" id="profit<?php echo esc_attr($tableIndex) ?>"><?php echo esc_html(number_format(round(floatval(calcProfit($product['price'], $tax, $product['margin'])), 2), 2));?></span>
                     </td>
 
                 </tr>

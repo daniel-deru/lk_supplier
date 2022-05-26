@@ -351,15 +351,26 @@ class Rectron  {
         $rectron_attribute->set_visible(false);
 
         // This is a custom attribute for customized settings
-        $custom_attribute = new WC_Product_Attribute();
-        $custom_attribute->set_id(0);
-        $custom_attribute->set_name('custom');
-        $custom_attribute->set_visible(false);
-        $custom_attribute->set_options(['skip' => 0, 'other_cost' => 0, 'margin' => ($this->getProductMargin($price_incl) * 100) - 100,  'margin_type' => 'percent']);
+        // $custom_attribute = new WC_Product_Attribute();
+        // $custom_attribute->set_id(0);
+        // $custom_attribute->set_name('custom');
+        // $custom_attribute->set_visible(false);
+        // $custom_attribute->set_options(['skip' => 0, 'other_cost' => 0, 'margin' => ($this->getProductMargin($price_incl) * 100) - 100,  'margin_type' => 'percent']);
 
-        $product->set_attributes(array($image_attribute, $rectron_attribute, $custom_attribute));
+        $product->set_attributes(array($image_attribute, $rectron_attribute));
 
-        $product->update_meta_data('custom', ['skip' => 0, 'other_cost' => 0, 'margin' => ($this->getProductMargin($price_incl) * 100) - 100,  'margin_type' => 'percent']);
+        $product->update_meta_data('custom', 
+        [
+            'skip' => 0, 
+            'other_cost' => 0, 
+            'margin' => ($this->getProductMargin($price_incl) * 100) - 100,  
+            'margin_type' => 'percent'
+        ]);
+
+        $product->update_meta_data('original', 
+        [
+            'cost' => $product_data['regular_price']
+        ]);
         return $product->save();
 
     }

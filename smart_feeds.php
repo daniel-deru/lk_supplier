@@ -195,10 +195,10 @@ function smt_smart_feeds_get_custom_product_data(){
        
         format($custom_meta);
         format($product_price_including);
-        // $product->update_meta_data('custom', $custom_meta);
+        $product->update_meta_data('custom', $custom_meta);
 
-        // $product->set_price($product_price_including);
-        // $product->save();
+        $product->set_regular_price($product_price_including);
+        $product->save();
     }
     wp_die();
 };
