@@ -225,6 +225,8 @@ class Rectron  {
 
                     if($regular_price != $products[$i]['SellingPrice']) $existing_product->set_regular_price($products[$i]['SellingPrice']);
                     if($stock_quantity != $products[$i]['OnHand']) $existing_product->set_stock_quantity($products[$i]['OnHand']);
+
+                    $existing_product->save();
                 }
 
                 $rectron_products[$products[$i]['Code']] = $product_data;
@@ -285,6 +287,7 @@ class Rectron  {
                 if(!isset($rectron_products[$sku])){
                     format("This product quantity has been set to zero" . $existing_product->get_name());
                     $existing_product->set_stock_quantity("0");
+                    $existing_product->save();
                 }
             }
         }

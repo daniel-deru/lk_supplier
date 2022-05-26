@@ -23,8 +23,10 @@ Margin
 */
 $wp_products = $rectron->getProducts();
 $products = [];
-
+$count = 0;
 foreach($wp_products as $product){
+    // format($product->get_attributes());
+    $count++;
     $product_array = array(
         'name' => $product->get_name(),
         'sku' => $product->get_sku(),
@@ -110,7 +112,8 @@ $tableIndex = 0;
                         <input 
                             type="checkbox" 
                             name="import" 
-                            class="import" 
+                            class="import"
+                            <?php echo $product['attributes'][0] == '0' ? '' : 'checked'; ?>
                             id="import<?php echo esc_html($i) ?>" 
                             data-index="<?php echo esc_html($i) ?>" 
                             data-sku="<?php echo esc_html($product['sku']) ?>"
@@ -134,7 +137,12 @@ $tableIndex = 0;
                     </td>
                     <!-- Markup Type -->
                     <td class="markup-type">
-                        <select name="markup-type" id="markup-type<?php echo esc_attr($i) ?>" data-sku="<?php echo esc_html($product['sku']) ?>">
+                        <select 
+                            name="markup-type" 
+                            id="markup-type<?php echo esc_attr($i) ?>" 
+                            data-sku="<?php echo esc_html($product['sku']) ?>"
+                            value="<?php echo esc_attr($product['attributes'][3]); ?>"
+                            >
                             <option value="percent">Percent</option>
                             <option value="fixed">Fixed Value</option>
                         </select>
@@ -162,3 +170,4 @@ $tableIndex = 0;
         </table>
     </section>
 </main>
+

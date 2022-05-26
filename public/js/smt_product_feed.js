@@ -43,6 +43,7 @@ class ProductTable {
             action: 'smt_smart_feeds_get_custom_product_data',
             data: finalForm
         }
+
         jQuery.post(rectron_products.ajax_url, data, (response) => {
             console.log(response)
             alert("Saved")

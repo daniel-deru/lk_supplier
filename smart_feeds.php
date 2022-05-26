@@ -135,17 +135,19 @@ function smt_smart_feeds_get_custom_product_data(){
         }
     }
     
-
     foreach($data as $sku => $custom_data){
         if(!$products_array[$sku]) continue;
 
         $product = $products_array[$sku];
         // All the product attributes
-    
-
+        
         $product_attributes = $product->get_attributes();
         $custom_attribute = $product_attributes['custom'];
         $options = $custom_attribute->get_options();
+
+        // Get the other attributes because the call to product->set_attributes will overide the previous attributes
+        $rectron_attribute = $product_attributes['rectron'];
+        $external_image_attribute = $product_attributes['external_image'];
 
         $product_price = floatval($product->get_price());
         $product_tax = (floatval(TaxClass::getTaxRate()) + 100) / 100;
@@ -156,44 +158,47 @@ function smt_smart_feeds_get_custom_product_data(){
         if(isset($custom_data['skip'])){
             $options[0] = $custom_data['skip'];
             if($custom_data['skip'] == 0){
-                // Make the product a draft
+                // Make the product a published
+                $product->set_status('publish');
             } else {
-                // Make the product published
+                // Make the product draft
+                $product->set_status('draft');
             }
         }
-        if(isset($custom_data['otherCost'])){
-            $otherCost = floatval($custom_data['otherCost']);
-            $options[1] = $otherCost;
-            // Get the product price before vat and profit and add the other cost to the product
-            $cost += $otherCost;
-        }
-        if(isset($custom_data['markup'])){
+        // if(isset($custom_data['otherCost'])){
+        //     $otherCost = floatval($custom_data['otherCost']);
+        //     $options[1] = $otherCost;
+        //     // Get the product price before vat and profit and add the other cost to the product
+        //     $cost += $otherCost;
+        // }
+        // if(isset($custom_data['markup'])){
 
-            $markup = floatval($custom_data['markup']);
-            $markupType = $custom_data['markupType'];
+        //     $markup = floatval($custom_data['markup']);
+        //     $markupType = $custom_data['markupType'];
 
-            $options[2] = $markup;
-            $options[3] = $markupType;
+        //     $options[2] = $markup;
+        //     $options[3] = $markupType;
 
-            if($markupType == "fixed") $cost += $markup;
-            else if($markupType == "percent") $cost += $cost * ($markup / 100);
-            // Get the product price before vat and profit and add the new profit
+        //     if($markupType == "fixed") $cost += $markup;
+        //     else if($markupType == "percent") $cost += $cost * ($markup / 100);
+        //     // Get the product price before vat and profit and add the new profit
 
-        } else {
-            $markup = floatval($options[2]);
-            $markupType = $options[3];
+        // } else {
+        //     $markup = floatval($options[2]);
+        //     $markupType = $options[3];
 
-            if($markupType == "fixed") $cost += $markup;
-            else if($markupType == "percent") $cost += $cost * ($markup / 100);
-        }
+        //     if($markupType == "fixed") $cost += $markup;
+        //     else if($markupType == "percent") $cost += $cost * ($markup / 100);
+        // }
 
-        $product_price_including = $cost * $product_tax;
+        // $product_price_including = $cost * $product_tax;
+        $custom_attribute->set_options($options);
+        // print_r($custom_attribute->get_options());
         
-        $product_attributes['custom'] = $options;
-
-        $product->set_attributes($product_attributes);
-        $product->set_price($product_price_including);
-
+        $product->set_attributes([$custom_attribute, $rectron_attribute, $external_image_attribute]);
+        // $product->set_price($product_price_including);
+        // format($product->get_status());
+        $product->save();
     }
     // return $data;
     wp_die();
@@ -204,8 +209,11 @@ add_filter( 'post_thumbnail_html', 'thumbnail_external_replace', 10, PHP_INT_MAX
 add_filter( 'woocommerce_product_get_image', 'thumbnail_external_replace', 10, PHP_INT_MAX );
 function thumbnail_external_replace( $html, $product ) {
     $product = new WC_Product($product->get_id());
-    $images = $product->get_attributes()['external_image']->get_options();
-    return '<img width="260" height="300" src="' . esc_url( $images[0] ) . '" class="attachment-woocommerce_thumbnail size-woocommerce_thumbnail" alt="" loading="lazy" />';
+    $images = $product->get_attributes();
+    if(isset($images['external_image'])){
+        $images = $images['external_image']->get_options();
+        return '<img width="260" height="300" src="' . esc_url( $images[0] ) . '" class="attachment-woocommerce_thumbnail size-woocommerce_thumbnail" alt="" loading="lazy" />';
+    } 
 
 }
 
