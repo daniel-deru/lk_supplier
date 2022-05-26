@@ -48,6 +48,10 @@ td {
     font-weight: 900;
 }
 
+#no-import, .no-import {
+    max-width: 50px;
+}
+
 .name, #name {
     max-width: 600px;
     width: 600px;

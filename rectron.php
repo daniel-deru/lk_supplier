@@ -359,6 +359,7 @@ class Rectron  {
 
         $product->set_attributes(array($image_attribute, $rectron_attribute, $custom_attribute));
 
+        $product->update_meta_data('custom', ['skip' => 0, 'other_cost' => 0, 'margin' => ($this->getProductMargin($price_incl) * 100) - 100,  'margin_type' => 'percent']);
         return $product->save();
 
     }

@@ -23,10 +23,21 @@ Margin
 */
 $wp_products = $rectron->getProducts();
 $products = [];
-$count = 0;
+$count = 1;
 foreach($wp_products as $product){
-    // format($product->get_attributes());
-    $count++;
+
+    // Get the metadata
+    $meta_data = $product->get_meta_data();
+    $custom_data = null;
+    foreach($meta_data as $meta){
+        $data = $meta->get_data();
+        if($data['key'] === 'custom') $custom_data = $data['value'];
+    }
+    // $count++;
+    // format($count . ": \n");
+    // format($meta_data);
+    // format($custom_data);
+
     $product_array = array(
         'name' => $product->get_name(),
         'sku' => $product->get_sku(),
@@ -34,7 +45,8 @@ foreach($wp_products as $product){
         'price' => $product->get_price(),
         'margin' => $rectron->getProductMargin($product->get_price()),
         'attributes' => explode(" | ", $product->get_attribute('custom')),
-        'status' => $product->get_status()
+        'status' => $product->get_status(),
+        'custom_data' => $custom_data
     );
     // array_push($products, $product_array);
     $products[$product->get_sku()] = $product_array;
@@ -113,7 +125,7 @@ $tableIndex = 0;
                             type="checkbox" 
                             name="import" 
                             class="import"
-                            <?php echo $product['attributes'][0] == '0' ? '' : 'checked'; ?>
+                            <?php echo $product['custom_data']['skip'] == '0' ? '' : 'checked'; ?>
                             id="import<?php echo esc_html($i) ?>" 
                             data-index="<?php echo esc_html($i) ?>" 
                             data-sku="<?php echo esc_html($product['sku']) ?>"
@@ -127,7 +139,7 @@ $tableIndex = 0;
                     </td> 
                     <!-- Other Cost -->
                     <td class="other-cost">
-                        <input type="text" value="<?php echo esc_attr($product['attributes'][1]) ?>" placeholder="Other Cost" data-index="<?php echo esc_html($i) ?>" data-sku="<?php echo esc_html($product['sku']) ?>">
+                        <input type="text" value="<?php echo esc_attr($product['custom_data']['other_cost']) ?>" placeholder="Other Cost" data-index="<?php echo esc_html($i) ?>" data-sku="<?php echo esc_html($product['sku']) ?>">
                     </td> 
                     <!-- Cost Price + Other Cost -->
                     <td class="cost-of-goods-container">
@@ -141,7 +153,7 @@ $tableIndex = 0;
                             name="markup-type" 
                             id="markup-type<?php echo esc_attr($i) ?>" 
                             data-sku="<?php echo esc_html($product['sku']) ?>"
-                            value="<?php echo esc_attr($product['attributes'][3]); ?>"
+                            value="<?php echo esc_attr($product['custom_data']['margin_type']); ?>"
                             >
                             <option value="percent">Percent</option>
                             <option value="fixed">Fixed Value</option>

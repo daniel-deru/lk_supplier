@@ -77,9 +77,9 @@ class ProductTable {
 
             const sku = input.dataset.sku
 
-            if(input.value === '' && products[sku]['attributes'][1] == '0') continue
+            if(input.value === '' && products[sku]['custom_data']['other_cost'] == '0') continue
 
-            if(input.value != products[sku]['attributes'][1] && numberRegex.test(input.value)){
+            if(input.value != products[sku]['custom_data']['other_cost'] && numberRegex.test(input.value)){
 
                 let otherCost = input.value ? parseFloat(input.value) : 0
 
@@ -99,7 +99,7 @@ class ProductTable {
 
             const sku = input.dataset.sku
             const markupType = document.getElementById(`markup-type${input.dataset.index}`)
-            const currentMarkup = parseFloat(products[sku]['attributes'][2])
+            const currentMarkup = parseFloat(products[sku]['custom_data']['margin'])
             if(parseFloat(input.value) != parseFloat(currentMarkup)){
                 // console.log(input.value)
                 let markup = parseFloat(input.value)

@@ -119,7 +119,6 @@ add_action('wp_ajax_nopriv_smt_smart_feeds_get_custom_product_data', 'smt_smart_
 
 function smt_smart_feeds_get_custom_product_data(){
     $data = $_POST['data'];
-
     $products_array = [];
     $query_args = array(
         'post_type' => 'product',
@@ -139,68 +138,68 @@ function smt_smart_feeds_get_custom_product_data(){
         if(!$products_array[$sku]) continue;
 
         $product = $products_array[$sku];
-        // All the product attributes
         
-        $product_attributes = $product->get_attributes();
-        $custom_attribute = $product_attributes['custom'];
-        $options = $custom_attribute->get_options();
+        $meta_data = $product->get_meta_data();
+        $custom_meta = null;
+        foreach($meta_data as $meta){
+            if($meta->get_data()['key'] == 'custom') $custom_meta = $meta->get_data()['value'];
+        }
+        // All the product attributes
+        format($custom_meta);
 
-        // Get the other attributes because the call to product->set_attributes will overide the previous attributes
-        $rectron_attribute = $product_attributes['rectron'];
-        $external_image_attribute = $product_attributes['external_image'];
 
         $product_price = floatval($product->get_price());
         $product_tax = (floatval(TaxClass::getTaxRate()) + 100) / 100;
-        $product_profit = (floatval($options[2]) + 100) / 100;
+        $product_profit = (floatval($custom_meta['margin']) + 100) / 100;
 
         $cost = calcCostPrice($product_price, $product_tax, $product_profit);
 
         if(isset($custom_data['skip'])){
-            $options[0] = $custom_data['skip'];
+           
             if($custom_data['skip'] == 0){
                 // Make the product a published
                 $product->set_status('publish');
+                $custom_meta['skip'] = '0';
             } else {
                 // Make the product draft
                 $product->set_status('draft');
+                $custom_meta['skip'] = '1';
             }
         }
-        // if(isset($custom_data['otherCost'])){
-        //     $otherCost = floatval($custom_data['otherCost']);
-        //     $options[1] = $otherCost;
-        //     // Get the product price before vat and profit and add the other cost to the product
-        //     $cost += $otherCost;
-        // }
-        // if(isset($custom_data['markup'])){
+        if(isset($custom_data['otherCost'])){
+            $otherCost = floatval($custom_data['otherCost']);
+            $custom_meta['other_cost'] = $otherCost;
+            $cost += $otherCost;
+        }
+        if(isset($custom_data['markup'])){
 
-        //     $markup = floatval($custom_data['markup']);
-        //     $markupType = $custom_data['markupType'];
+            $markup = floatval($custom_data['markup']);
+            $markupType = $custom_data['markupType'];
 
-        //     $options[2] = $markup;
-        //     $options[3] = $markupType;
+            $custom_meta['margin'] = $markup;
+            $custom_meta['margin_type'] = $markupType;
 
-        //     if($markupType == "fixed") $cost += $markup;
-        //     else if($markupType == "percent") $cost += $cost * ($markup / 100);
-        //     // Get the product price before vat and profit and add the new profit
+            if($markupType == "fixed") $cost += $markup;
+            else if($markupType == "percent") $cost += $cost * ($markup / 100);
+            // Get the product price before vat and profit and add the new profit
 
-        // } else {
-        //     $markup = floatval($options[2]);
-        //     $markupType = $options[3];
+        } else {
+            $markup = floatval($custom_meta['margin']);
+            $markupType = $custom_meta['margin_type'];
 
-        //     if($markupType == "fixed") $cost += $markup;
-        //     else if($markupType == "percent") $cost += $cost * ($markup / 100);
-        // }
+            if($markupType == "fixed") $cost += $markup;
+            else if($markupType == "percent") $cost += $cost * ($markup / 100);
+        }
 
-        // $product_price_including = $cost * $product_tax;
-        $custom_attribute->set_options($options);
-        // print_r($custom_attribute->get_options());
-        
-        $product->set_attributes([$custom_attribute, $rectron_attribute, $external_image_attribute]);
+        $product_price_including = $cost * $product_tax;
+       
+        format($custom_meta);
+        format($product_price_including);
+        // $product->update_meta_data('custom', $custom_meta);
+
         // $product->set_price($product_price_including);
-        // format($product->get_status());
-        $product->save();
+        // $product->save();
     }
-    // return $data;
     wp_die();
 };
 
