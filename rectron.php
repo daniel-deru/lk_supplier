@@ -233,7 +233,9 @@ class Rectron  {
                     if($cost_price != $products[$i]['SellingPrice']){
                         $profit = getProfit($cost_price);
                         $tax = ($this->tax_rate + 100) / 100;
-                        $new_cost = floatval($products[$i]['SellingPrice']);
+                        $custom_data = smt_smart_feeds_get_meta_data('custom', $existing_product);
+                        $other_cost = floatval($custom_data['other_cost']);
+                        $new_cost = floatval($products[$i]['SellingPrice']) + $other_cost;
 
                         $sellingPrice = calcSellingPrice($new_cost, $profit, $tax);
 

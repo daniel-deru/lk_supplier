@@ -254,7 +254,7 @@ if(!wp_next_scheduled('smt_lk_run_every_ten_minutes')){
 }
 
 // Function to fire everytime the wp_cron event occurs
-add_action('every_ten_minutes', 'smt_lk_update_products');
+add_action('smt_lk_run_every_ten_minutes', 'smt_lk_update_products');
 function smt_lk_update_products(){
     $rectron = new Rectron();
     $rectron->feed_loop();
