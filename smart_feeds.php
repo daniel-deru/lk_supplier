@@ -203,7 +203,7 @@ function smt_smart_feeds_get_custom_product_data(){
     wp_die();
 };
 
-
+// This is for the product image in the shop
 add_filter( 'post_thumbnail_html', 'thumbnail_external_replace', 10, PHP_INT_MAX );
 add_filter( 'woocommerce_product_get_image', 'thumbnail_external_replace', 10, PHP_INT_MAX );
 function thumbnail_external_replace( $html, $product ) {
@@ -211,11 +211,34 @@ function thumbnail_external_replace( $html, $product ) {
     $images = $product->get_attributes();
     if(isset($images['external_image'])){
         $images = $images['external_image']->get_options();
-        return '<img width="260" height="300" src="' . esc_url( $images[0] ) . '" class="attachment-woocommerce_thumbnail size-woocommerce_thumbnail" alt="" loading="lazy" />';
+        return '<div style="
+            width: 300px; 
+            height: 300px;
+            margin: auto;
+            display: flex; 
+            justify-content: center;
+            align-items: center;">
+                <img style="
+                    max-height: 300px;
+                    width: auto; 
+                    aspect-ratio: auto; 
+                    overflow: hidden;
+                    margin: auto;" src="' . esc_url( $images[0] ) . '" class="attachment-woocommerce_thumbnail size-woocommerce_thumbnail" alt="" loading="lazy" />
+            </div>';
     } 
 
 }
 
+
+// Attempt to change the image size in the shop
+// remove_action( 'woocommerce_before_shop_loop_item_title', 'woocommerce_template_loop_product_thumbnail', 10 );
+
+// add_action( 'woocommerce_before_shop_loop_item_title',
+// function() {
+//     echo woocommerce_get_product_thumbnail( 'product-category', 294, 294 );
+// },10);
+
+// This is the product image on the product page
 add_filter('woocommerce_single_product_image_thumbnail_html', "product_page_html", 10, 2);
 function product_page_html($html, $post_thumnail_id){
     global $product;
@@ -226,9 +249,8 @@ function product_page_html($html, $post_thumnail_id){
     return sprintf($image, $images[0]);
 }
 
-
+// This creates the product gallery template
 add_filter('wc_get_template', "product_gallery_template", 999, 2);
-
 function product_gallery_template($template, $template_name){
     if($template_name === "single-product/product-thumbnails.php"){
         $template = plugin_dir_path( __FILE__ ) . 'templates/single-product/gallery_template.php' ;
@@ -236,29 +258,38 @@ function product_gallery_template($template, $template_name){
     return $template;
 }
 
+
+add_filter( 'woocommerce_get_image_size_gallery_thumbnail', function( $size ) {
+    return array(
+    'width' => 150,
+    'height' => 150,
+    'crop' => 0,
+    );
+    } );
+
 // Add the scheduled times
-add_filter('cron_schedules', 'smt_lk_run_every_ten_minutes');
+// add_filter('cron_schedules', 'smt_lk_run_every_ten_minutes');
 
 // Function to add the custom 10 min interval function
-function smt_lk_run_every_ten_minutes($schedules){
-    $schedules['every_ten_minutes'] = array(
-        'interval' => 10*60,
-        'display' => __("Every 10 Minutes")
-    );
-    return $schedules;
-}
+// function smt_lk_run_every_ten_minutes($schedules){
+//     $schedules['every_ten_minutes'] = array(
+//         'interval' => 10*60,
+//         'display' => __("Every 10 Minutes")
+//     );
+//     return $schedules;
+// }
 
 // Check if the event is already scheduled and schedule the event
-if(!wp_next_scheduled('smt_lk_run_every_ten_minutes')){
-    wp_schedule_event(time(), 'every_ten_minutes', 'smt_lk_run_every_ten_minutes');
-}
+// if(!wp_next_scheduled('smt_lk_run_every_ten_minutes')){
+//     wp_schedule_event(time(), 'every_ten_minutes', 'smt_lk_run_every_ten_minutes');
+// }
 
 // Function to fire everytime the wp_cron event occurs
-add_action('smt_lk_run_every_ten_minutes', 'smt_lk_update_products');
-function smt_lk_update_products(){
-    $rectron = new Rectron();
-    $rectron->feed_loop();
-}
+// add_action('smt_lk_run_every_ten_minutes', 'smt_lk_update_products');
+// function smt_lk_update_products(){
+//     $rectron = new Rectron();
+//     $rectron->feed_loop();
+// }
 
 // Round the woocommerce price according to preferance
 function smt_smart_feeds_round_price($price, $product = NULL){
@@ -268,3 +299,20 @@ function smt_smart_feeds_round_price($price, $product = NULL){
 add_filter('woocommerce_product_get_price', 'smt_smart_feeds_round_price', 99, 2);
 add_filter('woocommerce_get_variation_regular_price', 'smt_smart_feeds_round_price', 99);
 add_filter('woocommerce_get_variation_price', 'smt_smart_feeds_round_price', 99);
+
+
+
+
+// Register the hook on plugin activation
+register_activation_hook(__FILE__, 'my_cron_job_activation');
+add_action('my_cron_event', 'my_cron_job');
+
+function my_cron_job_activation() {
+    wp_schedule_event(time(), 'fively', 'my_cron_event');
+}
+
+// Unregister the hook on plugin deactivation
+register_deactivation_hook( __FILE__, 'my_cron_job_deactivation' );
+function my_cron_job_deactivation(){
+  wp_clear_scheduled_hook( 'my_cron_event' );
+}

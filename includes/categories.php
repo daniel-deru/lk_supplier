@@ -1,5 +1,5 @@
 <?php
-include_once  dirname(plugin_dir_path(__FILE__)) . "/woocommerce-api.php";
+// include_once  dirname(plugin_dir_path(__FILE__)) . "/woocommerce-api.php";
 require_once "print.php";
 
 // Use this to create the categories insteads

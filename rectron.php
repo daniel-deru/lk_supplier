@@ -378,6 +378,12 @@ class Rectron  {
         [
             'cost' => $product_data['regular_price']
         ]);
+        format("a New product has been created");
+        print_r($price_excl);
+        print_r($price_incl);
+        print_r($margin);
+        print_r(($this->tax_rate + 100) / 100);
+        print_r($product);
         return $product->save();
 
     }
