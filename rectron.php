@@ -219,30 +219,30 @@ class Rectron  {
                 }
                 else {
                     // The product exists so update it
-                    // $existing_product = $existing_products[$product_data['sku']];
+                    $existing_product = $existing_products[$product_data['sku']];
 
-                    // $cost_price = smt_smart_feeds_get_meta_data('original', $existing_product);
-                    // $cost_price = floatval($cost_price['cost']);
+                    $cost_price = smt_smart_feeds_get_meta_data('original', $existing_product);
+                    $cost_price = floatval($cost_price['cost']);
 
 
-                    // $stock_quantity = $existing_product->get_stock_quantity();
+                    $stock_quantity = $existing_product->get_stock_quantity();
 
                     // The current cost price is not the same as the cost price from the feed
-                    // if($cost_price != $products[$i]['SellingPrice']){
-                    //     $profit = getProfit($cost_price);
-                    //     $tax = ($this->tax_rate + 100) / 100;
-                    //     $custom_data = smt_smart_feeds_get_meta_data('custom', $existing_product);
-                    //     $other_cost = floatval($custom_data['other_cost']);
-                    //     $new_cost = floatval($products[$i]['SellingPrice']) + $other_cost;
+                    if($cost_price != $products[$i]['SellingPrice']){
+                        $profit = getProfit($cost_price);
+                        $tax = ($this->tax_rate + 100) / 100;
+                        $custom_data = smt_smart_feeds_get_meta_data('custom', $existing_product);
+                        $other_cost = floatval($custom_data['other_cost']);
+                        $new_cost = floatval($products[$i]['SellingPrice']) + $other_cost;
 
-                    //     $sellingPrice = calcSellingPrice($new_cost, $profit, $tax);
+                        $sellingPrice = calcSellingPrice($new_cost, $profit, $tax);
 
-                        // $existing_product->set_regular_price($sellingPrice);
+                        $existing_product->set_regular_price($sellingPrice);
                     } 
-                    // if($stock_quantity != $products[$i]['OnHand']) $existing_product->set_stock_quantity($products[$i]['OnHand']);
+                    if($stock_quantity != $products[$i]['OnHand']) $existing_product->set_stock_quantity($products[$i]['OnHand']);
 
-                    // $existing_product->save();
-                // }
+                    $existing_product->save();
+                }
 
                 $rectron_products[$products[$i]['Code']] = $product_data;
 
