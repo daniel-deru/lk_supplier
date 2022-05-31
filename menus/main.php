@@ -34,11 +34,11 @@ if(isset($_POST['save'])){
         if(preg_match($marginRegex, $base_margin)) update_option("smt_smart_feeds_base_margin", $_POST['base_margin']);
     }
 
-    if(isset($_POST['interval'])){
-        $interval = sanitize_text_field($_POST['interval']);
-        $intervalRegex = "/(daily)|(weekly)|(hourly)/";
-        if(preg_match($intervalRegex, $interval)) update_option("smt_smart_feeds_interval", $_POST['interval']);
-    }
+    // if(isset($_POST['interval'])){
+    //     $interval = sanitize_text_field($_POST['interval']);
+    //     $intervalRegex = "/(daily)|(weekly)|(hourly)/";
+    //     if(preg_match($intervalRegex, $interval)) update_option("smt_smart_feeds_interval", $_POST['interval']);
+    // }
 
     if(isset($_POST['tax_rate'])){
         $tax_rate = sanitize_text_field($_POST['tax_rate']);
@@ -114,14 +114,15 @@ if(isset($_POST['refresh'])){
                 <input type="text" name="rectron_onhand" placeholder="Onhand Feed" value="<?php echo get_option("smt_smart_feeds_rectron_feed_onhand");?>">
             </div>
 
-            <div class="form-field">
+            <!-- Feed Interval (Deprecated) -->
+            <!-- <div class="form-field">
                 <label for="feed_interval">Sync Interval</label>
                 <select name="feed_interval" id="feed_interal">
                     <option value="10-min">Every 10 Minutes</option>
                     <option value="hourly">Hourly</option>
                     <option value="daily">Daily</option>
                 </select>
-            </div>
+            </div> -->
 
             <!-- Base Margin -->
             <div class="form-field">

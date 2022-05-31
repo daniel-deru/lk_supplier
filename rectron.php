@@ -212,39 +212,37 @@ class Rectron  {
 
                 $product_id = wc_get_product_id_by_sku( $product_data['sku'] );
                 if(empty($product_id)){
+                    // There is no product so create one
                     $import_quantity = intval($product_data['stock_quantity']);
                     $minimum_required_quantity = intval(get_option('smt_smart_feeds_import_stock'));
-                    // There is no product so create one
                     if( $import_quantity > $minimum_required_quantity) $this->create_product($product_data);
-                } 
+                }
                 else {
                     // The product exists so update it
-                    $existing_product = $existing_products[$product_data['sku']];
+                    // $existing_product = $existing_products[$product_data['sku']];
 
-                    // $regular_price = $existing_product->get_regular_price();
-
-                    $cost_price = smt_smart_feeds_get_meta_data('original', $existing_product);
-                    $cost_price = floatval($cost_price['cost']);
+                    // $cost_price = smt_smart_feeds_get_meta_data('original', $existing_product);
+                    // $cost_price = floatval($cost_price['cost']);
 
 
-                    $stock_quantity = $existing_product->get_stock_quantity();
+                    // $stock_quantity = $existing_product->get_stock_quantity();
 
                     // The current cost price is not the same as the cost price from the feed
-                    if($cost_price != $products[$i]['SellingPrice']){
-                        $profit = getProfit($cost_price);
-                        $tax = ($this->tax_rate + 100) / 100;
-                        $custom_data = smt_smart_feeds_get_meta_data('custom', $existing_product);
-                        $other_cost = floatval($custom_data['other_cost']);
-                        $new_cost = floatval($products[$i]['SellingPrice']) + $other_cost;
+                    // if($cost_price != $products[$i]['SellingPrice']){
+                    //     $profit = getProfit($cost_price);
+                    //     $tax = ($this->tax_rate + 100) / 100;
+                    //     $custom_data = smt_smart_feeds_get_meta_data('custom', $existing_product);
+                    //     $other_cost = floatval($custom_data['other_cost']);
+                    //     $new_cost = floatval($products[$i]['SellingPrice']) + $other_cost;
 
-                        $sellingPrice = calcSellingPrice($new_cost, $profit, $tax);
+                    //     $sellingPrice = calcSellingPrice($new_cost, $profit, $tax);
 
-                        $existing_product->set_regular_price($sellingPrice);
+                        // $existing_product->set_regular_price($sellingPrice);
                     } 
-                    if($stock_quantity != $products[$i]['OnHand']) $existing_product->set_stock_quantity($products[$i]['OnHand']);
+                    // if($stock_quantity != $products[$i]['OnHand']) $existing_product->set_stock_quantity($products[$i]['OnHand']);
 
-                    $existing_product->save();
-                }
+                    // $existing_product->save();
+                // }
 
                 $rectron_products[$products[$i]['Code']] = $product_data;
 
@@ -253,7 +251,7 @@ class Rectron  {
 
         }
         // Set the stock quantity to zero if the product is not in the $rectron_products array
-        $this->delete_products($rectron_products, $existing_products);
+        // $this->delete_products($rectron_products, $existing_products);
     }
 
     function get_wp_categories(){
@@ -302,7 +300,6 @@ class Rectron  {
             if(isset($attributes['rectron'])){ // Check if the product is a rectron product
                 // Check the product is not in the rectron products array which means the onhand needs to be set to 0
                 if(!isset($rectron_products[$sku])){
-                    format("This product quantity has been set to zero" . $existing_product->get_name());
                     $existing_product->set_stock_quantity("0");
                     $existing_product->save();
                 }
@@ -378,12 +375,6 @@ class Rectron  {
         [
             'cost' => $product_data['regular_price']
         ]);
-        format("a New product has been created");
-        print_r($price_excl);
-        print_r($price_incl);
-        print_r($margin);
-        print_r(($this->tax_rate + 100) / 100);
-        print_r($product);
         return $product->save();
 
     }
