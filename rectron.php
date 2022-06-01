@@ -220,17 +220,24 @@ class Rectron  {
                 else {
                     // The product exists so update it
                     $existing_product = $existing_products[$product_data['sku']];
-
+                   
                     $cost_price = smt_smart_feeds_get_meta_data('original', $existing_product);
                     $cost_price = floatval($cost_price['cost']);
 
-
                     $stock_quantity = $existing_product->get_stock_quantity();
 
+                    
+
                     // The current cost price is not the same as the cost price from the feed
-                    if($cost_price != $products[$i]['SellingPrice']){
+                    if($cost_price != floatval($products[$i]['SellingPrice'])){
+
+                        echo "<h1>Updating a product" . $existing_product->get_name() . "<br>" . $existing_product->get_sku() ."</h1>";
+                        echo "<h3>The current cost is: " . $cost_price ."</h3>";
+                        echo "<h3>The current stock quantity is: " . $stock_quantity ."</h3>";
+                        echo "<h3>The new cost price is: " . floatval($products[$i]['SellingPrice']) . "</h3>";
+
                         $profit = getProfit($cost_price);
-                        $tax = ($this->tax_rate + 100) / 100;
+                        $tax = (floatval($this->tax_rate) + 100) / 100;
                         $custom_data = smt_smart_feeds_get_meta_data('custom', $existing_product);
                         $other_cost = floatval($custom_data['other_cost']);
                         $new_cost = floatval($products[$i]['SellingPrice']) + $other_cost;
@@ -239,7 +246,14 @@ class Rectron  {
 
                         $existing_product->set_regular_price($sellingPrice);
                     } 
-                    if($stock_quantity != $products[$i]['OnHand']) $existing_product->set_stock_quantity($products[$i]['OnHand']);
+                    if($stock_quantity != $products[$i]['OnHand']){
+
+                        echo "<h1>Updating a product" . $existing_product->get_name() . "<br>" . $existing_product->get_sku() ."</h1>";
+                        echo "<h3>The current cost is: " . $cost_price ."</h3>";
+                        echo "<h3>The current stock quantity is: " . $stock_quantity ."</h3>";
+                        
+                        $existing_product->set_stock_quantity($products[$i]['OnHand']);
+                    } 
 
                     $existing_product->save();
                 }
@@ -251,7 +265,7 @@ class Rectron  {
 
         }
         // Set the stock quantity to zero if the product is not in the $rectron_products array
-        // $this->delete_products($rectron_products, $existing_products);
+        $this->delete_products($rectron_products, $existing_products);
     }
 
     function get_wp_categories(){
