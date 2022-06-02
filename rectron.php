@@ -231,26 +231,30 @@ class Rectron  {
                     // The current cost price is not the same as the cost price from the feed
                     if($cost_price != floatval($products[$i]['SellingPrice'])){
 
-                        echo "<h1>Updating a product" . $existing_product->get_name() . "<br>" . $existing_product->get_sku() ."</h1>";
-                        echo "<h3>The current cost is: " . $cost_price ."</h3>";
-                        echo "<h3>The current stock quantity is: " . $stock_quantity ."</h3>";
-                        echo "<h3>The new cost price is: " . floatval($products[$i]['SellingPrice']) . "</h3>";
+                        echo "Updating a product" . $existing_product->get_name() . "\n" . $existing_product->get_sku() ."\n\n";
+                        echo "The current cost is: " . $cost_price ."\n";
+                        echo "The current stock quantity is: " . $stock_quantity ."\n";
+                        echo "The new cost price is: " . floatval($products[$i]['SellingPrice']) . "\n";
 
                         $profit = getProfit($cost_price);
+                        echo "The profit is: " . $profit . "\n";
                         $tax = (floatval($this->tax_rate) + 100) / 100;
+                        echo "The tax is: " . $tax . "\n";
                         $custom_data = smt_smart_feeds_get_meta_data('custom', $existing_product);
                         $other_cost = floatval($custom_data['other_cost']);
+                        echo "The other cost is: " . $other_cost . "\n";
                         $new_cost = floatval($products[$i]['SellingPrice']) + $other_cost;
-
+                        echo "The new cost is: " . $new_cost . "\n";
                         $sellingPrice = calcSellingPrice($new_cost, $profit, $tax);
-
+                        echo "The new selling price is: " . $sellingPrice . "\n";
                         $existing_product->set_regular_price($sellingPrice);
                     } 
                     if($stock_quantity != $products[$i]['OnHand']){
 
-                        echo "<h1>Updating a product" . $existing_product->get_name() . "<br>" . $existing_product->get_sku() ."</h1>";
-                        echo "<h3>The current cost is: " . $cost_price ."</h3>";
-                        echo "<h3>The current stock quantity is: " . $stock_quantity ."</h3>";
+                        // echo "Updating a product" . $existing_product->get_name() . "\n" . $existing_product->get_sku() ."\n\n";
+                        // echo "The current cost is: " . $cost_price ."\n";
+                        // echo "The current stock quantity is: " . $stock_quantity ."\n";
+                        // echo "The new Stock Quantity is: " . $products[$i]['OnHand'] . "\n";
                         
                         $existing_product->set_stock_quantity($products[$i]['OnHand']);
                     } 

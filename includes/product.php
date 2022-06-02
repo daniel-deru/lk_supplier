@@ -13,7 +13,8 @@ function smt_smart_feeds_get_meta_data($key, &$product){
 
 // Calculate the selling price of a product
 function calcSellingPrice($cost,  $profit, $tax){
-
+    $sellingPriceExcl = $cost * $profit;
+    return $sellingPriceExcl * $tax;
 }
 
 // calculate the profit that needs to be applied
