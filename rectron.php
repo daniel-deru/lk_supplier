@@ -5,6 +5,7 @@ require_once 'includes/convert.php';
 require_once 'includes/print.php';
 require_once 'includes/categories.php';
 require_once 'includes/product.php';
+require_once 'includes/curl.php';
 
 class Rectron  {
     private $onhand_feed;
@@ -76,10 +77,16 @@ class Rectron  {
                 )
             );
             $context = stream_context_create($options);
-            $data = file_get_contents($this->onhand_feed, false, $context);
+            try{
+                // $data = file_get_contents($this->onhand_feed, false, $context);
+                $data = curl_get_file_contents($this->onhand_feed);
 
-            $dirty_data = simplexml_load_string($data)->Value;
-            return $this->get_formated_data($dirty_data);
+                $dirty_data = simplexml_load_string($data)->Value;
+                return $this->get_formated_data($dirty_data);
+            } catch(Exception $e){
+                return $e;
+            }
+           
             
         }
     }
@@ -142,7 +149,12 @@ class Rectron  {
 
     function feed_loop(){
         // Get the latest data from the onhand feed
-        $products = $this->get_data();
+        try{
+            $products = $this->get_data();
+
+        } catch(Exception $e){
+            return $e;
+        }
 
         $rectron_products = [];
         $existing_products = $this->getProducts();
@@ -269,7 +281,7 @@ class Rectron  {
 
         }
         // Set the stock quantity to zero if the product is not in the $rectron_products array
-        $this->delete_products($rectron_products, $existing_products);
+        if(count($rectron_products) > 0) $this->delete_products($rectron_products, $existing_products);
     }
 
     function get_wp_categories(){
@@ -286,7 +298,7 @@ class Rectron  {
     function create_categories(){
         // Array for unique values to keep track of which categories have been added
         $categories_array = array();
-        // TODO convert to category name as the key
+
         $existing_categories = convert_existing_categories($this->get_wp_categories());
 
         foreach($this->categories_data as $i => $category){
