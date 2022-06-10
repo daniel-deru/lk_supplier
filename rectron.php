@@ -76,17 +76,13 @@ class Rectron  {
                     'timeout' => 20
                 )
             );
-            $context = stream_context_create($options);
-            try{
+            // $context = stream_context_create($options);
                 // $data = file_get_contents($this->onhand_feed, false, $context);
-                $data = curl_get_file_contents($this->onhand_feed);
+            $data = curl_get_file_contents($this->onhand_feed);
 
-                $dirty_data = simplexml_load_string($data)->Value;
-                return $this->get_formated_data($dirty_data);
-            } catch(Exception $e){
-                return $e;
-            }
-           
+            $dirty_data = simplexml_load_string($data)->Value;
+            return $this->get_formated_data($dirty_data);
+        
             
         }
     }
@@ -111,7 +107,9 @@ class Rectron  {
                 )
             );
             $context = stream_context_create($options);
-            $data = file_get_contents($this->categories, false, $context);
+
+            // $data = file_get_contents($this->categories, false, $context);
+            $data = curl_get_file_contents($this->categories);
 
             $dirty_data = simplexml_load_string($data)->products;
             $this->xml_categories = $this->get_formated_categories($dirty_data);
@@ -149,12 +147,9 @@ class Rectron  {
 
     function feed_loop(){
         // Get the latest data from the onhand feed
-        try{
-            $products = $this->get_data();
 
-        } catch(Exception $e){
-            return $e;
-        }
+        $products = $this->get_data();
+
 
         $rectron_products = [];
         $existing_products = $this->getProducts();
@@ -281,7 +276,8 @@ class Rectron  {
 
         }
         // Set the stock quantity to zero if the product is not in the $rectron_products array
-        if(count($rectron_products) > 0) $this->delete_products($rectron_products, $existing_products);
+        // if(count($rectron_products) > 0) 
+        $this->delete_products($rectron_products, $existing_products);
     }
 
     function get_wp_categories(){
