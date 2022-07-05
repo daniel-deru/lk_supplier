@@ -39,7 +39,10 @@ function register_category($categories, &$unique_categories, $existing_categorie
                     'slug' => $category // optional
                 ));
 
-                if(isset($category_id['term_id'])) $category_id = $category_id['term_id'];
+                if( !is_wp_error($category_id) && isset($category_id['term_id'])) $category_id = $category_id['term_id'];
+                if(is_wp_error($category_id)) {
+                    format($category_id->get_error_message());
+                }
         } 
         else if($category_id){
 

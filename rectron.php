@@ -198,6 +198,13 @@ class Rectron  {
                 $product_categories = [];
                 foreach($categories as $category){
                     $category = $category = preg_replace("/-(?=-)/", "", $category);
+                    
+
+                    // This part is to add the products to the "Laptops and Tablets" category as requested
+                    if($category == "notebooks-accessories" || $category == "tablets"){
+                        $alt_cat = get_term_by('slug', "laptops-and-tablets", 'product_cat')->term_id;
+                        if(isset($alt_cat)) array_push($product_categories, $alt_cat);
+                    }
                     // Find the category
                     $cat = get_term_by('slug', $category, 'product_cat')->term_id;
                     // Put category in a list of categories for the product
@@ -335,8 +342,7 @@ class Rectron  {
 
     function create_product($product_data, $product_id=0){
         $dynamic_margins = json_decode(get_option("smt_smart_feeds_dynamic_rules"));
-        // format($dynamic_margins);
-        // format($dynamic_margin);
+
         // Create the product object to create or update the product
         $product = new WC_Product($product_id);
 

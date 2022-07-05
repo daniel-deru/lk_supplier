@@ -225,26 +225,31 @@ function thumbnail_external_replace( $html, $product ) {
                     overflow: hidden;
                     margin: auto;" src="' . esc_url( $images[0] ) . '" class="attachment-woocommerce_thumbnail size-woocommerce_thumbnail" alt="" loading="lazy" />
             </div>';
-    } 
+    }
+
+    return $html;
 
 }
 
-
-// Attempt to change the image size in the shop
-// remove_action( 'woocommerce_before_shop_loop_item_title', 'woocommerce_template_loop_product_thumbnail', 10 );
-
-// add_action( 'woocommerce_before_shop_loop_item_title',
-// function() {
-//     echo woocommerce_get_product_thumbnail( 'product-category', 294, 294 );
-// },10);
 
 // This is the product image on the product page
 add_filter('woocommerce_single_product_image_thumbnail_html', "product_page_html", 10, 2);
 function product_page_html($html, $post_thumnail_id){
     global $product;
     $product = new WC_Product($product->get_id());
-    $images = $product->get_attributes()['external_image']->get_options();
+
+    // Get the product attributes to determine if it is a feed product or normal product
+    $productAttributes = $product->get_attributes();
+
+    if(!isset($productAttributes['external_image'])) return $html;
+
+    // Get the images
+    $images = $productAttributes['external_image']->get_options();
+
+    // If there is no image or the external_image attribute doesn't exist on the product return the original html
     if($images[0] === '') return $html;
+
+    // Create the custom image html if the external image exists
     $image = '<div data-thumb="%1$s" data-thumb-alt="" class="woocommerce-product-gallery__image"><a href="%1$s"><img width="600" height="642" src="%1$s" class="" alt="" loading="lazy" title="61S2qlMWh6L._AC_SX679_" data-caption="" data-src="%1$s" data-large_image="%1$s" data-large_image_width="679" data-large_image_height="727" /></a></div>';
     return sprintf($image, $images[0]);
 }
@@ -252,6 +257,9 @@ function product_page_html($html, $post_thumnail_id){
 // This creates the product gallery template
 add_filter('wc_get_template', "product_gallery_template", 999, 2);
 function product_gallery_template($template, $template_name){
+    // global $product;
+    // $product = new WC_Product($product->get_id());
+    // $images = $product->get_attributes();
     if($template_name === "single-product/product-thumbnails.php"){
         $template = plugin_dir_path( __FILE__ ) . 'templates/single-product/gallery_template.php' ;
     }
@@ -266,30 +274,6 @@ add_filter( 'woocommerce_get_image_size_gallery_thumbnail', function( $size ) {
     'crop' => 0,
     );
     } );
-
-// Add the scheduled times
-// add_filter('cron_schedules', 'smt_lk_run_every_ten_minutes');
-
-// Function to add the custom 10 min interval function
-// function smt_lk_run_every_ten_minutes($schedules){
-//     $schedules['every_ten_minutes'] = array(
-//         'interval' => 10*60,
-//         'display' => __("Every 10 Minutes")
-//     );
-//     return $schedules;
-// }
-
-// Check if the event is already scheduled and schedule the event
-// if(!wp_next_scheduled('smt_lk_run_every_ten_minutes')){
-//     wp_schedule_event(time(), 'every_ten_minutes', 'smt_lk_run_every_ten_minutes');
-// }
-
-// Function to fire everytime the wp_cron event occurs
-// add_action('smt_lk_run_every_ten_minutes', 'smt_lk_update_products');
-// function smt_lk_update_products(){
-//     $rectron = new Rectron();
-//     $rectron->feed_loop();
-// }
 
 // Round the woocommerce price according to preferance
 function smt_smart_feeds_round_price($price, $product = NULL){
