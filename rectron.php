@@ -147,21 +147,23 @@ class Rectron  {
 
     function feed_loop(){
         // Get the latest data from the onhand feed
-
         $products = $this->get_data();
 
 
         $rectron_products = [];
+        // Get the current products
         $existing_products = $this->getProducts();
         set_time_limit(0);
         ignore_user_abort(true);
 
         // Loop over the rectron feed products
         for($i = 0; $i < count($products); $i++){
-
+           
             // Check if the product has a code and pictures
             if(isset($this->categories_data[$products[$i]["Code"]]) && isset($this->categories_data[$products[$i]["Code"]]['pictures'])){
 
+            
+            
                 // Get the images from the category feed
                 $images = $this->categories_data[$products[$i]["Code"]]['pictures']['picture'];
                 $image_array = [];
@@ -183,7 +185,7 @@ class Rectron  {
                     $categories = ltrim($categories['@attributes']['path'], "/");
                     $categories = rtrim($categories, "/");
                     $categories = explode("/", $categories);
-                   
+                    
                 } else {
                     $categories_array = [];
                     foreach($categories as $category){
@@ -230,14 +232,17 @@ class Rectron  {
                     $import_quantity = intval($product_data['stock_quantity']);
                     $minimum_required_quantity = intval(get_option('smt_smart_feeds_import_stock'));
                     if( $import_quantity > $minimum_required_quantity) $this->create_product($product_data);
+                    format("New Product: " . $product_data['name']);
                 }
                 else {
                     // The product exists so update it
                     $existing_product = $existing_products[$product_data['sku']];
-                   
+                    
+                    // Get the original cost price
                     $cost_price = smt_smart_feeds_get_meta_data('original', $existing_product);
                     $cost_price = floatval($cost_price['cost']);
 
+                    // Get the current stock quantity
                     $stock_quantity = $existing_product->get_stock_quantity();
 
                     
@@ -262,14 +267,15 @@ class Rectron  {
                         $sellingPrice = calcSellingPrice($new_cost, $profit, $tax);
                         echo "The new selling price is: " . $sellingPrice . "\n";
                         $existing_product->set_regular_price($sellingPrice);
-                    } 
-                    if($stock_quantity != $products[$i]['OnHand']){
+                    }
+                    // The stock quantity is not the same
+                    if(intval($stock_quantity) != intval($products[$i]['OnHand'])){
 
                         // echo "Updating a product" . $existing_product->get_name() . "\n" . $existing_product->get_sku() ."\n\n";
                         // echo "The current cost is: " . $cost_price ."\n";
                         // echo "The current stock quantity is: " . $stock_quantity ."\n";
                         // echo "The new Stock Quantity is: " . $products[$i]['OnHand'] . "\n";
-                        
+                        format("Updating Product Stock: " . $product_data['name']);
                         $existing_product->set_stock_quantity($products[$i]['OnHand']);
                     } 
 
@@ -277,14 +283,10 @@ class Rectron  {
                 }
 
                 $rectron_products[$products[$i]['Code']] = $product_data;
-
             }
-            // if($i == 100) break;
-
         }
         // Set the stock quantity to zero if the product is not in the $rectron_products array
-        // if(count($rectron_products) > 0) 
-        $this->delete_products($rectron_products, $existing_products);
+        // $this->delete_products($rectron_products, $existing_products);
     }
 
     function get_wp_categories(){
@@ -326,10 +328,12 @@ class Rectron  {
     }
     // Set the stock quantity to 0 if the product is no longer onhand
     function delete_products($rectron_products, &$existing_products){
+        // loop over the existing products
         foreach($existing_products as $existing_product){
             $sku = $existing_product->get_sku();
             $attributes = $existing_product->get_attributes();
 
+            // Check if it is a rectron product
             if(isset($attributes['rectron'])){ // Check if the product is a rectron product
                 // Check the product is not in the rectron products array which means the onhand needs to be set to 0
                 if(!isset($rectron_products[$sku])){

@@ -34,12 +34,6 @@ if(isset($_POST['save'])){
         if(preg_match($marginRegex, $base_margin)) update_option("smt_smart_feeds_base_margin", $_POST['base_margin']);
     }
 
-    // if(isset($_POST['interval'])){
-    //     $interval = sanitize_text_field($_POST['interval']);
-    //     $intervalRegex = "/(daily)|(weekly)|(hourly)/";
-    //     if(preg_match($intervalRegex, $interval)) update_option("smt_smart_feeds_interval", $_POST['interval']);
-    // }
-
     if(isset($_POST['tax_rate'])){
         $tax_rate = sanitize_text_field($_POST['tax_rate']);
         $tax_rate_regex = "/[0-9]*/";
@@ -82,30 +76,6 @@ if(isset($_POST['refresh'])){
     <div id="main-container">
         <form action="" method="post" >
 
-            <!-- <div class="form-field">
-                <label for="consumer_key">WooCommerce API Consumer Key</label>
-                <input type="text" name="consumer_key" value="<?php //echo get_option("smt_smart_feeds_consumer_key");?>" placeholder="Consumer Key">
-            </div> -->
-
-            <!-- <div class="form-field">
-                <label for="consumer_secret">WooCommerce API Consumer Secret</label>
-                <input type="text" name="consumer_secret" value="<?php // echo get_option("smt_smart_feeds_consumer_secret");?>" placeholder="Consumer Secret">
-                <div id="woocommerce-help-container"> -->
-                    <!-- <a href="<?php //echo esc_url($link . "/wp-admin/admin.php?page=wc-settings&tab=advanced&section=keys") ?>" target="_blank">Create a Key</a> -->
-                        <!-- This div is hidden -->
-                    <!-- <div id="woocommerce-help" class="help"> -->
-                        <!-- <img src="<?php //echo dirname(plugin_dir_url(__FILE__))?>/lk_supplier/public/images/help.png" alt=""> -->
-                        <!-- <i class="fa fa-question-circle" aria-hidden="true"></i>
-                        <ol class="info">
-                            <li> Click on add key and fill in the required details.</li>
-                            <li> Important* Permisions must be set to Read and Write.</li>
-                            <li> Click on generate API key.</li>
-                            <li> Copy the consumer key and consumer secret to put into the required fields.</li>
-                        </ol> -->
-                    <!-- </div> -->
-                <!-- End of hidden div -->
-                <!-- </div>
-            </div> -->
             <!-- Rectron Feed Onhand -->
             <div id="rectron" class="form-field">
                 <div class="label-container">
@@ -113,16 +83,6 @@ if(isset($_POST['refresh'])){
                 </div>
                 <input type="text" name="rectron_onhand" placeholder="Onhand Feed" value="<?php echo get_option("smt_smart_feeds_rectron_feed_onhand");?>">
             </div>
-
-            <!-- Feed Interval (Deprecated) -->
-            <!-- <div class="form-field">
-                <label for="feed_interval">Sync Interval</label>
-                <select name="feed_interval" id="feed_interal">
-                    <option value="10-min">Every 10 Minutes</option>
-                    <option value="hourly">Hourly</option>
-                    <option value="daily">Daily</option>
-                </select>
-            </div> -->
 
             <!-- Base Margin -->
             <div class="form-field">
