@@ -143,12 +143,9 @@ class Rectron  {
         return $formated_categories;
     }
 
-
-
     function feed_loop(){
         // Get the latest data from the onhand feed
         $products = $this->get_data();
-
 
         $rectron_products = [];
         // Get the current products
@@ -159,134 +156,161 @@ class Rectron  {
         // Loop over the rectron feed products
         for($i = 0; $i < count($products); $i++){
            
-            // Check if the product has a code and pictures
-            if(isset($this->categories_data[$products[$i]["Code"]]) && isset($this->categories_data[$products[$i]["Code"]]['pictures'])){
+            $has_data = isset($this->categories_data[$products[$i]["Code"]]);
+            $has_pictures = isset($this->categories_data[$products[$i]["Code"]]['pictures']);
+            $has_categories = isset($this->categories_data[$products[$i]["Code"]]['categories']);
 
+            // Skip this product if there is insufficient data
+            if(!$has_data || !$has_categories || ! $has_pictures) continue;
             
+            // This will be added to the product data
+            $image_array = $this->create_image_array($products[$i]);
+
+            // This will be used to create the list of categories that will be added to the product data
+            $categories = $this->get_feed_categories($products[$i]);
+
+            // This will be added to the product data
+            $product_categories = $this->create_product_categories($categories);
             
-                // Get the images from the category feed
-                $images = $this->categories_data[$products[$i]["Code"]]['pictures']['picture'];
-                $image_array = [];
 
-                // More than two images
-                if(count($images) >= 2){
-                    foreach($images as $image){
-                        $image_url = preg_replace("/(\/\/)/", "https://", $image['@attributes']['path']);
-                        array_push($image_array, $image_url);
-                    }
-                } else {  // Just one image
-                    $image_url = preg_replace("/(\/\/)/", "https://", $images['@attributes']['path']);
-                    array_push($image_array, $image_url);
-                }
+            $product_data = array(
+                'name' => $products[$i]['Title'],
+                'description' => $products[$i]['Description'],
+                'short_description' => $products[$i]['Description'],
+                'sku' => $products[$i]['Code'],
+                'regular_price' => $products[$i]['SellingPrice'],
+                'manage_stock' => true,
+                'stock_quantity' => $products[$i]['OnHand'],
+                'images' => $image_array,
+                'categories' => $product_categories
+            );
 
-                // Get the categories from the category feed
-                $categories = $this->categories_data[$products[$i]["Code"]]['categories']['category'];
-                if(count($categories) < 2){
-                    $categories = ltrim($categories['@attributes']['path'], "/");
-                    $categories = rtrim($categories, "/");
-                    $categories = explode("/", $categories);
-                    
-                } else {
-                    $categories_array = [];
-                    foreach($categories as $category){
-                        $category = ltrim($category['@attributes']['path'], "/");
-                        $category = rtrim($category, "/");
-                        $category = explode("/", $category);
-                        $categories_array = array_merge($categories_array, $category);
-                    }
-                    $categories = $categories_array;
-                }
-                // Get the category ID
-                $product_categories = [];
-                foreach($categories as $category){
-                    $category = $category = preg_replace("/-(?=-)/", "", $category);
-                    
-
-                    // This part is to add the products to the "Laptops and Tablets" category as requested
-                    if($category == "notebooks-accessories" || $category == "tablets"){
-                        $alt_cat = get_term_by('slug', "laptops-and-tablets", 'product_cat')->term_id;
-                        if(isset($alt_cat)) array_push($product_categories, $alt_cat);
-                    }
-                    // Find the category
-                    $cat = get_term_by('slug', $category, 'product_cat')->term_id;
-                    // Put category in a list of categories for the product
-                    array_push($product_categories, $cat);
-                }
-                
-
-                $product_data = array(
-                    'name' => $products[$i]['Title'],
-                    'description' => $products[$i]['Description'],
-                    'short_description' => $products[$i]['Description'],
-                    'sku' => $products[$i]['Code'],
-                    'regular_price' => $products[$i]['SellingPrice'],
-                    'manage_stock' => true,
-                    'stock_quantity' => $products[$i]['OnHand'],
-                    'images' => $image_array,
-                    'categories' => $product_categories
-                );
-
-                $product_id = wc_get_product_id_by_sku( $product_data['sku'] );
-                if(empty($product_id)){
-                    // There is no product so create one
-                    $import_quantity = intval($product_data['stock_quantity']);
-                    $minimum_required_quantity = intval(get_option('smt_smart_feeds_import_stock'));
-                    if( $import_quantity > $minimum_required_quantity) $this->create_product($product_data);
-                    format("New Product: " . $product_data['name']);
-                }
-                else {
-                    // The product exists so update it
-                    $existing_product = $existing_products[$product_data['sku']];
-                    
-                    // Get the original cost price
-                    $cost_price = smt_smart_feeds_get_meta_data('original', $existing_product);
-                    $cost_price = floatval($cost_price['cost']);
-
-                    // Get the current stock quantity
-                    $stock_quantity = $existing_product->get_stock_quantity();
-
-                    
-
-                    // The current cost price is not the same as the cost price from the feed
-                    if($cost_price != floatval($products[$i]['SellingPrice'])){
-
-                        echo "Updating a product" . $existing_product->get_name() . "\n" . $existing_product->get_sku() ."\n\n";
-                        echo "The current cost is: " . $cost_price ."\n";
-                        echo "The current stock quantity is: " . $stock_quantity ."\n";
-                        echo "The new cost price is: " . floatval($products[$i]['SellingPrice']) . "\n";
-
-                        $profit = getProfit($cost_price);
-                        echo "The profit is: " . $profit . "\n";
-                        $tax = (floatval($this->tax_rate) + 100) / 100;
-                        echo "The tax is: " . $tax . "\n";
-                        $custom_data = smt_smart_feeds_get_meta_data('custom', $existing_product);
-                        $other_cost = floatval($custom_data['other_cost']);
-                        echo "The other cost is: " . $other_cost . "\n";
-                        $new_cost = floatval($products[$i]['SellingPrice']) + $other_cost;
-                        echo "The new cost is: " . $new_cost . "\n";
-                        $sellingPrice = calcSellingPrice($new_cost, $profit, $tax);
-                        echo "The new selling price is: " . $sellingPrice . "\n";
-                        $existing_product->set_regular_price($sellingPrice);
-                    }
-                    // The stock quantity is not the same
-                    if(intval($stock_quantity) != intval($products[$i]['OnHand'])){
-
-                        // echo "Updating a product" . $existing_product->get_name() . "\n" . $existing_product->get_sku() ."\n\n";
-                        // echo "The current cost is: " . $cost_price ."\n";
-                        // echo "The current stock quantity is: " . $stock_quantity ."\n";
-                        // echo "The new Stock Quantity is: " . $products[$i]['OnHand'] . "\n";
-                        format("Updating Product Stock: " . $product_data['name']);
-                        $existing_product->set_stock_quantity($products[$i]['OnHand']);
-                    } 
-
-                    $existing_product->save();
-                }
-
-                $rectron_products[$products[$i]['Code']] = $product_data;
+            $product_id = wc_get_product_id_by_sku( $product_data['sku'] );
+            if(empty($product_id)){
+                // There is no product so create one
+                $import_quantity = intval($product_data['stock_quantity']);
+                $minimum_required_quantity = intval(get_option('smt_smart_feeds_import_stock'));
+                if($import_quantity > $minimum_required_quantity && count($image_array) > 0) $this->create_product($product_data);
             }
+            else {
+                // The product exists so check if it needs to be updated
+                $existing_product = $existing_products[$product_data['sku']];
+                
+                $this->update_cost($existing_product, $products[$i]);
+                $this->update_stock($existing_product, $products[$i]);
+
+                $existing_product->save();
+            }
+
+            $rectron_products[$products[$i]['Code']] = $product_data;
         }
         // Set the stock quantity to zero if the product is not in the $rectron_products array
-        // $this->delete_products($rectron_products, $existing_products);
+        $this->delete_products($rectron_products, $existing_products);
+    }
+
+    function create_image_array($product){
+
+        // Get the images from the category feed
+        $images = $this->categories_data[$product["Code"]]['pictures']['picture'];
+        $image_array = [];
+
+         // More than two images
+        if(count($images) >= 2){
+            foreach($images as $image){
+                $image_url = preg_replace("/(\/\/)/", "https://", $image['@attributes']['path']);
+                array_push($image_array, $image_url);
+            }
+        } else {  // Just one image
+            $image_url = preg_replace("/(\/\/)/", "https://", $images['@attributes']['path']);
+            array_push($image_array, $image_url);
+        }
+
+        return $image_array;
+    }
+
+    function get_feed_categories($product){
+
+        // Get the categories from the category feed
+        $categories = $this->categories_data[$product["Code"]]['categories']['category'];
+
+        if(count($categories) < 2){
+            $categories = ltrim($categories['@attributes']['path'], "/");
+            $categories = rtrim($categories, "/");
+            $categories = explode("/", $categories);
+        } 
+        else {
+            $categories_array = [];
+            foreach($categories as $category){
+                $category = ltrim($category['@attributes']['path'], "/");
+                $category = rtrim($category, "/");
+                $category = explode("/", $category);
+                $categories_array = array_merge($categories_array, $category);
+            }
+            $categories = $categories_array;
+        }
+
+        return $categories;
+    }
+
+    function create_product_categories($categories){
+        // Get the category ID
+        $product_categories = [];
+        foreach($categories as $category){
+            $category = $category = preg_replace("/-(?=-)/", "", $category);
+            
+
+            // This part is to add the products to the "Laptops and Tablets" category as requested
+            if($category == "notebooks-accessories" || $category == "tablets"){
+                $alt_cat = get_term_by('slug', "laptops-and-tablets", 'product_cat')->term_id;
+                if(isset($alt_cat)) array_push($product_categories, $alt_cat);
+            }
+            // Find the category
+            $cat = get_term_by('slug', $category, 'product_cat');
+            // Put category in a list of categories for the product
+            if(isset($cat->term_id)) array_push($product_categories, $cat->term_id);
+        }
+
+        return $product_categories;
+    }
+
+    function update_cost($existing_product, $product){
+        // Get the original cost price
+        $cost_price = smt_smart_feeds_get_meta_data('original', $existing_product);
+
+        if(!$cost_price) return;
+
+        $cost_price = floatval($cost_price['cost']);        
+
+        // The current cost price is not the same as the cost price from the feed
+        if($cost_price != floatval($product['SellingPrice'])){
+
+            $profit = getProfit($cost_price);
+            $tax = (floatval($this->tax_rate) + 100) / 100;
+
+            $custom_data = smt_smart_feeds_get_meta_data('custom', $existing_product);
+            $other_cost = floatval($custom_data['other_cost']);
+
+            $new_cost = floatval($product['SellingPrice']) + $other_cost;
+            $sellingPrice = calcSellingPrice($new_cost, $profit, $tax);
+
+            $existing_product->set_regular_price($sellingPrice);
+        }
+    }
+
+    function update_product_margin(){
+        
+    }
+
+    function update_stock($existing_product, $product){
+
+        // Get the current stock quantity
+        $stock_quantity = $existing_product->get_stock_quantity();
+
+        // The stock quantity is not the same
+        if(intval($stock_quantity) != intval($product['OnHand'])){
+            $existing_product->set_stock_quantity($product['OnHand']);
+        }
+
     }
 
     function get_wp_categories(){
@@ -344,8 +368,28 @@ class Rectron  {
         }
     }
 
-    function create_product($product_data, $product_id=0){
+    function get_margin($cost){
         $dynamic_margins = json_decode(get_option("smt_smart_feeds_dynamic_rules"));
+
+        // Return the base margin if there are no dynamic margins
+        if(count($dynamic_margins) < 1) $margin = $this->base_margin;
+
+        if($dynamic_margins){
+            foreach($dynamic_margins as $dynamic_margin){
+                $from = intval($dynamic_margin->more_than);
+                $to = intval($dynamic_margin->less_than);
+
+                // Check if the cost is between the range of the dynamic rule
+                if($cost > $from && $cost < $to){
+                    $margin = (intval($dynamic_margin->margin) + 100) / 100;
+                } 
+            }
+        }
+
+        return $margin;
+    }
+
+    function create_product($product_data, $product_id=0){
 
         // Create the product object to create or update the product
         $product = new WC_Product($product_id);
@@ -357,23 +401,8 @@ class Rectron  {
 
         // Calculate the price of the product
         $cost = floatval($product_data['regular_price']);
-        $margin = $this->base_margin;
 
-        if($dynamic_margins){
-            foreach($dynamic_margins as $dynamic_margin){
-                $from = intval($dynamic_margin->more_than);
-                $to = intval($dynamic_margin->less_than);
-
-                // Check if the cost is between the range of the dynamic rule
-                if($cost > $from && $cost < $to){
-                    $margin = (intval($dynamic_margin->margin) + 100) / 100;
-
-                } 
-            }
-        }else {
-            $margin = $this->base_margin;
-        }
-        
+        $margin = $this->get_margin($cost);
         $price_excl = $cost * $margin;
         $price_incl = $price_excl * ($this->tax_rate + 100) / 100;
 
@@ -407,10 +436,8 @@ class Rectron  {
             'margin_type' => 'percent'
         ]);
 
-        $product->update_meta_data('original', 
-        [
-            'cost' => $product_data['regular_price']
-        ]);
+        $product->update_meta_data('original', ['cost' => $product_data['regular_price']]);
+
         return $product->save();
 
     }

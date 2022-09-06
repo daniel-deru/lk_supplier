@@ -203,12 +203,23 @@ function smt_smart_feeds_get_custom_product_data(){
     wp_die();
 };
 
-// This is for the product image in the shop
-add_filter( 'post_thumbnail_html', 'thumbnail_external_replace', 10, PHP_INT_MAX );
+// This sets the product image in the store
 add_filter( 'woocommerce_product_get_image', 'thumbnail_external_replace', 10, PHP_INT_MAX );
-function thumbnail_external_replace( $html, $product ) {
-    $product = new WC_Product($product->get_id());
+function smart_feed_replace_woo_image($image, $product){
+    if(isset($product)) {
+        $images = $product->get_attributes();
+        $image = $images[0];
+    }
+    return $image;
+}
+
+
+// add_filter( 'post_thumbnail_html', 'thumbnail_external_replace', 10, PHP_INT_MAX );
+function thumbnail_external_replace( $html, $post_id ) {
+
+    $product = new WC_Product($post_id);
     $images = $product->get_attributes();
+
     if(isset($images['external_image'])){
         $images = $images['external_image']->get_options();
         return '<div style="
@@ -228,7 +239,6 @@ function thumbnail_external_replace( $html, $product ) {
     }
 
     return $html;
-
 }
 
 
