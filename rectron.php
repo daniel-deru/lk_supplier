@@ -12,7 +12,6 @@ class Rectron  {
     private $categories = "https://content.storefront7.co.za/stores/za.co.storefront7.rectron/xmlfeed/rectronfeed-637806849145434755.xml";
     private $attribute_name = "rectron";
     public $categories_data = null;
-    // private $woocommerce;
 
     // Class constructor function
     function __construct(){
@@ -153,6 +152,12 @@ class Rectron  {
         set_time_limit(0);
         ignore_user_abort(true);
 
+        // format('Products on feed: ' . count($products));
+        format('Existing Products: ' . count($existing_products));
+        $created_products = 0;
+        $product_count = 0;
+        $updated_products = 0;
+
         // Loop over the rectron feed products
         for($i = 0; $i < count($products); $i++){
            
@@ -185,18 +190,27 @@ class Rectron  {
                 'categories' => $product_categories
             );
 
+            $product_count++;
+
             $product_id = wc_get_product_id_by_sku( $product_data['sku'] );
+
             if(empty($product_id)){
                 // There is no product so create one
+                
                 $import_quantity = intval($product_data['stock_quantity']);
                 $minimum_required_quantity = intval(get_option('smt_smart_feeds_import_stock'));
-                if($import_quantity > $minimum_required_quantity && count($image_array) > 0) $this->create_product($product_data);
+                if($import_quantity > $minimum_required_quantity && count($image_array) > 0){
+                    $created_products++;
+                    $this->create_product($product_data);
+                } 
             }
             else {
                 // The product exists so check if it needs to be updated
+                $updated_products++;
+                if(!isset($existing_products[$product_data['sku']])) continue;
                 $existing_product = $existing_products[$product_data['sku']];
                 
-                $this->update_cost($existing_product, $products[$i]);
+                $this->update_price($existing_product, $products[$i]);
                 $this->update_stock($existing_product, $products[$i]);
 
                 $existing_product->save();
@@ -204,6 +218,10 @@ class Rectron  {
 
             $rectron_products[$products[$i]['Code']] = $product_data;
         }
+
+        format('Products created: ' . $created_products);
+        format('Products updated: ' . $updated_products);
+        // format('Skipped products : ' . (count($products) - $product_count));
         // Set the stock quantity to zero if the product is not in the $rectron_products array
         $this->delete_products($rectron_products, $existing_products);
     }
@@ -261,8 +279,9 @@ class Rectron  {
 
             // This part is to add the products to the "Laptops and Tablets" category as requested
             if($category == "notebooks-accessories" || $category == "tablets"){
-                $alt_cat = get_term_by('slug', "laptops-and-tablets", 'product_cat')->term_id;
-                if(isset($alt_cat)) array_push($product_categories, $alt_cat);
+                $alt_cat = get_term_by('slug', "laptops-and-tablets", 'product_cat');
+
+                if(isset($alt_cat->term_id)) array_push($product_categories, $alt_cat->term_id);
             }
             // Find the category
             $cat = get_term_by('slug', $category, 'product_cat');
@@ -273,32 +292,37 @@ class Rectron  {
         return $product_categories;
     }
 
-    function update_cost($existing_product, $product){
+    function update_price($existing_product, $product){
         // Get the original cost price
         $cost_price = smt_smart_feeds_get_meta_data('original', $existing_product);
 
         if(!$cost_price) return;
 
-        $cost_price = floatval($cost_price['cost']);        
+        $cost_price = floatval($cost_price['cost']);
+        
+        if($cost_price <= 0) return;
+        // Get the profit that should be applied
+        // $profit = getProfit($cost_price);
+        $tax = (floatval($this->tax_rate) + 100) / 100;
+
+        $custom_data = smt_smart_feeds_get_meta_data('custom', $existing_product);
+        $other_cost = floatval($custom_data['other_cost']);
+
+        // Get the current regular price and calculate the margin applied
+        $regular_price = floatval($existing_product->get_regular_price());
+        // Calc the margin on the product
+        $sale_price_excl = $regular_price / $tax;
+        $current_profit = round($sale_price_excl / $cost_price, 2);
+
+        $margin = $this->get_margin($cost_price);
+
+        $new_cost = floatval($product['SellingPrice']) + $other_cost;
 
         // The current cost price is not the same as the cost price from the feed
-        if($cost_price != floatval($product['SellingPrice'])){
-
-            $profit = getProfit($cost_price);
-            $tax = (floatval($this->tax_rate) + 100) / 100;
-
-            $custom_data = smt_smart_feeds_get_meta_data('custom', $existing_product);
-            $other_cost = floatval($custom_data['other_cost']);
-
-            $new_cost = floatval($product['SellingPrice']) + $other_cost;
-            $sellingPrice = calcSellingPrice($new_cost, $profit, $tax);
-
+        if($cost_price != floatval($product['SellingPrice']) || $margin != $current_profit){    
+            $sellingPrice = calcSellingPrice($new_cost, $margin, $tax);
             $existing_product->set_regular_price($sellingPrice);
         }
-    }
-
-    function update_product_margin(){
-        
     }
 
     function update_stock($existing_product, $product){
@@ -372,13 +396,12 @@ class Rectron  {
         $dynamic_margins = json_decode(get_option("smt_smart_feeds_dynamic_rules"));
 
         // Return the base margin if there are no dynamic margins
-        if(count($dynamic_margins) < 1) $margin = $this->base_margin;
+        $margin = $this->base_margin;
 
         if($dynamic_margins){
             foreach($dynamic_margins as $dynamic_margin){
                 $from = intval($dynamic_margin->more_than);
                 $to = intval($dynamic_margin->less_than);
-
                 // Check if the cost is between the range of the dynamic rule
                 if($cost > $from && $cost < $to){
                     $margin = (intval($dynamic_margin->margin) + 100) / 100;
@@ -399,7 +422,7 @@ class Rectron  {
         $product->set_description($product_data['description']);
         $product->set_short_description($product_data['short_description']);
 
-        // Calculate the price of the product
+        // // Calculate the price of the product
         $cost = floatval($product_data['regular_price']);
 
         $margin = $this->get_margin($cost);
@@ -437,8 +460,7 @@ class Rectron  {
         ]);
 
         $product->update_meta_data('original', ['cost' => $product_data['regular_price']]);
-
-        return $product->save();
+        $product->save();
 
     }
     

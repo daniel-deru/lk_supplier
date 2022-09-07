@@ -59,14 +59,32 @@ if(isset($_POST['save'])){
         'dynamic_rules' => get_option('smt_smart_feeds_dynamic_rules')
     ));
 
+    $time_start = microtime(true);
+    $mem_start = memory_get_usage(true);
+
     $rectron = new Rectron();
     $rectron->feed_loop();
+
+    $mem_end = memory_get_usage(true);
+    $time_end = microtime(true);
+
+    format('the process took: ' . ($time_end - $time_start) . " seconds");
+    format('the process took: ' . (($mem_end - $mem_start) / (1024 * 1024)) . " MB of memory");
 
 }
 
 if(isset($_POST['refresh'])){
+    $time_start = microtime(true);
+    $mem_start = memory_get_usage(true);
+
     $rectron = new Rectron();
     $rectron->feed_loop();
+
+    $mem_end = memory_get_usage(true);
+    $time_end = microtime(true);
+
+    format('the process took: ' . ($time_end - $time_start) . " seconds");
+    format('the process took: ' . (($mem_end - $mem_start) * (1024 * 1024)) . " MB of memory");
 }
 
 
