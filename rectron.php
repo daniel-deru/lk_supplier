@@ -16,7 +16,7 @@ class Rectron  {
     // Class constructor function
     function __construct(){
         // Get the feed URL from WP DB
-        $this->register_feed();
+        $this->onhand_feed = $this->register_feed();
         // This categories data is the data from the feed NOT the wordpress categories
         $this->categories_data = $this->get_categories();
         $this->tax_rate = floatval(get_option("smt_smart_feeds_tax_rate"));
@@ -29,8 +29,7 @@ class Rectron  {
         $feed = get_option("smt_smart_feeds_rectron_feed_onhand");
 
         if(!$feed) return;
-
-        if($this->verify($feed)) $this->onhand_feed = $feed;
+        if($this->verify($feed)) return $feed;
     }
     // Set the base margin from the wordpress options db
     function set_base_margin(){
@@ -53,15 +52,20 @@ class Rectron  {
         $products_array = [];
         $query_args = array(
             'post_type' => 'product',
-            'posts_per_page' => -1
+            'posts_per_page' => -1,
+            'fields' => 'ids'
         );
         $products = new WP_Query($query_args);
         if($products->have_posts()){
             while($products->have_posts()){
                 $products->the_post();
                 global $product;
+
                 $sku = $product->get_sku();
-                $products_array[$sku] = $product;
+                // This is another way to get the product sku
+                // $sku = get_post_meta( get_the_ID(), '_sku', true );
+                $products_array[$sku] = $product->get_id();
+                unset($product);
             }
         }
         return $products_array;
@@ -69,21 +73,10 @@ class Rectron  {
 
     // Main function to the the data from the onhand feed
     function get_data(){
-        if($this->onhand_feed){
-            $options = array(
-                'http' => array(
-                    'timeout' => 20
-                )
-            );
-            // $context = stream_context_create($options);
-                // $data = file_get_contents($this->onhand_feed, false, $context);
-            $data = curl_get_file_contents($this->onhand_feed);
-
-            $dirty_data = simplexml_load_string($data)->Value;
-            return $this->get_formated_data($dirty_data);
-        
-            
-        }
+        if(!$this->onhand_feed) return;
+        $data = curl_get_file_contents($this->onhand_feed);
+        $dirty_data = simplexml_load_string($data)->Value;
+        return $this->get_formated_data($dirty_data);
     }
 
     // Important this function must only run after the new feed has been compared to the old feed
@@ -99,21 +92,10 @@ class Rectron  {
     }
 
     function get_categories(){
-        if($this->categories){
-            $options = array(
-                'http' => array(
-                    'timeout' => 20
-                )
-            );
-            $context = stream_context_create($options);
-
-            // $data = file_get_contents($this->categories, false, $context);
-            $data = curl_get_file_contents($this->categories);
-
-            $dirty_data = simplexml_load_string($data)->products;
-            $this->xml_categories = $this->get_formated_categories($dirty_data);
-            return $this->xml_categories;
-        }
+        if(!$this->categories) return;
+        $data = curl_get_file_contents($this->categories);
+        $dirty_data = simplexml_load_string($data)->products;
+        return $this->get_formated_categories($dirty_data);
     }
 
     // This function is only callable from inside the class
@@ -135,14 +117,26 @@ class Rectron  {
         $formated_categories = array();
 
         foreach($dirty_data->product as $product){
+
+            // Remove unnecessary data
+            unset($product['shortName']);
+            unset($product['type']);
+            unset($product['shortDescription']);
+            unset($product['fullDescription']);
+            unset($product->manufacturer);
+
+
             $json_product = json_encode($product);
             $array_product = json_decode($json_product, true);
+
             $formated_categories[(string)$product['fullName']] = $array_product;
         }
         return $formated_categories;
+    
     }
 
     function feed_loop(){
+        wp_suspend_cache_addition(true);
         // Get the latest data from the onhand feed
         $products = $this->get_data();
 
@@ -158,9 +152,9 @@ class Rectron  {
         $product_count = 0;
         $updated_products = 0;
 
-        // Loop over the rectron feed products
+        // // Loop over the rectron feed products
         for($i = 0; $i < count($products); $i++){
-           
+
             $has_data = isset($this->categories_data[$products[$i]["Code"]]);
             $has_pictures = isset($this->categories_data[$products[$i]["Code"]]['pictures']);
             $has_categories = isset($this->categories_data[$products[$i]["Code"]]['categories']);
@@ -176,7 +170,7 @@ class Rectron  {
 
             // This will be added to the product data
             $product_categories = $this->create_product_categories($categories);
-            
+            unset($categories);
 
             $product_data = array(
                 'name' => $products[$i]['Title'],
@@ -189,34 +183,51 @@ class Rectron  {
                 'images' => $image_array,
                 'categories' => $product_categories
             );
-
+            unset($product_categories);
             $product_count++;
 
-            $product_id = wc_get_product_id_by_sku( $product_data['sku'] );
-
-            if(empty($product_id)){
+            if(!isset($existing_products[$product_data['sku']])){
                 // There is no product so create one
-                
                 $import_quantity = intval($product_data['stock_quantity']);
                 $minimum_required_quantity = intval(get_option('smt_smart_feeds_import_stock'));
                 if($import_quantity > $minimum_required_quantity && count($image_array) > 0){
+                    unset($image_array);
+                    unset($import_quantity);
+                    unset($minimum_required_quantity);
                     $created_products++;
-                    $this->create_product($product_data);
+                    try{
+                        $this->create_product($product_data);
+                    }
+                    catch (Exception $e) {
+                        $created_products--;
+
+                        $myfile = fopen("errors.txt", "a");
+                        $date = date('Y-m-d H:i:s');
+
+                        fwrite($myfile, $date . "\n");
+                        fwrite($myfile, $e . "\n");
+                        fwrite($myfile, "There was an error creating  product. This product already exists: " . $product_data['sku'] . "\n");
+                        fwrite($myfile, !isset($existing_products[$product_data['sku']]));
+                    }
                 } 
             }
             else {
                 // The product exists so check if it needs to be updated
                 $updated_products++;
                 if(!isset($existing_products[$product_data['sku']])) continue;
-                $existing_product = $existing_products[$product_data['sku']];
+                $product_id = $existing_products[$product_data['sku']];
+                $current_product = wc_get_product($product_id);
                 
-                $this->update_price($existing_product, $products[$i]);
-                $this->update_stock($existing_product, $products[$i]);
+                $this->update_price($current_product, $products[$i]);
+                $this->update_stock($current_product, $products[$i]);
 
-                $existing_product->save();
+                $current_product->save();
+                unset($product_id);
+                unset($current_product);
             }
 
             $rectron_products[$products[$i]['Code']] = $product_data;
+            unset($product_data);
         }
 
         format('Products created: ' . $created_products);
@@ -224,6 +235,7 @@ class Rectron  {
         // format('Skipped products : ' . (count($products) - $product_count));
         // Set the stock quantity to zero if the product is not in the $rectron_products array
         $this->delete_products($rectron_products, $existing_products);
+        unset($existing_products);
     }
 
     function create_image_array($product){
@@ -292,7 +304,7 @@ class Rectron  {
         return $product_categories;
     }
 
-    function update_price($existing_product, $product){
+    function update_price(&$existing_product, &$product){
         // Get the original cost price
         $cost_price = smt_smart_feeds_get_meta_data('original', $existing_product);
 
@@ -325,7 +337,7 @@ class Rectron  {
         }
     }
 
-    function update_stock($existing_product, $product){
+    function update_stock(&$existing_product, &$product){
 
         // Get the current stock quantity
         $stock_quantity = $existing_product->get_stock_quantity();
@@ -337,9 +349,8 @@ class Rectron  {
 
     }
 
-    function get_wp_categories(){
+    function get_wp_categories(&$categories_array){
         // Array for the cleaned categories after they have been converted from WP_Term Object
-        $categories_array = [];
         $categories = get_terms(['taxonomy' => 'product_cat', 'hide_empty' => false]);
         foreach($categories as $category){
             array_push($categories_array, $category->to_array());
@@ -352,7 +363,7 @@ class Rectron  {
         // Array for unique values to keep track of which categories have been added
         $categories_array = array();
 
-        $existing_categories = convert_existing_categories($this->get_wp_categories());
+        $existing_categories = convert_existing_categories($this->get_wp_categories($categories_array));
 
         foreach($this->categories_data as $i => $category){
             if(isset($category['categories']['category'])){
@@ -375,9 +386,10 @@ class Rectron  {
 
     }
     // Set the stock quantity to 0 if the product is no longer onhand
-    function delete_products($rectron_products, &$existing_products){
+    function delete_products($rectron_products, &$existing_product_ids){
         // loop over the existing products
-        foreach($existing_products as $existing_product){
+        foreach($existing_product_ids as $existing_product_id){
+            $existing_product = wc_get_product($existing_product_id);
             $sku = $existing_product->get_sku();
             $attributes = $existing_product->get_attributes();
 
@@ -413,7 +425,6 @@ class Rectron  {
     }
 
     function create_product($product_data, $product_id=0){
-
         // Create the product object to create or update the product
         $product = new WC_Product($product_id);
 
