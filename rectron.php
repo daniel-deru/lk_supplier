@@ -190,25 +190,13 @@ class Rectron  {
                 // There is no product so create one
                 $import_quantity = intval($product_data['stock_quantity']);
                 $minimum_required_quantity = intval(get_option('smt_smart_feeds_import_stock'));
+
                 if($import_quantity > $minimum_required_quantity && count($image_array) > 0){
                     unset($image_array);
                     unset($import_quantity);
                     unset($minimum_required_quantity);
                     $created_products++;
-                    try{
-                        $this->create_product($product_data);
-                    }
-                    catch (Exception $e) {
-                        $created_products--;
-
-                        $myfile = fopen("errors.txt", "a");
-                        $date = date('Y-m-d H:i:s');
-
-                        fwrite($myfile, $date . "\n");
-                        fwrite($myfile, $e . "\n");
-                        fwrite($myfile, "There was an error creating  product. This product already exists: " . $product_data['sku'] . "\n");
-                        fwrite($myfile, !isset($existing_products[$product_data['sku']]));
-                    }
+                    $this->create_product($product_data);
                 } 
             }
             else {
@@ -232,7 +220,6 @@ class Rectron  {
 
         format('Products created: ' . $created_products);
         format('Products updated: ' . $updated_products);
-        // format('Skipped products : ' . (count($products) - $product_count));
         // Set the stock quantity to zero if the product is not in the $rectron_products array
         $this->delete_products($rectron_products, $existing_products);
         unset($existing_products);
@@ -424,11 +411,17 @@ class Rectron  {
         return $margin;
     }
 
-    function create_product($product_data, $product_id=0){
+    function create_product(&$product_data, $product_id=0){
         // Create the product object to create or update the product
         $product = new WC_Product($product_id);
 
-        $product->set_sku($product_data['sku']);
+        try {
+            $product->set_sku($product_data['sku']);
+        }
+        catch (Exception $e) {
+            return;
+        }
+
         $product->set_name($product_data['name']);
         $product->set_description($product_data['description']);
         $product->set_short_description($product_data['short_description']);
@@ -439,6 +432,10 @@ class Rectron  {
         $margin = $this->get_margin($cost);
         $price_excl = $cost * $margin;
         $price_incl = $price_excl * ($this->tax_rate + 100) / 100;
+
+        unset($cost);
+        unset($margin);
+        unset($price_excl);
 
         $product->set_regular_price($price_incl);
         $product->set_manage_stock(true);
@@ -462,6 +459,9 @@ class Rectron  {
 
         $product->set_attributes(array($image_attribute, $rectron_attribute));
 
+        unset($image_attribute);
+        unset($rectron_attribute);
+
         $product->update_meta_data('custom', 
         [
             'skip' => 0, 
@@ -469,10 +469,13 @@ class Rectron  {
             'margin' => ($this->getProductMargin($price_incl) * 100) - 100,  
             'margin_type' => 'percent'
         ]);
+        unset($price_incl);
 
         $product->update_meta_data('original', ['cost' => $product_data['regular_price']]);
         $product->save();
 
+        // Clean up the data after use
+        unset($product);
     }
     
     function getProductMargin($productPrice){
