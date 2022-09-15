@@ -15,15 +15,15 @@ require_once "print.php";
         - $categories --> from the rectron feed
         - $unique_categories --> associative array for filtering out copies
         - $existing_categories --> all the current categories in wordpress
-        - $woocommerce --> woocommerce api object not used anymore
 
 */
 function register_category($categories, &$unique_categories, $existing_categories){
     if(count($categories) <= 1) return;
     $category_id = null;
-
+    
     foreach($categories as $category){
         $category = preg_replace("/-(?=-)/", "", $category);
+        // Check if the categories already exists in wordpress
         if(isset($existing_categories[$category])){
             $category_id = $existing_categories[$category]['term_id'];
             continue;

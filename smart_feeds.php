@@ -145,7 +145,7 @@ function smt_smart_feeds_get_custom_product_data(){
             if($meta->get_data()['key'] == 'custom') $custom_meta = $meta->get_data()['value'];
         }
         // All the product attributes
-        format($custom_meta);
+        // format($custom_meta);
 
 
         $product_price = floatval($product->get_price());
@@ -193,8 +193,8 @@ function smt_smart_feeds_get_custom_product_data(){
 
         $product_price_including = $cost * $product_tax;
        
-        format($custom_meta);
-        format($product_price_including);
+        // format($custom_meta);
+        // format($product_price_including);
         $product->update_meta_data('custom', $custom_meta);
 
         $product->set_regular_price($product_price_including);
@@ -220,25 +220,42 @@ function thumbnail_external_replace( $html, $post_id ) {
     $product = new WC_Product($post_id);
     $images = $product->get_attributes();
 
-    if(isset($images['external_image'])){
-        $images = $images['external_image']->get_options();
-        return '<div style="
-            width: 300px; 
-            height: 300px;
-            margin: auto;
-            display: flex; 
-            justify-content: center;
-            align-items: center;">
-                <img style="
-                    max-height: 300px;
-                    width: auto; 
-                    aspect-ratio: auto; 
-                    overflow: hidden;
-                    margin: auto;" src="' . esc_url( $images[0] ) . '" class="attachment-woocommerce_thumbnail size-woocommerce_thumbnail" alt="" loading="lazy" />
-            </div>';
-    }
+    if(!isset($images['external_image'])) return $html;
 
-    return $html;
+    $images = $images['external_image']->get_options();
+    
+    if(!isset($images[0])) return $html;
+
+    $current_user = wp_get_current_user();
+    if(user_can($current_user, "administrator")) {
+        return '<div style="
+        margin: auto;
+        display: flex; 
+        justify-content: center;
+        align-items: center;">
+            <img style="
+                max-height: 300px;
+                width: auto; 
+                aspect-ratio: auto; 
+                overflow: hidden;
+                margin: auto;" src="' . esc_url( $images[0] ) . '" class="attachment-woocommerce_thumbnail size-woocommerce_thumbnail" alt="" loading="lazy" />
+        </div>';
+    }
+    
+    return '<div style="
+        width: 300px; 
+        height: 300px;
+        margin: auto;
+        display: flex; 
+        justify-content: center;
+        align-items: center;">
+            <img style="
+                max-height: 300px;
+                width: auto; 
+                aspect-ratio: auto; 
+                overflow: hidden;
+                margin: auto;" src="' . esc_url( $images[0] ) . '" class="attachment-woocommerce_thumbnail size-woocommerce_thumbnail" alt="" loading="lazy" />
+        </div>';
 }
 
 

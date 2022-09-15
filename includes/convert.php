@@ -5,7 +5,7 @@ function WCConvert ($products){
 };
 
 function convert_existing_categories($categories){
-    return array_column($categories, null, 'name');
+    return array_column($categories, null, 'slug');
 }
 
 function calcCostPrice($price_incl, $tax, $profit){

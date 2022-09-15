@@ -136,6 +136,7 @@ class Rectron  {
     }
 
     function feed_loop(){
+        $mem_start = memory_get_usage(true);
         wp_suspend_cache_addition(true);
         // Get the latest data from the onhand feed
         $products = $this->get_data();
@@ -146,31 +147,33 @@ class Rectron  {
         set_time_limit(0);
         ignore_user_abort(true);
 
-        // format('Products on feed: ' . count($products));
-        format('Existing Products: ' . count($existing_products));
+        echo 'Existing Products: ' . count($existing_products) . "\n";
         $created_products = 0;
         $product_count = 0;
         $updated_products = 0;
 
+        $mem_end = memory_get_usage(true);
+        echo 'memory used by feed loop: ' . (($mem_end - $mem_start) / (1024 * 1024)) . " MB\n";
+
         // // Loop over the rectron feed products
         for($i = 0; $i < count($products); $i++){
 
-            $has_data = isset($this->categories_data[$products[$i]["Code"]]);
-            $has_pictures = isset($this->categories_data[$products[$i]["Code"]]['pictures']);
-            $has_categories = isset($this->categories_data[$products[$i]["Code"]]['categories']);
-
             // Skip this product if there is insufficient data
-            if(!$has_data || !$has_categories || ! $has_pictures) continue;
+            if(!isset($this->categories_data[$products[$i]["Code"]])) continue;
             
             // This will be added to the product data
             $image_array = $this->create_image_array($products[$i]);
+            
+            // Don't add product if there is no image 
+            // WARNING: Adding products without image will throw error since images are hosted on rectron server
+            if(count($image_array) < 1) continue;
 
             // This will be used to create the list of categories that will be added to the product data
             $categories = $this->get_feed_categories($products[$i]);
 
             // This will be added to the product data
             $product_categories = $this->create_product_categories($categories);
-            unset($categories);
+            
 
             $product_data = array(
                 'name' => $products[$i]['Title'],
@@ -183,7 +186,7 @@ class Rectron  {
                 'images' => $image_array,
                 'categories' => $product_categories
             );
-            unset($product_categories);
+
             $product_count++;
 
             if(!isset($existing_products[$product_data['sku']])){
@@ -191,7 +194,7 @@ class Rectron  {
                 $import_quantity = intval($product_data['stock_quantity']);
                 $minimum_required_quantity = intval(get_option('smt_smart_feeds_import_stock'));
 
-                if($import_quantity > $minimum_required_quantity && count($image_array) > 0){
+                if($import_quantity > $minimum_required_quantity){
                     unset($image_array);
                     unset($import_quantity);
                     unset($minimum_required_quantity);
@@ -201,13 +204,14 @@ class Rectron  {
             }
             else {
                 // The product exists so check if it needs to be updated
-                $updated_products++;
                 if(!isset($existing_products[$product_data['sku']])) continue;
+
                 $product_id = $existing_products[$product_data['sku']];
                 $current_product = wc_get_product($product_id);
                 
                 $this->update_price($current_product, $products[$i]);
                 $this->update_stock($current_product, $products[$i]);
+                $updated_products++;
 
                 $current_product->save();
                 unset($product_id);
@@ -216,17 +220,19 @@ class Rectron  {
 
             $rectron_products[$products[$i]['Code']] = $product_data;
             unset($product_data);
+            unset($categories);
+            unset($product_categories);
         }
-
-        format('Products created: ' . $created_products);
-        format('Products updated: ' . $updated_products);
+        echo 'Products created: ' . $created_products . "\n";
+        echo 'Products updated: ' . $updated_products . "\n";
         // Set the stock quantity to zero if the product is not in the $rectron_products array
         $this->delete_products($rectron_products, $existing_products);
         unset($existing_products);
     }
 
     function create_image_array($product){
-
+        // If there are no images then return empty array
+        if(!isset($this->categories_data[$product["Code"]]['pictures'])) return array();
         // Get the images from the category feed
         $images = $this->categories_data[$product["Code"]]['pictures']['picture'];
         $image_array = [];
@@ -246,7 +252,8 @@ class Rectron  {
     }
 
     function get_feed_categories($product){
-
+        // If there is no category return this array
+        if(!isset($this->categories_data[$product["Code"]]['categories'])) return array();
         // Get the categories from the category feed
         $categories = $this->categories_data[$product["Code"]]['categories']['category'];
 
@@ -272,6 +279,14 @@ class Rectron  {
     function create_product_categories($categories){
         // Get the category ID
         $product_categories = [];
+
+        // Return the generic category if there are no categories
+        if(count($categories) < 1){
+            $cat = get_term_by('slug', 'miscellaneous', 'product_cat');
+            if(isset($cat->term_id)) array_push($product_categories, $cat->term_id);
+            return $product_categories;
+        }
+
         foreach($categories as $category){
             $category = $category = preg_replace("/-(?=-)/", "", $category);
             
@@ -282,6 +297,7 @@ class Rectron  {
 
                 if(isset($alt_cat->term_id)) array_push($product_categories, $alt_cat->term_id);
             }
+
             // Find the category
             $cat = get_term_by('slug', $category, 'product_cat');
             // Put category in a list of categories for the product
@@ -347,11 +363,16 @@ class Rectron  {
     }
     // Loop through the XML feed and get the categories
     function create_categories(){
+
+        wp_insert_term("Miscellaneous", "product_cat", array(
+            'parent' => 0,
+            'slug' => 'miscellaneous'
+        ));
         // Array for unique values to keep track of which categories have been added
         $categories_array = array();
 
         $existing_categories = convert_existing_categories($this->get_wp_categories($categories_array));
-
+ 
         foreach($this->categories_data as $i => $category){
             if(isset($category['categories']['category'])){
                 $cat = $category['categories']['category'];

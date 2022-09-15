@@ -7,7 +7,7 @@ function run_with_lock($run_task){
     $lock_file_stream = fopen($lock_file, "w+");
 
     if(!flock($lock_file_stream,  LOCK_EX | LOCK_NB)){
-        format("Cron Job skipped because the previous job didn;t finish yet");
+        echo "<h4>Cron Job skipped because the previous job didn't finish yet</h4>";
         return;
     }
 
