@@ -10,7 +10,7 @@ require_once 'config.php';
 
 class Rectron  {
     private $onhand_feed;
-    private $categories = "https://content.storefront7.co.za/stores/za.co.storefront7.rectron/xmlfeed/rectronfeed-637806849145434755.xml";
+    private static $categories = "https://content.storefront7.co.za/stores/za.co.storefront7.rectron/xmlfeed/rectronfeed-637806849145434755.xml";
     private $attribute_name = "rectron";
     public $categories_data = null;
 
@@ -72,6 +72,20 @@ class Rectron  {
         return $products_array;
     }
 
+    public static function getCategories(){
+        if(!Rectron::$categories) return;
+
+        $data = curl_get_file_contents(Rectron::$categories);
+        $dirty_data = simplexml_load_string($data)->products;
+
+        foreach($dirty_data->product as $product){
+            $dataArr = json_decode(json_encode($product->categories->category), true);
+
+            $categoryTree = explode("/", $dataArr['@attributes']['path']);
+            array_shift($categoryTree);
+        }
+    }
+
     // Main function to the the data from the onhand feed
     function get_data(){
         if(!$this->onhand_feed) return;
@@ -93,8 +107,8 @@ class Rectron  {
     }
 
     function get_categories(){
-        if(!$this->categories) return;
-        $data = curl_get_file_contents($this->categories);
+        if(Rectron::$categories) return;
+        $data = curl_get_file_contents(Rectron::$categories);
         $dirty_data = simplexml_load_string($data)->products;
         return $this->get_formated_categories($dirty_data);
     }

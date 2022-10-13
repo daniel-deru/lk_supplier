@@ -32,8 +32,12 @@ if(isset($_POST['save'])){
 
     if(isset($_POST['syntech'])){
         $syntech_feed = sanitize_url($_POST['syntech']);
-        $syntech_feed_regex = "/^https:\/\/www.syntech.co.za/feeds/feedhandler.php?key=.*/";
-        if(preg_match($syntech_feed_regex, $syntech_feed)) update_option("smt_smart_feeds_syntech_feed", $_POST['syntech']);
+        // $syntech_feed_regex = "/^https:\/\/www.syntech.co.za\/feeds\/feedhandler.php?key=.*/";
+        $syntech_feed_regex = "/^https:\/\/www\.syntech\.co\.za\/feeds\/feedhandler\.php\?key=([0-9-A-Z&])+feed=syntech-xml-full/";
+        
+        if(preg_match($syntech_feed_regex, $syntech_feed)){
+            update_option("smt_smart_feeds_syntech_feed", $_POST['syntech']);
+        }
     }
 
     if(isset($_POST['base_margin'])){

@@ -18,7 +18,7 @@ require_once "config.php";
 
 register_activation_hook(__FILE__, 'check_plugin_activation');
 
-
+// Configure options
 function check_plugin_activation(){
     // Settings for the plugin
     // Add options for the feeds
@@ -39,12 +39,12 @@ function check_plugin_activation(){
 }
 
 
-
+// Add Admin menu
 add_action("admin_menu", "MenuSetup");
 
 // Create Menu Page
 function MenuSetup(){
-    // add_menu_page("WP Smart Feed", "Smart Feed", 'manage_options', __FILE__, "WP_Smart_Feeds_Admin_Page");
+    
     add_menu_page( 
         "Smart Feed", 
         "Smart Feed", 
@@ -61,6 +61,15 @@ function MenuSetup(){
         "smt_smart_feeds_product_settings", // This is the page name
         "smt_smart_feed_admin_product_settings" 
     );
+
+    add_submenu_page(
+        'smt_smart_feeds_main_settings',
+        "Categories",
+        "Categories",
+        "manage_options",
+        "smt_smart_feeds_category_settings",
+        "smt_smart_feed_admin_category_settings"
+    );
 }
 
 // Callback to load the main menu page
@@ -73,6 +82,12 @@ function WP_Smart_Feeds_Admin_Page(){
 function smt_smart_feed_admin_product_settings(){
     if (!current_user_can('manage_options')) return wp_die(__("You don't have access to this page"));
     require_once("menus/products.php");
+
+}
+
+function smt_smart_feed_admin_category_settings(){
+    if (!current_user_can('manage_options')) return wp_die(__("You don't have access to this page"));
+    require_once("menus/categories.php");
 }
 
 //  Add admin styles and scripts
@@ -95,6 +110,11 @@ function smt_lk_supplier_scripts(){
         if($page === "smt_smart_feeds_product_settings"){
             wp_enqueue_style("smt_smart_feeds_style_product_style", plugins_url("/public/css/products.css", __FILE__));
             wp_enqueue_script("smt_smart_feeds_products_script", plugins_url("/public/js/smt_product_feed.js", __FILE__), array('jquery'), false, true);
+        }
+
+        if($page === "smt_smart_feeds_category_settings"){
+            wp_enqueue_style("smt_smart_feeds_style_category_style", plugins_url("/public/css/categories.css", __FILE__));
+            // wp_enqueue_script("smt_smart_feeds_products_script", plugins_url("/public/js/smt_product_feed.js", __FILE__), array('jquery'), false, true);
         }
 
     }
