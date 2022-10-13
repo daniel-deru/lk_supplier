@@ -1,4 +1,5 @@
 <?php
+include_once dirname(plugin_dir_path(__FILE__)) . "/config.php";
 
 function smt_smart_feeds_get_meta_data($key, &$product){
    $meta_data = $product->get_meta_data();
@@ -19,8 +20,8 @@ function calcSellingPrice($cost,  $profit, $tax){
 
 // calculate the profit that needs to be applied
 function getProfit($cost){
-    $dynamic_margins = json_decode(get_option("smt_smart_feeds_dynamic_rules"));
-    $base_margin = floatval(get_option("smt_smart_feeds_base_margin"));
+    $dynamic_margins = json_decode(get_option(DYNAMIC_RULES));
+    $base_margin = floatval(get_option(BASE_MARGIN));
 
     if(isset($base_margin)) $base_margin = ($base_margin + 100) / 100;
     else $base_margin = 1;

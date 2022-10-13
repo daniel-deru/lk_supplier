@@ -6,6 +6,7 @@ require_once 'includes/print.php';
 require_once 'includes/categories.php';
 require_once 'includes/product.php';
 require_once 'includes/curl.php';
+require_once 'config.php';
 
 class Rectron  {
     private $onhand_feed;
@@ -19,21 +20,21 @@ class Rectron  {
         $this->onhand_feed = $this->register_feed();
         // This categories data is the data from the feed NOT the wordpress categories
         $this->categories_data = $this->get_categories();
-        $this->tax_rate = floatval(get_option("smt_smart_feeds_tax_rate"));
+        $this->tax_rate = floatval(get_option(TAX_RATE));
         $this->create_categories();
         $this->base_margin = $this->set_base_margin();
     }
 
     // Called in the constructor to get the feed url
     function register_feed(){
-        $feed = get_option("smt_smart_feeds_rectron_feed_onhand");
+        $feed = get_option(RECTRON_ONHAND_URL);
 
         if(!$feed) return;
         if($this->verify($feed)) return $feed;
     }
     // Set the base margin from the wordpress options db
     function set_base_margin(){
-        $base_margin = intval(get_option("smt_smart_feeds_base_margin"));
+        $base_margin = intval(get_option(BASE_MARGIN));
 
         if(isset($base_margin)) $base_margin = ($base_margin + 100) / 100;
         else $base_margin = 1;
@@ -136,7 +137,6 @@ class Rectron  {
     }
 
     function feed_loop(){
-        $mem_start = memory_get_usage(true);
         wp_suspend_cache_addition(true);
         // Get the latest data from the onhand feed
         $products = $this->get_data();
@@ -152,28 +152,24 @@ class Rectron  {
         $product_count = 0;
         $updated_products = 0;
 
-        $mem_end = memory_get_usage(true);
-        echo 'memory used by feed loop: ' . (($mem_end - $mem_start) / (1024 * 1024)) . " MB\n";
-
         // // Loop over the rectron feed products
         for($i = 0; $i < count($products); $i++){
 
             // Skip this product if there is insufficient data
-            if(!isset($this->categories_data[$products[$i]["Code"]])) continue;
+            // if(!isset($this->categories_data[$products[$i]["Code"]])) continue;
             
             // This will be added to the product data
             $image_array = $this->create_image_array($products[$i]);
             
             // Don't add product if there is no image 
             // WARNING: Adding products without image will throw error since images are hosted on rectron server
-            if(count($image_array) < 1) continue;
+            // if(count($image_array) < 1) continue;
 
             // This will be used to create the list of categories that will be added to the product data
             $categories = $this->get_feed_categories($products[$i]);
 
             // This will be added to the product data
             $product_categories = $this->create_product_categories($categories);
-            
 
             $product_data = array(
                 'name' => $products[$i]['Title'],
@@ -223,6 +219,8 @@ class Rectron  {
             unset($categories);
             unset($product_categories);
         }
+
+
         echo 'Products created: ' . $created_products . "\n";
         echo 'Products updated: ' . $updated_products . "\n";
         // Set the stock quantity to zero if the product is not in the $rectron_products array
@@ -368,6 +366,10 @@ class Rectron  {
             'parent' => 0,
             'slug' => 'miscellaneous'
         ));
+        wp_insert_term("No Image", "product_cat", array(
+            'parent' => 0,
+            'slug' => 'no_image'
+        ));
         // Array for unique values to keep track of which categories have been added
         $categories_array = array();
 
@@ -413,7 +415,7 @@ class Rectron  {
     }
 
     function get_margin($cost){
-        $dynamic_margins = json_decode(get_option("smt_smart_feeds_dynamic_rules"));
+        $dynamic_margins = json_decode(get_option(DYNAMIC_RULES));
 
         // Return the base margin if there are no dynamic margins
         $margin = $this->base_margin;
@@ -461,6 +463,13 @@ class Rectron  {
         $product->set_regular_price($price_incl);
         $product->set_manage_stock(true);
         $product->set_stock_quantity($product_data['stock_quantity']);
+        
+        // Add product to the no image category if there is no image
+        if(count($product_data['images']) < 1){
+            $cat = get_term_by('slug', 'no_image', 'product_cat');
+            if(isset($cat->term_id)) array_push($product_data['categories'], $cat->term_id);
+        }
+
         $product->set_category_ids($product_data['categories']);
         $product->set_tax_class("Feed Tax");
 
@@ -500,8 +509,8 @@ class Rectron  {
     }
     
     function getProductMargin($productPrice){
-        $dynamic_margins = json_decode(get_option("smt_smart_feeds_dynamic_rules"));
-        $base_margin = intval(get_option("smt_smart_feeds_base_margin"));
+        $dynamic_margins = json_decode(get_option(DYNAMIC_RULES));
+        $base_margin = intval(get_option(BASE_MARGIN));
 
         $margin = $base_margin;
 

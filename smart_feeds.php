@@ -14,24 +14,27 @@ Author URI: https://smartmetatec.com
 require_once "rectron.php";
 require_once "includes/tax_classes.php";
 require_once "includes/convert.php";
+require_once "config.php";
 
 register_activation_hook(__FILE__, 'check_plugin_activation');
 
 
 function check_plugin_activation(){
-    // Required to interact with woocommerce
-    // if(!get_option("smt_smart_feeds_consumer_key")) add_option("smt_smart_feeds_consumer_key", "". "", "yes");
-    // if(!get_option("smt_smart_feeds_consumer_secret")) add_option("smt_smart_feeds_consumer_secret", "". "", "yes");
-
     // Settings for the plugin
-    if(!get_option("smt_smart_feeds_rectron_feed_onhand")) add_option("smt_smart_feeds_rectron_feed_onhand", "", "", "yes");
-    if(!get_option("smt_smart_feeds_base_margin")) add_option("smt_smart_feeds_base_margin", "", "", "yes");
-    if(!get_option("smt_smart_feeds_interval")) add_option("smt_smart_feeds_interval", "", "", "yes");
-    if(!get_option("smt_smart_feeds_tax_rate")) add_option("smt_smart_feeds_tax_rate", 15);
-    if(!get_option("smt_smart_feeds_import_stock")) add_option("smt_smart_feeds_import_stock", 0);
+    // Add options for the feeds
+    if(!get_option(RECTRON_ONHAND_URL)) add_option(RECTRON_ONHAND_URL, "", "", "yes");
+    if(!get_option(SYNTECH_URL)) add_option(SYNTECH_URL, "", "", "yes");
 
-    if(!get_option('smt_smart_feeds_exclude_products')) add_option('smt_smart_feeds_exclude_products');
-    if(!get_option('smt_smart_feeds_dynamic_rules')) add_option('smt_smart_feeds_dynamic_rules', json_encode([]));
+    // Set generic data
+    if(!get_option(BASE_MARGIN)) add_option(BASE_MARGIN, "", "", "yes");
+    if(!get_option(TAX_RATE)) add_option(TAX_RATE, 15);
+    if(!get_option(IMPORT_STOCK)) add_option(IMPORT_STOCK, 0);
+
+    // Advanced data for more fine control
+    if(!get_option(EXCLUDE_PRODUCTS)) add_option(EXCLUDE_PRODUCTS);
+    if(!get_option(DYNAMIC_RULES)) add_option(DYNAMIC_RULES, json_encode([]));
+
+    if(!get_option(CATEGORIES)) add_option(CATEGORIES);
 
 }
 

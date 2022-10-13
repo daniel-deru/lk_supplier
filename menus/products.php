@@ -4,11 +4,12 @@
     include_once  dirname(plugin_dir_path(__FILE__)) . "/includes/print.php";
     include_once dirname(plugin_dir_path(__FILE__)) . "/includes/convert.php";
     include_once dirname(plugin_dir_path(__FILE__)) . "/includes/product.php";
+    include_once dirname(plugin_dir_path(__FILE__)) . "/config.php";
 
 
 // $categoryList = json_decode($smt_smart_feeds_listCategories(), true);
 // $productList = json_decode($smt_smart_feeds_listProducts(), true);
-$tax = (intval(get_option("smt_smart_feeds_tax_rate")) + 100) / 100;
+$tax = (intval(get_option(TAX_RATE)) + 100) / 100;
 $rectron = new Rectron();
 // Things that I need to display the products on screen
 /*
